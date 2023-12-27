@@ -16,7 +16,7 @@ class Phim extends Model
             'id_loai_phim',
             'url',
             'id_the_loai',
-            'tinh_trang_yeu_thich',
+            'id_tac_gia',
             'tinh_trang',
     ];
 
