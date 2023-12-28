@@ -4,62 +4,185 @@ namespace App\Http\Controllers;
 
 use App\Models\KhachHang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Jenssegers\Agent\Agent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class KhachHangController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function getData()
     {
-        //
+        $data   = KhachHang::select('khach_hangs.*')
+                         ->get(); // get là ra 1 danh sách
+        return response()->json([
+            'khach_hang'  =>  $data,
+        ]);
+    }
+    public function taoKhachHang(Request $request)
+    {
+        try {
+            KhachHang::create([
+                'email'                 =>$request->email,
+                'ho_va_ten'             =>$request->ho_va_ten,
+                'password'              =>bcrypt($request->password),
+                'hinh_anh'              =>$request->hinh_anh,
+                ]);
+                return response()->json([
+                    'status'   => true ,
+                    'message'  => 'Bạn thêm khách hàng thành công!',
+                ]);
+        } catch (ExceptionEvent $e) {
+                return response()->json([
+                    'status'     => false,
+                    'message'    => 'Xoá khách hàng không thành công!!'
+                ]);
+        }
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+     public function timKhachHang(Request $request)
     {
-        //
+        $key    = '%'. $request->key . '%';
+        $data   = KhachHang::select('khach_hangs.*')
+                    ->where('ho_va_ten', 'like', $key)
+                    ->get(); // get là ra 1 danh sách
+        return response()->json([
+        'khach_hang'  =>  $data,
+        ]);
+    }
+    public function xoaKhachHang($id)
+    {
+        try {
+            KhachHang::where('id', $id)->delete();
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã xoá khách hàng thành công!!'
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá khách hàng không thành công!!'
+            ]);
+
+        }
+
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function capnhatKhachHang(Request $request)
     {
-        //
+        try {
+            KhachHang::where('id', $request->id)
+                    ->update([
+                        'email'                 =>$request->email,
+                        'ho_va_ten'             =>$request->ho_va_ten,
+                        'password'              =>($request->password),
+                        'hinh_anh'              =>$request->hinh_anh,
+                    ]);
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã Cập Nhật thành ' . $request->email,
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập Nhật Admin không thành công!!'
+            ]);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(KhachHang $khachHang)
+
+    public function login(Request $request)
     {
-        //
+        $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->password, ]);
+        if ($check) {
+            $user = Auth::guard('khach_hang')->user();
+            return response()->json([
+                'message'   => 'Đăng Nhập thành công!!',
+                'status'    => true,
+                'token'     => $user->createToken('api-token-khach')->plainTextToken,
+
+            ]);
+        }
+        else {
+            return response()->json([
+                'message'   => 'Đăng Nhập không  thành công!!',
+                'status'    => 'false'
+            ]);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(KhachHang $khachHang)
+    public function register(Request $request)
     {
-        //
+        KhachHang::create([
+            'email'         => $request->email,
+            'ho_va_ten'     => $request->ho_va_ten,
+            'password'      => bcrypt($request->password),
+            'hinh_anh'      => $request->hinh_anh,
+        ]);
+        return response()->json([
+            'message'   => 'Tạo tài khoản thành công!!',
+            'status'    =>  true
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, KhachHang $khachHang)
+    public function check(Request $request)
     {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(KhachHang $khachHang)
+        $user = Auth::guard('sanctum')->user();
+
+        if($user)
+        {
+            $agent   = new Agent();
+            $device  = $agent->device();
+            $os      = $agent->platform();
+            $browser = $agent->browser();
+            DB::table('personal_access_tokens')
+            ->where('id',$user->currentAccessToken()->id)
+            ->update([
+                'ip'            =>  request()->ip(),
+                'device'        =>  $device,
+                'os'            =>  $os,
+                'trinh_duyet'   =>  $browser
+            ]);
+            return response()->json([
+                'email'      => $user ->email,
+                'ho_ten'     => $user ->ho_va_ten,
+                'hinh_anh'   => $user ->hinh_anh,
+                'list'       => $user ->tokens,
+
+            ],200);
+        }
+        else
+        {
+            return response()->json([
+                'message'   => 'Bạn cần đăng nhập hệ thống !!',
+                'status'    => false
+            ],401);
+        }
+    }
+    public function xoatoken($id)
     {
-        //
+        try {
+            DB::table('personal_access_tokens')
+            ->where('id', $id)->delete();
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã xoá token thành công!!'
+            ]);
+        } catch (ExceptionEvent  $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá Nha token không thành công!!'
+            ]);
+
+        }
+
     }
 }

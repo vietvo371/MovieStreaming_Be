@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AdminAnimeController;
+use App\Http\Controllers\BaiVietController;
+use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LoaiPhimController;
 use App\Http\Controllers\PhimController;
+use App\Http\Controllers\TacGiaController;
 use App\Http\Controllers\TheLoaiController;
 use App\Models\AdminAnime;
 use Illuminate\Http\Request;
@@ -20,6 +23,28 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix'  =>  '/admin','middleware' => 'adminAnime'], function() {
+    Route::group(['prefix'  =>  '/admin'], function() {
+        //  Phim
+        Route::get('/lay-du-lieu', [AdminAnimeController::class, 'getData']);
+        Route::post('/thong-tin-tao', [AdminAnimeController::class, 'taoAdmin']);
+        Route::delete('/thong-tin-xoa/{id}', [AdminAnimeController::class, 'xoaAdmin']);
+        Route::put('/thong-tin-cap-nhat', [AdminAnimeController::class, 'capnhatAdmin']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [AdminAnimeController::class, 'thaydoiTrangThaiAdmin']);
+        Route::post('/thong-tin-tim', [AdminAnimeController::class, 'timAdmin']);
+
+
+    });
+    Route::group(['prefix'  =>  '/khach-hang'], function() {
+        //  Phim
+        Route::get('/lay-du-lieu', [KhachHangController::class, 'getData']);
+        Route::post('/thong-tin-tao', [KhachHangController::class, 'taoKhachHang']);
+        Route::delete('/thong-tin-xoa/{id}', [KhachHangController::class, 'xoaKhachHang']);
+        Route::put('/thong-tin-cap-nhat', [KhachHangController::class, 'capnhatKhachHang']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [KhachHangController::class, 'thaydoiTrangThaiKhachHang']);
+        Route::post('/thong-tin-tim', [KhachHangController::class, 'timKhachHang']);
+
+
+    });
     Route::group(['prefix'  =>  '/phim'], function() {
         //  Phim
         Route::get('/lay-du-lieu', [PhimController::class, 'getData']);
@@ -54,5 +79,28 @@ Route::group(['prefix'  =>  '/admin','middleware' => 'adminAnime'], function() {
         Route::post('/thong-tin-tim', [LoaiPhimController::class, 'timLoaiPhim']);
 
     });
+    Route::group(['prefix'  =>  '/tac-gia'], function() {
+
+        // Tác Giả
+        Route::get('/lay-du-lieu', [TacGiaController::class, 'getData']);
+        Route::post('/thong-tin-tao', [TacGiaController::class, 'taoBaiViet']);
+        Route::delete('/thong-tin-xoa/{id}', [TacGiaController::class, 'xoaTacGia']);
+        Route::put('/thong-tin-cap-nhat', [TacGiaController::class, 'capnhatTacGia']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [TacGiaController::class, 'thaydoiTrangThaiTacGia']);
+        Route::post('/thong-tin-tim', [TacGiaController::class, 'timTacGia']);
+
+    });
+    Route::group(['prefix'  =>  '/bai-viet'], function() {
+
+        // Tác Giả
+        Route::get('/lay-du-lieu', [BaiVietController::class, 'getData']);
+        Route::post('/thong-tin-tao', [BaiVietController::class, 'taoBaiViet']);
+        Route::delete('/thong-tin-xoa/{id}', [BaiVietController::class, 'xoaBaiViet']);
+        Route::put('/thong-tin-cap-nhat', [BaiVietController::class, 'capnhatBaiViet']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [BaiVietController::class, 'thaydoiTrangThaiBaiViet']);
+        Route::post('/thong-tin-tim', [BaiVietController::class, 'timBaiViet']);
+
+    });
+
 
 });

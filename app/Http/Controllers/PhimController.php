@@ -16,11 +16,21 @@ class PhimController extends Controller
     {
         $data   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
-                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        // ->take(3)
                         ->get(); // get là ra 1 danh sách
-           return response()->json([
-           'phim'  =>  $data,
-           ]);
+        $dataHD   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('id_the_loai', 1)
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->take(6)
+                        ->get(); // get là ra 1 danh sách
+        return response()->json([
+        'phim'  =>  $data,
+        'phimHD' => $dataHD,
+        ]);
     }
 
 
@@ -34,7 +44,7 @@ class PhimController extends Controller
                 'url'                       =>$request->url,
                 'id_loai_phim'              =>$request->id_loai_phim,
                 'id_the_loai'               =>$request->id_the_loai,
-                'tinh_trang_yeu_thich'      =>$request->tinh_trang_yeu_thich,
+                'id_tac_gia'                =>$request->id_tac_gia,
                 'tinh_trang'                =>$request->tinh_trang,
                 ]);
                 return response()->json([
@@ -93,7 +103,7 @@ class PhimController extends Controller
                         'url'                       =>$request->url,
                         'id_loai_phim'              =>$request->id_loai_phim,
                         'id_the_loai'               =>$request->id_the_loai,
-                        'tinh_trang_yeu_thich'      =>$request->tinh_trang_yeu_thich,
+                        'id_tac_gia'                =>$request->id_tac_gia,
                         'tinh_trang'                =>$request->tinh_trang,
                     ]);
 

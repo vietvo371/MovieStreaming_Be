@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'abc',
         ],
+        'khach_hang' => [
+            'driver' => 'session',
+            'provider' => 'cba',
+        ],
     ],
 
 
@@ -56,6 +60,10 @@ return [
         'abc' => [
             'driver' => 'eloquent',
             'model' => App\Models\AdminAnime::class,
+        ],
+        'cba' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\KhachHang::class,
         ],
 
         // 'users' => [
