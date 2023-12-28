@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class KhachHang extends Model
+class KhachHang extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'khach_hangs';
-
     protected $fillable = [
-        'email',
-        'ho_va_ten',
-        'password',
-        'hinh_anh',
+            'email',
+           'ho_va_ten',
+           'password',
+           'hinh_anh',
     ];
+
 }

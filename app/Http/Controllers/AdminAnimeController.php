@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,105 @@ class AdminAnimeController extends Controller
         return response()->json([
             'admin'  =>  $data,
         ]);
+    }
+    public function taoAdmin(Request $request)
+    {
+        try {
+            AdminAnime::create([
+                'email'                 =>$request->email,
+                'ho_va_ten'             =>$request->ho_va_ten,
+                'password'              =>bcrypt($request->password),
+                'hinh_anh'              =>$request->hinh_anh,
+                ]);
+                return response()->json([
+                    'status'   => true ,
+                    'message'  => 'Bạn thêm admin thành công!',
+                ]);
+        } catch (ExceptionEvent $e) {
+                return response()->json([
+                    'status'     => false,
+                    'message'    => 'Xoá admin không thành công!!'
+                ]);
+        }
+
+    }
+
+     public function timAdmin(Request $request)
+    {
+        $key    = '%'. $request->key . '%';
+        $data   = AdminAnime::select('admin_animes.*')
+                    ->where('ho_va_ten', 'like', $key)
+                    ->get(); // get là ra 1 danh sách
+        return response()->json([
+        'admin'  =>  $data,
+        ]);
+    }
+    public function xoaAdmin($id)
+    {
+        try {
+            AdminAnime::where('id', $id)->delete();
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã xoá Admin thành công!!'
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá Admin không thành công!!'
+            ]);
+
+        }
+
+    }
+
+    public function capnhatAdmin(Request $request)
+    {
+        try {
+            AdminAnime::where('id', $request->id)
+                    ->update([
+                        'email'                 =>$request->email,
+                        'ho_va_ten'             =>$request->ho_va_ten,
+                        'password'              =>($request->password),
+                        'hinh_anh'              =>$request->hinh_anh,
+                    ]);
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã Cập Nhật thành ' . $request->email,
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập Nhật Admin không thành công!!'
+            ]);
+        }
+    }
+
+    public function thaydoiTrangThaiAdmin(Request $request)
+    {
+
+        try {
+            $tinh_trang_moi = !$request->tinh_trang;
+            //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
+            AdminAnime::where('id', $request->id)
+                    ->update([
+                        'tinh_trang'    =>$tinh_trang_moi
+                    ]);
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Cập Nhật Trạng Thái thành công!! '
+            ]);
+        } catch (Exception $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập Nhật Trạng Thái không thành công!!'
+            ]);
+        }
     }
     public function login(Request $request)
     {

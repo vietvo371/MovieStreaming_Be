@@ -3,63 +3,111 @@
 namespace App\Http\Controllers;
 
 use App\Models\TacGia;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class TacGiaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function getData()
     {
-        //
-    }
+        $data   = TacGia::select('tac_gias.*')
+         ->get(); // get là ra 1 danh sách
+            return response()->json([
+            'tac_gia'  =>  $data,
+            ]);
+     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+     public function taoTacGia(Request $request)
+     {
+         try {
+             TacGia::create([
+                'ten_tac_gia'            =>$request->ten_tac_gia,
+                'tinh_trang'             =>$request->tinh_trang,
+                 ]);
+                 return response()->json([
+                     'status'   => true ,
+                     'message'  => 'Bạn thêm Tác Giả thành công!',
+                 ]);
+         } catch (ExceptionEvent $e) {
+                 return response()->json([
+                     'status'     => false,
+                     'message'    => 'Xoá Tác Giả không thành công!!'
+                 ]);
+         }
+     }
+     public function timTacGia(Request $request)
+     {
+         $key    = '%'. $request->key . '%';
+         $data   = TacGia::select('tac_gias.*')
+                     ->where('ten_tac_gia', 'like', $key)
+                     ->get(); // get là ra 1 danh sách
+         return response()->json([
+         'tac_gia'  =>  $data,
+         ]);
+     }
+     public function capnhatTacGia(Request $request)
+     {
+         try {
+             TacGia::where('id', $request->id)
+                     ->update([
+                        'ten_tac_gia'            =>$request->ten_tac_gia,
+                        'tinh_trang'             =>$request->tinh_trang,
+                             ]);
+             return response()->json([
+                 'status'     => true,
+                 'message'    => 'Đã Cập Nhật thành ' . $request->ten_loai_phim,
+             ]);
+         } catch (Exception $e) {
+             //throw $th;
+             return response()->json([
+                 'status'     => false,
+                 'message'    => 'Cập Nhật  Loại Phim không thành công!!'
+             ]);
+         }
+     }
+     public function xoaTacGia($id)
+     {
+         try {
+             TacGia::where('id', $id)->delete();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(TacGia $tacGia)
-    {
-        //
-    }
+             return response()->json([
+                 'status'     => true,
+                 'message'    => 'Đã xoá Tác Giả thành công!!'
+             ]);
+         } catch (ExceptionEvent $e) {
+             //throw $th;
+             return response()->json([
+                 'status'     => false,
+                 'message'    => 'Xoá  Tác Giả không thành công!!'
+             ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TacGia $tacGia)
-    {
-        //
-    }
+         }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, TacGia $tacGia)
-    {
-        //
-    }
+     }
+     public function thaydoiTrangThaiTacGia(Request $request)
+     {
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TacGia $tacGia)
-    {
-        //
-    }
+         try {
+             $tinh_trang_moi = !$request->tinh_trang;
+             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
+             TacGia::where('id', $request->id)
+                     ->update([
+                         'tinh_trang'    =>$tinh_trang_moi
+                     ]);
+
+             return response()->json([
+                 'status'     => true,
+                 'message'    => 'Cập Nhật Trạng Thái thành công!! '
+             ]);
+         } catch (Exception $e) {
+             //throw $th;
+             return response()->json([
+                 'status'     => false,
+                 'message'    => 'Cập Nhật Trạng Thái không thành công!!'
+             ]);
+         }
+     }
+
 }
