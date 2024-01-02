@@ -14,6 +14,7 @@ class BaiViet extends Model
         'hinh_anh',
         'mo_ta',
         'mo_ta_chi_tiet',
+        'id_chuyen_muc',
         'tinh_trang',
     ];
 }
