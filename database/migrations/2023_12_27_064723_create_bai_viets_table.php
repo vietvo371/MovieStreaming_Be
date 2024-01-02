@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('hinh_anh');
             $table->longText('mo_ta');
             $table->longText('mo_ta_chi_tiet');
+            $table->integer('id_chuyen_muc');
             $table->integer('tinh_trang');
             $table->timestamps();
         });

@@ -202,7 +202,7 @@ class AdminAnimeController extends Controller
             //throw $th;
             return response()->json([
                 'status'     => false,
-                'message'    => 'Xoá Nha token không thành công!!'
+                'message'    => 'Xoá token không thành công!!'
             ]);
 
         }

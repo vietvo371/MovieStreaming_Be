@@ -150,10 +150,11 @@ class KhachHangController extends Controller
                 'trinh_duyet'   =>  $browser
             ]);
             return response()->json([
-                'email'      => $user ->email,
-                'ho_ten'     => $user ->ho_va_ten,
-                'hinh_anh'   => $user ->hinh_anh,
-                'list'       => $user ->tokens,
+                'email'                => $user ->email,
+                'id_user'              => $user ->id,
+                'ho_ten_user'          => $user ->ho_va_ten,
+                'hinh_anh_user'        => $user ->hinh_anh,
+                'list'                 => $user ->tokens,
 
             ],200);
         }

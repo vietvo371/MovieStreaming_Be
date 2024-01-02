@@ -14,7 +14,8 @@ class BaiVietController extends Controller
      */
     public function getData()
     {
-        $data   = BaiViet::select('bai_viets.*')
+        $data   = BaiViet::join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
+                        ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
                         ->get(); // get là ra 1 danh sách
            return response()->json([
            'bai_viet'  =>  $data,
@@ -30,6 +31,7 @@ class BaiVietController extends Controller
                 'hinh_anh'              =>$request->hinh_anh,
                 'mo_ta'                 =>$request->mo_ta,
                 'mo_ta_chi_tiet'        =>$request->mo_ta_chi_tiet,
+                'id_chuyen_muc'         =>$request->id_chuyen_muc,
                 'tinh_trang'            =>$request->tinh_trang,
                 ]);
                 return response()->json([
@@ -84,6 +86,7 @@ class BaiVietController extends Controller
                         'hinh_anh'              =>$request->hinh_anh,
                         'mo_ta'                 =>$request->mo_ta,
                         'mo_ta_chi_tiet'        =>$request->mo_ta_chi_tiet,
+                        'id_chuyen_muc'         =>$request->id_chuyen_muc,
                         'tinh_trang'            =>$request->tinh_trang,
                     ]);
 
