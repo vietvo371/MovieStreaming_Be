@@ -14,8 +14,17 @@ class LoaiPhimController extends Controller
      */
     public function getData()
     {
-        $data   = LoaiPhim::select('loai_phims.*')
-         ->get(); // get là ra 1 danh sách
+        $dataAdmin   = LoaiPhim::select('loai_phims.*')
+                         ->get(); // get là ra 1 danh sách
+            return response()->json([
+            'loai_phim_admin'  =>  $dataAdmin,
+            ]);
+     }
+     public function getDataHome()
+    {
+        $data   = LoaiPhim::where('loai_phims.tinh_trang',1)
+                         ->select('loai_phims.*')
+                         ->get(); // get là ra 1 danh sách
             return response()->json([
             'loai_phim'  =>  $data,
             ]);

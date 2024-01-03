@@ -14,22 +14,62 @@ class PhimController extends Controller
      */
     public function getData()
     {
+
+        $dataAdmin   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->get(); // get là ra 1 danh sách
+
+        return response()->json([
+        'phim_admin' => $dataAdmin,
+        ]);
+    }
+    public function getDataHome()
+    {
         $data   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('phims.tinh_trang', 1)
                         ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
-                        // ->take(3)
                         ->get(); // get là ra 1 danh sách
-        $dataHD   = Phim::join('the_loais','id_the_loai','the_loais.id')
+        $data9   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
-                        ->where('id_the_loai', 1)
+                        ->where('phims.tinh_trang', 1)
                         ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
-                        ->take(6)
+                        ->inRandomOrder() // Lấy ngẫu nhiên
+                        ->take(9)
+                        ->get(); // get là ra 1 danh sách
+        $data2   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('phims.tinh_trang', 1)
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->take(2)
+                        ->get(); // get là ra 1 danh sách
+        $data3   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('phims.tinh_trang', 1)
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->orderBy('id', 'DESC') // sắp xếp giảm dần
+                        ->take(3)
+                        ->get(); // get là ra 1 danh sách
+        $data5   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('phims.tinh_trang', 1)
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->inRandomOrder() // Lấy ngẫu nhiên
+                        ->take(5)
                         ->get(); // get là ra 1 danh sách
         return response()->json([
-        'phim'  =>  $data,
-        'phimHD' => $dataHD,
+        'phim'             =>  $data,
+        'phim_9_obj'       =>  $data9,
+        'phim_2_obj'       =>  $data2,
+        'phim_3_obj'       =>  $data3,
+        'phim_5_obj'       =>  $data5,
         ]);
     }
 

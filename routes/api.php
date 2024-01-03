@@ -32,9 +32,9 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::group(['prefix'  =>  '/admin'], function() {
-    Route::group(['prefix'  =>  '/admin' ,'middleware' => 'adminAnime'], function() {
-        //  Phim
+Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() {
+    Route::group(['prefix'  =>  '/admin' ], function() {
+        //  Tài Khoản Admin
         Route::get('/lay-du-lieu', [AdminAnimeController::class, 'getData']);
         Route::post('/thong-tin-tao', [AdminAnimeController::class, 'taoAdmin']);
         Route::delete('/thong-tin-xoa/{id}', [AdminAnimeController::class, 'xoaAdmin']);
@@ -44,8 +44,8 @@ Route::group(['prefix'  =>  '/admin'], function() {
 
 
     });
-    Route::group(['prefix'  =>  '/khach-hang','middleware' => 'adminAnime'], function() {
-        //  Phim
+    Route::group(['prefix'  =>  '/khach-hang'], function() {
+        //  Tài Khoản Khách Hàng
         Route::get('/lay-du-lieu', [KhachHangController::class, 'getData']);
         Route::post('/thong-tin-tao', [KhachHangController::class, 'taoKhachHang']);
         Route::delete('/thong-tin-xoa/{id}', [KhachHangController::class, 'xoaKhachHang']);
@@ -122,9 +122,9 @@ Route::group(['prefix'  =>  '/admin'], function() {
     Route::group(['prefix'  =>  '/yeu-thich'], function() {
         // Yêu Thich
         Route::get('/lay-du-lieu', [YeuThichController::class, 'getData']);
-        Route::post('/thong-tin-tao', [YeuThichController::class, 'taoYeuThich']) ->middleware('adminAnime');
-        Route::post('/kiem-tra', [YeuThichController::class, 'checkYeuThich'])->middleware('adminAnime');
-        Route::post('/thong-tin-xoa', [YeuThichController::class, 'xoaYeuThich'])->middleware('adminAnime');
+        Route::post('/thong-tin-tao', [YeuThichController::class, 'taoYeuThich']);
+        Route::post('/kiem-tra', [YeuThichController::class, 'checkYeuThich']);
+        Route::post('/thong-tin-xoa', [YeuThichController::class, 'xoaYeuThich']);
         Route::put('/thong-tin-cap-nhat', [YeuThichController::class, 'capnhatYeuThich']);
         Route::put('/thong-tin-thay-doi-trang-thai', [YeuThichController::class, 'thaydoiTrangThaiYeuThich']);
         Route::post('/thong-tin-tim', [YeuThichController::class, 'timYeuThich']);
@@ -132,14 +132,50 @@ Route::group(['prefix'  =>  '/admin'], function() {
     Route::group(['prefix'  =>  '/binh-luan-phim'], function() {
         // Bình luận Phim
         Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim'])->middleware('adminAnime');
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim'])->middleware('adminAnime');
+        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
+        Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
     });
     Route::group(['prefix'  =>  '/binh-luan-blog'], function() {
         // Bình luận Blog
         Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog'])->middleware('adminAnime');
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog'])->middleware('adminAnime');
+        Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
+        Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
     });
 
 });
+
+ // Show data ở Home
+    Route::group(['prefix'  =>  '/phim' ], function() {
+        //  Phim
+        Route::get('/lay-du-lieu-show', [PhimController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/the-loai'], function() {
+        // The Loai Phim
+        Route::get('/lay-du-lieu-show', [TheLoaiController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/loai-phim'], function() {
+
+        // Loại Phim
+        Route::get('/lay-du-lieu-show', [LoaiPhimController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/tac-gia'], function() {
+        // Tác Giả
+        Route::get('/lay-du-lieu-show', [TacGiaController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/bai-viet'], function() {
+        // Bài Viết Blog
+        Route::get('/lay-du-lieu-show', [BaiVietController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/chuyen-muc'], function() {
+        // Chuyên Mục Blog
+        Route::get('/lay-du-lieu-show', [ChuyenMucController::class, 'getDataHome']);
+    });
+    Route::group(['prefix'  =>  '/binh-luan-phim'], function() {
+        // Bình luận Phim
+        Route::get('/lay-du-lieu-show', [BinhLuanPhimController::class, 'getData']);
+    });
+    Route::group(['prefix'  =>  '/binh-luan-blog'], function() {
+        // Bình luận Blog
+        Route::get('/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
+    });
+
