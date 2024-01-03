@@ -12,12 +12,21 @@ class TacGiaController extends Controller
 
     public function getData()
     {
-        $data   = TacGia::select('tac_gias.*')
-         ->get(); // get là ra 1 danh sách
+        $dataAdmin   = TacGia::select('tac_gias.*')
+                             ->get(); // get là ra 1 danh sách
             return response()->json([
-            'tac_gia'  =>  $data,
+            'tac_gia_admin'  =>  $dataAdmin,
             ]);
      }
+     public function getDataHome()
+     {
+         $data   = TacGia::where('tac_gias.tinh_trang',1)
+                         ->select('tac_gias.*')
+                         ->get(); // get là ra 1 danh sách
+             return response()->json([
+             'tac_gia'  =>  $data,
+             ]);
+      }
 
      public function taoTacGia(Request $request)
      {

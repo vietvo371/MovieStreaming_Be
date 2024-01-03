@@ -14,11 +14,22 @@ class BaiVietController extends Controller
      */
     public function getData()
     {
-        $data   = BaiViet::join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
+        $dataAdmim   = BaiViet::join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
                         ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
                         ->get(); // get là ra 1 danh sách
            return response()->json([
-           'bai_viet'  =>  $data,
+           'bai_viet_admin'  =>  $dataAdmim,
+           ]);
+    }
+    public function getDataHome()
+    {
+        $data   = BaiViet::where('bai_viets.tinh_trang',1)
+                        ->join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
+                        ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
+                        ->get(); // get là ra 1 danh sách
+
+           return response()->json([
+           'bai_viet'        =>  $data,
            ]);
     }
 

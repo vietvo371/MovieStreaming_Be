@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Phim;
 use App\Models\TheLoai;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,10 +15,33 @@ class TheLoaiController extends Controller
      */
     public function getData()
     {
-        $data   = TheLoai::select('the_loais.*')
-        ->get(); // get là ra 1 danh sách
+        $dataAmin       = TheLoai::select('the_loais.*')
+                         ->get(); // get là ra 1 danh sách
            return response()->json([
-           'the_loai'  =>  $data,
+           'the_loai_admin'  =>  $dataAmin,
+           ]);
+    } public function getDataHome()
+    {
+        $data   = TheLoai::where('the_loais.tinh_trang',1)
+                            ->select('the_loais.*')
+                            ->get();
+        $phims   = [];  // mảng chứa phim theo thể loại
+        foreach ($data as $key  => $value){
+            $phim_theo_the_loai = Phim::join('the_loais','id_the_loai','the_loais.id')
+                                       ->join('loai_phims','id_loai_phim','loai_phims.id')
+                                       ->join('tac_gias','id_tac_gia','tac_gias.id')
+                                       ->where('phims.tinh_trang', 1)
+                                       ->where('phims.id_the_loai', $value->id)
+                                       ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                                    //    ->orderBy('id', 'DESC') sắp xép giảm dần
+                                       ->inRandomOrder()
+                                       ->take(3)
+                                       ->get();
+            $phims = array_merge($phims, $phim_theo_the_loai->toArray());
+        }
+           return response()->json([
+           'the_loai'                  =>  $data,
+           'phim_theo_the_loai'        =>  $phims,
            ]);
     }
 

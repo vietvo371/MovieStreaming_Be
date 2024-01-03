@@ -12,10 +12,19 @@ class ChuyenMucController extends Controller
 
     public function getData()
     {
-        $data   = ChuyenMuc::select('chuyen_mucs.*')
+        $dataAdmin   = ChuyenMuc::select('chuyen_mucs.*')
                         ->get(); // get là ra 1 danh sách
            return response()->json([
-           'chuyen_muc'  =>  $data,
+           'chuyen_muc_admin'  =>  $dataAdmin,
+           ]);
+    }
+    public function getDataHome()
+    {
+        $data   = ChuyenMuc::where('chuyen_mucs.tinh_trang',1)
+                        ->select('chuyen_mucs.*')
+                        ->get(); // get là ra 1 danh sách
+           return response()->json([
+           'chuyen_muc'        =>  $data,
            ]);
     }
 
