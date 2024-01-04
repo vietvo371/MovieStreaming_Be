@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-///      ADMIN
+
     Route::post('/login',[AdminAnimeController::class , 'login']);
     Route::post('/register',[AdminAnimeController::class , 'register']);
     Route::post('/check',[AdminAnimeController::class , 'check']);
