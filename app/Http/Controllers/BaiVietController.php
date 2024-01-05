@@ -26,6 +26,7 @@ class BaiVietController extends Controller
         $data   = BaiViet::where('bai_viets.tinh_trang',1)
                         ->join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
                         ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
+                        ->orderBy('id', 'DESC') // sắp xếp giảm dần
                         ->get(); // get là ra 1 danh sách
 
            return response()->json([

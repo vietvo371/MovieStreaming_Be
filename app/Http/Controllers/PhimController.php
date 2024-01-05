@@ -183,4 +183,16 @@ class PhimController extends Controller
             ]);
         }
     }
+    public function timPhimHome(Request $request)
+    {
+        $key    = '%'. $request->key . '%';
+        $data   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                    ->join('loai_phims','id_loai_phim','loai_phims.id')
+                    ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim')
+                    ->where('ten_phim', 'like', $key)
+                    ->get(); // get là ra 1 danh sách
+        return response()->json([
+        'phim'  =>  $data,
+        ]);
+    }
 }
