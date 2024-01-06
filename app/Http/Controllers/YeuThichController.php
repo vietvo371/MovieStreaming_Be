@@ -88,6 +88,16 @@ class YeuThichController extends Controller
 
         }
     }
+    public function timYeuThich(Request $request)
+    {
+        $key    = '%'. $request->key . '%';
+        $data   = YeuThich::select('yeu_thichs.*')
+                    ->where('ho_va_ten', 'like', $key)
+                    ->get(); // get là ra 1 danh sách
+        return response()->json([
+        'khach_hang'  =>  $data,
+        ]);
+    }
 
 
 }

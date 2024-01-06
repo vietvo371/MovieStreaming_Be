@@ -179,3 +179,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::get('/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
     });
 
+    Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
+
+
+
+
