@@ -33,7 +33,7 @@ class LoaiPhimController extends Controller
      public function sapxepHome(Request $request)
      {
          $catagory = $request->catagory;
-         $id_lp    = $request->id_tl;
+         $id_lp    = $request->id_lp;
          if($catagory === 'az'){
                  $data = Phim::join('the_loais','id_the_loai','the_loais.id')
                              ->join('loai_phims','id_loai_phim','loai_phims.id')
@@ -56,9 +56,12 @@ class LoaiPhimController extends Controller
                            ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
                            ->orderBy('id', 'DESC')  // giảm dần
                            ->skip(0)
-                           ->take(10)
+                           ->take(9)
                            ->get();
        }
+        return response()->json([
+                'phim'  =>  $data,
+                ]);
      }
 
      public function taoLoaiPhim(Request $request)
