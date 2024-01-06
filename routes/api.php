@@ -154,7 +154,6 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::get('/lay-du-lieu-show', [TheLoaiController::class, 'getDataHome']);
     });
     Route::group(['prefix'  =>  '/loai-phim'], function() {
-
         // Loại Phim
         Route::get('/lay-du-lieu-show', [LoaiPhimController::class, 'getDataHome']);
     });
@@ -180,6 +179,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
     });
 
     Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
+    Route::get('/the-loai/sap-xep', [TheLoaiController::class, 'sapxepHome']);
+    Route::get('/loai-phim/sap-xep', [LoaiPhimController::class, 'sapxepHome']);
 
 
 

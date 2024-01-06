@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LoaiPhim;
+use App\Models\Phim;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -28,6 +29,36 @@ class LoaiPhimController extends Controller
             return response()->json([
             'loai_phim'  =>  $data,
             ]);
+     }
+     public function sapxepHome(Request $request)
+     {
+         $catagory = $request->catagory;
+         $id_lp    = $request->id_tl;
+         if($catagory === 'az'){
+                 $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                             ->join('loai_phims','id_loai_phim','loai_phims.id')
+                             ->join('tac_gias','id_tac_gia','tac_gias.id')
+                             ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                             ->orderBy('ten_phim', 'ASC')  // tăng dần
+                             ->get();
+         }else if($catagory === 'za'){
+               $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                             ->join('loai_phims','id_loai_phim','loai_phims.id')
+                             ->join('tac_gias','id_tac_gia','tac_gias.id')
+                             ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                             ->orderBy('ten_phim', 'DESC')  // giảm dần
+                             ->get();
+         } else if($catagory === '1to10'){
+             $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                           ->join('loai_phims','id_loai_phim','loai_phims.id')
+                           ->join('tac_gias','id_tac_gia','tac_gias.id')
+                           ->where('id_loai_phim', $id_lp)
+                           ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                           ->orderBy('id', 'DESC')  // giảm dần
+                           ->skip(0)
+                           ->take(10)
+                           ->get();
+       }
      }
 
      public function taoLoaiPhim(Request $request)
