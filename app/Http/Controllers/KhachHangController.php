@@ -19,6 +19,12 @@ class KhachHangController extends Controller
             'khach_hang'  =>  $data,
         ]);
     }
+    public function getDataProfile(Request $request){
+        $user = KhachHang::where('id',$request->id_khach_hang)->first();
+        return response()->json([
+            'obj_user'  => $user,
+        ]);
+    }
     public function taoKhachHang(Request $request)
     {
         try {
@@ -39,6 +45,55 @@ class KhachHangController extends Controller
                 ]);
         }
 
+    }
+    public function doiThongTin(Request $request)
+    {
+        try {
+            KhachHang::where('id', $request->id)
+                    ->update([
+                        'email'                 =>$request->email,
+                        'ho_va_ten'             =>$request->ho_va_ten,
+                        'password'              =>($request->password),
+                        'hinh_anh'              =>$request->hinh_anh,
+                    ]);
+
+            return response()->json([
+                'status'     => true,
+                'ho_ten_user'=> $request ->ho_va_ten,
+                'message'    => 'Cập nhật tài khoản thành công!',
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập nhật tài khoản không thành công!!'
+            ]);
+        }
+    }
+    public function doiPass(Request $request)
+    {
+       $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->old_pass, ]);
+        if ($check) {
+            $user = Auth::guard('khach_hang')->user();
+            $user->update([
+                    'email'                 =>$request->email,
+                    'ho_va_ten'             =>$request->ho_va_ten,
+                    'password'              =>bcrypt($request->new_pass),
+                    'hinh_anh'              =>$request->hinh_anh,
+            ]);
+
+            return response()->json([
+                'message'   => 'Đổi mật khẩu thành công!!',
+                'status'    => true,
+
+            ]);
+        }
+        else {
+            return response()->json([
+                'message'   => 'Mật khẩu cũ không hợp lệ!!',
+                'status'    => 'false'
+            ]);
+        }
     }
 
      public function timKhachHang(Request $request)

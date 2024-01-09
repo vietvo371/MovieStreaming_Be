@@ -20,6 +20,37 @@ class AdminAnimeController extends Controller
             'admin'  =>  $data,
         ]);
     }
+    public function getDataProfile(Request $request){
+        $user = AdminAnime::where('id',$request->id_admin)->first();
+        return response()->json([
+            'obj_admin'  => $user,
+        ]);
+    }
+    public function doiPass(Request $request)
+    {
+       $check = Auth::guard('admin')->attempt(['email'=>$request->email,'password' =>$request->old_pass, ]);
+        if ($check) {
+            $user = Auth::guard('admin')->user();
+            $user->update([
+                    'email'                 =>$request->email,
+                    'ho_va_ten'             =>$request->ho_va_ten,
+                    'password'              =>bcrypt($request->new_pass),
+                    'hinh_anh'              =>$request->hinh_anh,
+            ]);
+
+            return response()->json([
+                'message'   => 'Đổi mật khẩu thành công!!',
+                'status'    => true,
+
+            ]);
+        }
+        else {
+            return response()->json([
+                'message'   => 'Mật khẩu cũ không hợp lệ!!',
+                'status'    => 'false'
+            ]);
+        }
+    }
     public function taoAdmin(Request $request)
     {
         try {
@@ -176,6 +207,7 @@ class AdminAnimeController extends Controller
                 'email'      => $user ->email,
                 'ho_ten'     => $user ->ho_va_ten,
                 'hinh_anh'   => $user ->hinh_anh,
+                'id_admin'   => $user ->id,
                 'list'       => $user ->tokens,
 
             ],200);
