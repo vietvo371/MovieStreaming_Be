@@ -41,6 +41,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::put('/thong-tin-cap-nhat', [AdminAnimeController::class, 'capnhatAdmin']);
         Route::put('/thong-tin-thay-doi-trang-thai', [AdminAnimeController::class, 'thaydoiTrangThaiAdmin']);
         Route::post('/thong-tin-tim', [AdminAnimeController::class, 'timAdmin']);
+        Route::get('/lay-du-lieu-profile', [AdminAnimeController::class, 'getDataProfile']);
+        Route::put('/doi-mat-khau', [AdminAnimeController::class, 'doiPass']);
 
 
     });
@@ -52,6 +54,10 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::put('/thong-tin-cap-nhat', [KhachHangController::class, 'capnhatKhachHang']);
         Route::put('/thong-tin-thay-doi-trang-thai', [KhachHangController::class, 'thaydoiTrangThaiKhachHang']);
         Route::post('/thong-tin-tim', [KhachHangController::class, 'timKhachHang']);
+        Route::put('/doi-mat-khau', [KhachHangController::class, 'doiPass']);
+        Route::put('/doi-thong-tin', [KhachHangController::class, 'doiThongTin']);
+        Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfile']);
+
 
 
 
