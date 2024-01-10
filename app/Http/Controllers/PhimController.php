@@ -9,9 +9,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class PhimController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function getData()
     {
 
@@ -24,6 +22,18 @@ class PhimController extends Controller
         return response()->json([
         'phim_admin' => $dataAdmin,
         ]);
+    }
+    public function dataTheoTL(Request $request){
+        $id_tl    = $request->id_tl;
+                $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                            ->join('loai_phims','id_loai_phim','loai_phims.id')
+                            ->join('tac_gias','id_tac_gia','tac_gias.id')
+                            ->where('id_the_loai', $id_tl)
+                            ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                            ->get();
+        return response()->json([
+            'phim_theo_tl'  =>  $data,
+            ]);
     }
     public function getDataHome()
     {
