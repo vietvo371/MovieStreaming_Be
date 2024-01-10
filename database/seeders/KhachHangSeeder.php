@@ -17,7 +17,6 @@ class KhachHangSeeder extends Seeder
         DB::table('khach_hangs')->truncate();
         DB::table('khach_hangs')->insert([
             [
-                'id'            =>   1,
                 'email'         =>"vietvo371@gmail.com",
                 'ho_va_ten'     =>"Văn Việt",
                 'password'      =>bcrypt(123456),
@@ -25,7 +24,6 @@ class KhachHangSeeder extends Seeder
 
             ],
             [
-                'id'            =>   2,
                 'email'         =>"dinhquy123@gmail.com",
                 'ho_va_ten'     =>"Đình Quý",
                 'password'      =>bcrypt(123456),
