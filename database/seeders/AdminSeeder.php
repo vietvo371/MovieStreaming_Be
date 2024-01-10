@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         DB::table('admin_animes')->delete();
-        // DB::table('khach_hangs')->truncate();
+        DB::table('admin_animes')->truncate();
         DB::table('admin_animes')->insert([
             [
                 'id'            =>   1,

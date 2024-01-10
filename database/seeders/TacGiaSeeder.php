@@ -14,6 +14,7 @@ class TacGiaSeeder extends Seeder
     public function run(): void
     {
         DB::table('tac_gias')->delete();
+        DB::table('tac_gias')->truncate();
         DB::table('tac_gias')->insert([
                     ['ten_tac_gia' => 'Shinkai Makoto', 'tinh_trang' => '1'],
                     ['ten_tac_gia' => 'Toriyama Akira', 'tinh_trang' => '1'],
