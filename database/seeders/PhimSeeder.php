@@ -14,7 +14,7 @@ class PhimSeeder extends Seeder
     public function run(): void
     {
         DB::table('phims')->delete();
-
+        DB::table('phims')->truncate();
         DB::table('phims')->insert([
             ['ten_phim' => 'HÀNH TRÌNH ĐÓNG CỬA CỦA SUZUME FULL', 'hinh_anh' => 'https://s199.imacdn.com/tt24/2023/06/05/722b8d56a5392fce_a009c52a8b4268f4_6708016858997403185710.jpg', 'mo_ta' => 'Suzume, một cô gái 17 tuổi sống trong một thị trấn yên tĩnh ở Kyushu , gặp Sota, một thanh niên đi du lịch nói: "Tôi đang tìm những cánh cửa"', 'id_loai_phim' => '1', 'id_the_loai' => '5', 'url' => 'HUml4-_1-E0', 'id_tac_gia' => '1', 'tinh_trang' => '1'],
             ['ten_phim' => 'SAND LAND', 'hinh_anh' => 'https://s199.imacdn.com/vg/2023/06/24/a77cb3f8d991fbb1_9821a3ccbbb56385_47121168762012983.jpg', 'mo_ta' => 'Cho những ai chưa biết: Sand Land là tập truyện tranh của tác giả Akira Toriyama. Được đăng nhiều kỳ trong một thời gian ngắn trên Weekly Shonen Jump vào năm 2000, bộ truyện tranh một tập đã trở nên nổi tiếng trên toàn thế giới kể từ khi xuất bản', 'id_loai_phim' => '2', 'id_the_loai' => '2', 'url' => 'Q4Htp5gV14Y', 'id_tac_gia' => '2', 'tinh_trang' => '1'],

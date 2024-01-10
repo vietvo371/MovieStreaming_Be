@@ -14,6 +14,7 @@ class TheLoaiSeeder extends Seeder
     public function run(): void
     {
         DB::table('the_loais')->delete();
+        DB::table('the_loais')->truncate();
         DB::table('the_loais')->insert([
             ['ten_the_loai' => 'Hành Động', 'slug_the_loai' => 'hanh-dong', 'tinh_trang' => '1'],
             ['ten_the_loai' => 'Viễn Tưởng', 'slug_the_loai' => 'vien-tuong', 'tinh_trang' => '1'],
