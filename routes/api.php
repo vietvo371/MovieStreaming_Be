@@ -43,6 +43,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::post('/thong-tin-tim', [AdminAnimeController::class, 'timAdmin']);
         Route::get('/lay-du-lieu-profile', [AdminAnimeController::class, 'getDataProfile']);
         Route::put('/doi-mat-khau', [AdminAnimeController::class, 'doiPass']);
+        Route::put('/doi-thong-tin', [AdminAnimeController::class, 'doiThongTin']);
+
 
 
     });
@@ -184,6 +186,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::get('/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
     });
 
+    Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
     Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
     Route::get('/the-loai/sap-xep', [TheLoaiController::class, 'sapxepHome']);
     Route::get('/loai-phim/sap-xep', [LoaiPhimController::class, 'sapxepHome']);

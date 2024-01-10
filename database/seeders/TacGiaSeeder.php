@@ -14,7 +14,7 @@ class TacGiaSeeder extends Seeder
     public function run(): void
     {
         DB::table('tac_gias')->delete();
-        DB::table('tac_gias')->insert(
+        DB::table('tac_gias')->insert([
                     ['ten_tac_gia' => 'Shinkai Makoto', 'tinh_trang' => '1'],
                     ['ten_tac_gia' => 'Toriyama Akira', 'tinh_trang' => '1'],
                     ['ten_tac_gia' => 'Tabata Yūki', 'tinh_trang' => '1'],
@@ -22,7 +22,6 @@ class TacGiaSeeder extends Seeder
                     ['ten_tac_gia' => ' Aya Yajima', 'tinh_trang' => '1'],
                     ['ten_tac_gia' => 'Akutami Gege', 'tinh_trang' => '1'],
                     ['ten_tac_gia' => 'Sorachi Hideaki', 'tinh_trang' => '1'],
-
-        );
+        ]);
     }
 }

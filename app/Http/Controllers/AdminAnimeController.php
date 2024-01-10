@@ -51,6 +51,30 @@ class AdminAnimeController extends Controller
             ]);
         }
     }
+    public function doiThongTin(Request $request)
+    {
+        try {
+            AdminAnime::where('id', $request->id)
+                    ->update([
+                        'email'                 =>$request->email,
+                        'ho_va_ten'             =>$request->ho_va_ten,
+                        'password'              =>($request->password),
+                        'hinh_anh'              =>$request->hinh_anh,
+                    ]);
+
+            return response()->json([
+                'status'     => true,
+                'ho_ten'     => $request ->ho_va_ten,
+                'message'    => 'Cập nhật tài khoản thành công!',
+            ]);
+        } catch (ExceptionEvent $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập nhật tài khoản không thành công!!'
+            ]);
+        }
+    }
     public function taoAdmin(Request $request)
     {
         try {

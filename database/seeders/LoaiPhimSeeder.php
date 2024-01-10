@@ -14,11 +14,11 @@ class LoaiPhimSeeder extends Seeder
     public function run(): void
     {
         DB::table('loai_phims')->delete();
-        DB::table('loai_phims')->insert(
+        DB::table('loai_phims')->insert([
             ['ten_loai_phim' => 'Phim Lẻ', 'slug_loai_phim' => 'phim-le', 'tinh_trang' => '1'],
             ['ten_loai_phim' => 'Phim Chiếu Rap', 'slug_loai_phim' => 'phim-chieu-rap', 'tinh_trang' => '1'],
             ['ten_loai_phim' => 'Phim Bộ', 'slug_loai_phim' => 'phim-bo', 'tinh_trang' => '1'],
-        );
+        ]);
 
 
     }

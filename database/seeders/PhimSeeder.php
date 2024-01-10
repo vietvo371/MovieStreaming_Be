@@ -15,7 +15,7 @@ class PhimSeeder extends Seeder
     {
         DB::table('phims')->delete();
 
-        DB::table('phims')->insert(
+        DB::table('phims')->insert([
             ['ten_phim' => 'HÀNH TRÌNH ĐÓNG CỬA CỦA SUZUME FULL', 'hinh_anh' => 'https://s199.imacdn.com/tt24/2023/06/05/722b8d56a5392fce_a009c52a8b4268f4_6708016858997403185710.jpg', 'mo_ta' => 'Suzume, một cô gái 17 tuổi sống trong một thị trấn yên tĩnh ở Kyushu , gặp Sota, một thanh niên đi du lịch nói: "Tôi đang tìm những cánh cửa"', 'id_loai_phim' => '1', 'id_the_loai' => '5', 'url' => 'HUml4-_1-E0', 'id_tac_gia' => '1', 'tinh_trang' => '1'],
             ['ten_phim' => 'SAND LAND', 'hinh_anh' => 'https://s199.imacdn.com/vg/2023/06/24/a77cb3f8d991fbb1_9821a3ccbbb56385_47121168762012983.jpg', 'mo_ta' => 'Cho những ai chưa biết: Sand Land là tập truyện tranh của tác giả Akira Toriyama. Được đăng nhiều kỳ trong một thời gian ngắn trên Weekly Shonen Jump vào năm 2000, bộ truyện tranh một tập đã trở nên nổi tiếng trên toàn thế giới kể từ khi xuất bản', 'id_loai_phim' => '2', 'id_the_loai' => '2', 'url' => 'Q4Htp5gV14Y', 'id_tac_gia' => '2', 'tinh_trang' => '1'],
             ['ten_phim' => 'BLACK CLOVER', 'hinh_anh' => 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/11/Black-Clover-Mobile-Rise-of-the-Wizard-King-1.jpg', 'mo_ta' => 'Theo một số fan yêu tích bộ truyện Black Clover, TV anime sẽ tạm dừng để chờ manga ra tiếp nội dung. Như chúng ta đã biết thì studio Pierrot vừa mới đầu tư rất nhiều cho arc Clover Kingdom và arc Spade Kingdom', 'id_loai_phim' => '1', 'id_the_loai' => '4', 'url' => '1ERGBRb2jT8', 'id_tac_gia' => '3', 'tinh_trang' => '1'],
@@ -89,7 +89,7 @@ class PhimSeeder extends Seeder
             ['ten_phim' => 'THE GOD OF HIGH SCHOOL', 'hinh_anh' => 'https://s199.imacdn.com/vg/2022/12/07/b9b19745f2724158_19a6aeaefef5e4fa_38379167043082513.jpg', 'mo_ta' => 'Đây là một series hành động theo chân những học sinh trung học thi đấu trong một giải đấu dữ dội. Với khao khát chiến thắng cháy bỏng, họ mượn sức mạnh trực tiếp từ đấng chúa trời. Và rồi, họ lại vô tình vén được tấm màn bí mật về một tổ chức kì bí. ', 'id_loai_phim' => '2', 'id_the_loai' => '5', 'url' => 'oqjwUfprNAk', 'id_tac_gia' => '6', 'tinh_trang' => '1'],
             ['ten_phim' => 'OUSAMA RANKING', 'hinh_anh' => 'https://s199.imacdn.com/vg/2023/03/08/ab0ecd0244de9c6e_66e682355d2c77eb_12558616782489504118684.jpg', 'mo_ta' => 'Câu chuyện xoay quanh Bojji, một hoàng tử khiếm thính, bất lực, thậm chí còn không thể cầm nổi cái kiếm của đứa con nít. Là con trai cả, anh đã phấn đấu hết mình và ước mơ được trở thành một vị vua vĩ đại nhất thế giới.', 'id_loai_phim' => '2', 'id_the_loai' => '6', 'url' => 'lgeeNcL51A4', 'id_tac_gia' => '4', 'tinh_trang' => '1'],
 
-        );
+        ]);
 
     }
 }
