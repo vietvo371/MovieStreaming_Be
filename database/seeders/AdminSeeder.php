@@ -17,7 +17,6 @@ class AdminSeeder extends Seeder
         DB::table('admin_animes')->truncate();
         DB::table('admin_animes')->insert([
             [
-                'id'            =>   1,
                 'email'         =>"vietvo311@gmail.com",
                 'ho_va_ten'     =>"Văn Việt",
                 'password'      =>bcrypt(123456),
@@ -25,7 +24,6 @@ class AdminSeeder extends Seeder
 
             ],
             [
-                'id'            =>   2,
                 'email'         =>"dinhquy223@gmail.com",
                 'ho_va_ten'     =>"Đình Quý",
                 'password'      =>bcrypt(123456),
