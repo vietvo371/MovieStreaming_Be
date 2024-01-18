@@ -156,4 +156,38 @@ class LoaiPhimController extends Controller
              ]);
          }
      }
+     public function kiemTraSlugLoaiPhim(Request $request)
+     {
+         $tac_gia = LoaiPhim::where('slug_loai_phim', $request->slug)->first();
+
+         if(!$tac_gia) {
+             return response()->json([
+                 'status'            =>   true,
+                 'message'           =>   'Tên Loại Phim phù hợp!',
+             ]);
+         } else {
+             return response()->json([
+                 'status'            =>   false,
+                 'message'           =>   'Tên Loại Phim Đã Tồn Tại!',
+             ]);
+         }
+     }
+     public function kiemTraSlugLoaiPhimUpdate(Request $request)
+     {
+         $mon_an = LoaiPhim::where('slug_loai_phim', $request->slug)
+                                      ->where('id', '<>' , $request->id)
+                                      ->first();
+
+         if(!$mon_an) {
+             return response()->json([
+                 'status'            =>   true,
+                 'message'           =>   'Tên Loại Phim phù hợp!',
+             ]);
+         } else {
+             return response()->json([
+                 'status'            =>   false,
+                 'message'           =>   'Tên Loại Phim Đã Tồn Tại!',
+             ]);
+         }
+     }
 }

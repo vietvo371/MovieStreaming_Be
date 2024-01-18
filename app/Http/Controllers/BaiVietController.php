@@ -40,6 +40,7 @@ class BaiVietController extends Controller
         try {
             BaiViet::create([
                 'tieu_de'               =>$request->tieu_de,
+                'slug_tieu_de'           =>$request->slug_tieu_de,
                 'hinh_anh'              =>$request->hinh_anh,
                 'mo_ta'                 =>$request->mo_ta,
                 'mo_ta_chi_tiet'        =>$request->mo_ta_chi_tiet,
@@ -135,6 +136,40 @@ class BaiVietController extends Controller
             return response()->json([
                 'status'     => false,
                 'message'    => 'Cập Nhật Trạng Thái không thành công!!'
+            ]);
+        }
+    }
+    public function kiemTraSlugBaiViet(Request $request)
+    {
+        $tac_gia = BaiViet::where('slug_tieu_de', $request->slug)->first();
+
+        if(!$tac_gia) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Bài Viết phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Bài Viết Đã Tồn Tại!',
+            ]);
+        }
+    }
+    public function kiemTraSlugBaiVietUpdate(Request $request)
+    {
+        $mon_an = BaiViet::where('slug_tieu_de', $request->slug)
+                                     ->where('id', '<>' , $request->id)
+                                     ->first();
+
+        if(!$mon_an) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Bài Viết phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Bài Viết Đã Tồn Tại!',
             ]);
         }
     }

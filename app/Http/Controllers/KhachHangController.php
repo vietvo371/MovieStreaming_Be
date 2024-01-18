@@ -166,7 +166,7 @@ class KhachHangController extends Controller
         else {
             return response()->json([
                 'message'   => 'Đăng Nhập không  thành công!!',
-                'status'    => 'false'
+                'status'    => false
             ]);
         }
     }
