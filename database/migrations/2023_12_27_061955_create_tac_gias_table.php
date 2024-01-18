@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tac_gias', function (Blueprint $table) {
             $table->id();
             $table->string('ten_tac_gia');
+            $table->string('slug_tac_gia');
             $table->integer('tinh_trang');
             $table->timestamps();
         });

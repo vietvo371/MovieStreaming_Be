@@ -90,12 +90,12 @@ class TheLoaiController extends Controller
                 ]);
                 return response()->json([
                     'status'   => true ,
-                    'message'  => 'Bạn thêm Thể Loại Phim thành công!',
+                    'message'  => 'Bạn thêm Thể Thể Loại thành công!',
                 ]);
         } catch (ExceptionEvent $e) {
                 return response()->json([
                     'status'     => false,
-                    'message'    => 'Xoá Thể Loại Phim không thành công!!'
+                    'message'    => 'Xoá Thể Thể Loại không thành công!!'
                 ]);
         }
     }
@@ -170,6 +170,40 @@ class TheLoaiController extends Controller
             return response()->json([
                 'status'     => false,
                 'message'    => 'Cập Nhật Trạng Thái không thành công!!'
+            ]);
+        }
+    }
+    public function kiemTraSlugTheLoai(Request $request)
+    {
+        $tac_gia = TheLoai::where('slug_the_loai', $request->slug)->first();
+
+        if(!$tac_gia) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Thể Loại phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Thể Loại Đã Tồn Tại!',
+            ]);
+        }
+    }
+    public function kiemTraSlugTheLoaiUpdate(Request $request)
+    {
+        $mon_an = TheLoai::where('slug_the_loai', $request->slug)
+                                     ->where('id', '<>' , $request->id)
+                                     ->first();
+
+        if(!$mon_an) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Thể Loại phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Thể Loại Đã Tồn Tại!',
             ]);
         }
     }

@@ -126,4 +126,38 @@ class ChuyenMucController extends Controller
             ]);
         }
     }
+    public function kiemTraSlugChuyenMuc(Request $request)
+    {
+        $tac_gia = ChuyenMuc::where('slug_chuyen_muc', $request->slug)->first();
+
+        if(!$tac_gia) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Chuyên Mục phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Chuyên Mục Đã Tồn Tại!',
+            ]);
+        }
+    }
+    public function kiemTraSlugChuyenMucUpdate(Request $request)
+    {
+        $mon_an = ChuyenMuc::where('slug_chuyen_muc', $request->slug)
+                                     ->where('id', '<>' , $request->id)
+                                     ->first();
+
+        if(!$mon_an) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Chuyên Mục phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Chuyên Mục Đã Tồn Tại!',
+            ]);
+        }
+    }
 }

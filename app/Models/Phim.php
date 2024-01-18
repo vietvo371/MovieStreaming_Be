@@ -11,12 +11,13 @@ class Phim extends Model
     protected $table = 'phims';
     protected $fillable = [
             'ten_phim',
+            'slug_phim',
             'hinh_anh',
             'mo_ta',
             'id_loai_phim',
-            'url',
             'id_the_loai',
             'id_tac_gia',
+            'so_tap_phim',
             'tinh_trang',
     ];
 

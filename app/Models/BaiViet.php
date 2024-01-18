@@ -11,6 +11,7 @@ class BaiViet extends Model
     protected $talbe = 'bai_viets';
     protected $fillable = [
         'tieu_de',
+        'slug_tieu_de',
         'hinh_anh',
         'mo_ta',
         'mo_ta_chi_tiet',

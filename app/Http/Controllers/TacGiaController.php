@@ -33,6 +33,7 @@ class TacGiaController extends Controller
          try {
              TacGia::create([
                 'ten_tac_gia'            =>$request->ten_tac_gia,
+                'slug_tac_gia'            =>$request->slug_tac_gia,
                 'tinh_trang'             =>$request->tinh_trang,
                  ]);
                  return response()->json([
@@ -62,6 +63,7 @@ class TacGiaController extends Controller
              TacGia::where('id', $request->id)
                      ->update([
                         'ten_tac_gia'            =>$request->ten_tac_gia,
+                        'slug_tac_gia'            =>$request->slug_tac_gia,
                         'tinh_trang'             =>$request->tinh_trang,
                              ]);
              return response()->json([
@@ -118,5 +120,39 @@ class TacGiaController extends Controller
              ]);
          }
      }
+     public function kiemTraSlugTacGia(Request $request)
+    {
+        $tac_gia = TacGia::where('slug_tac_gia', $request->slug)->first();
+
+        if(!$tac_gia) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Tác Giả phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Tác Giả Đã Tồn Tại!',
+            ]);
+        }
+    }
+    public function kiemTraSlugTacGiaUpdate(Request $request)
+    {
+        $mon_an = TacGia::where('slug_tac_gia', $request->slug)
+                                     ->where('id', '<>' , $request->id)
+                                     ->first();
+
+        if(!$mon_an) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Tác Giả phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Tác Giả Đã Tồn Tại!',
+            ]);
+        }
+    }
 
 }

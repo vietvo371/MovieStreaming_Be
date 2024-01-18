@@ -16,6 +16,7 @@ class PhimController extends Controller
         $dataAdmin   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->orderBy('id', 'DESC')
                         ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
                         ->get(); // get là ra 1 danh sách
 
@@ -82,7 +83,28 @@ class PhimController extends Controller
         'phim_5_obj'       =>  $data5,
         ]);
     }
-
+    public function sapxepHome(Request $request)
+    {
+        $catagory = $request->catagory;
+        if($catagory === 'az'){
+                $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                            ->join('loai_phims','id_loai_phim','loai_phims.id')
+                            ->join('tac_gias','id_tac_gia','tac_gias.id')
+                            ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                            ->orderBy('ten_phim', 'ASC')  // tăng dần
+                            ->get();
+        }else if($catagory === 'za'){
+              $data = Phim::join('the_loais','id_the_loai','the_loais.id')
+                            ->join('loai_phims','id_loai_phim','loai_phims.id')
+                            ->join('tac_gias','id_tac_gia','tac_gias.id')
+                            ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                            ->orderBy('ten_phim', 'DESC')  // giảm dần
+                            ->get();
+        }
+       return response()->json([
+               'phim'  =>  $data,
+               ]);
+    }
 
     public function taoPhim(Request $request)
     {
@@ -91,10 +113,11 @@ class PhimController extends Controller
                 'ten_phim'                  =>$request->ten_phim,
                 'hinh_anh'                  =>$request->hinh_anh,
                 'mo_ta'                     =>$request->mo_ta,
-                'url'                       =>$request->url,
+                'slug_phim'                 =>$request->slug_phim,
                 'id_loai_phim'              =>$request->id_loai_phim,
                 'id_the_loai'               =>$request->id_the_loai,
                 'id_tac_gia'                =>$request->id_tac_gia,
+                'so_tap_phim'               =>$request->so_tap_phim,
                 'tinh_trang'                =>$request->tinh_trang,
                 ]);
                 return response()->json([
@@ -150,10 +173,11 @@ class PhimController extends Controller
                         'ten_phim'                  =>$request->ten_phim,
                         'hinh_anh'                  =>$request->hinh_anh,
                         'mo_ta'                     =>$request->mo_ta,
-                        'url'                       =>$request->url,
+                        'slug_phim'                 =>$request->slug_phim,
                         'id_loai_phim'              =>$request->id_loai_phim,
                         'id_the_loai'               =>$request->id_the_loai,
                         'id_tac_gia'                =>$request->id_tac_gia,
+                        'so_tap_phim'               =>$request->so_tap_phim,
                         'tinh_trang'                =>$request->tinh_trang,
                     ]);
 
@@ -208,5 +232,39 @@ class PhimController extends Controller
         return response()->json([
         'phim'  =>  $data,
         ]);
+    }
+    public function kiemTraSlugPhim(Request $request)
+    {
+        $phim = Phim::where('slug_phim', $request->slug)->first();
+
+        if(!$phim) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Phim phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Phim Đã Tồn Tại!',
+            ]);
+        }
+    }
+    public function kiemTraSlugPhimUpdate(Request $request)
+    {
+        $mon_an = Phim::where('slug_phim', $request->slug)
+                                     ->where('id', '<>' , $request->id)
+                                     ->first();
+
+        if(!$mon_an) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Tên Phim phù hợp!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tên Phim Đã Tồn Tại!',
+            ]);
+        }
     }
 }

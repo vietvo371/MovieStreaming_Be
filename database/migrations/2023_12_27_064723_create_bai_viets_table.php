@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('bai_viets', function (Blueprint $table) {
             $table->id();
             $table->string('tieu_de');
+            $table->string('slug_tieu_de');
             $table->longText('hinh_anh');
             $table->longText('mo_ta');
             $table->longText('mo_ta_chi_tiet');
