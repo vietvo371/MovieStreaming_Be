@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Phim;
 use App\Models\TapPhim;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,10 +16,23 @@ class TapPhimController extends Controller
     public function getData()
     {
         $dataAmin       = TapPhim::join('phims','id_phim','phims.id')
-                                    ->select('tap_phims.*','phims.ten_phim')
+                                ->orderBy('slug_tap_phim', 'ASC')
+                                ->select('tap_phims.*','phims.ten_phim')
                          ->get(); // get là ra 1 danh sách
            return response()->json([
            'tap_phim_admin'  =>  $dataAmin,
+           ]);
+    }
+    public function getDataHome()
+    {
+        $data       = TapPhim::join('phims','id_phim','phims.id')
+                                    ->join('the_loais','phims.id_the_loai','the_loais.id')
+                                    ->join('loai_phims','phims.id_loai_phim','loai_phims.id')
+                                    ->where('tap_phims.tinh_trang',1)
+                                    ->select('tap_phims.*','phims.ten_phim','the_loais.ten_the_loai','loai_phims.ten_loai_phim','phims.id_the_loai','phims.id_loai_phim')
+                         ->get(); // get là ra 1 danh sách
+           return response()->json([
+           'tap_phim'  =>  $data,
            ]);
     }
 
@@ -46,11 +60,13 @@ class TapPhimController extends Controller
     public function timTapPhim(Request $request)
     {
         $key    = '%'. $request->key . '%';
-        $data   = TapPhim::select('the_loais.*')
-                    ->where('ten_the_loai', 'like', $key)
-                    ->get(); // get là ra 1 danh sách
+        $data   = TapPhim::join('phims','id_phim','phims.id')
+                        ->orderBy('slug_tap_phim', 'ASC')
+                        ->select('tap_phims.*','phims.ten_phim')
+                        ->where('phims.ten_phim', 'like', $key)
+                        ->get(); // get là ra 1 danh sách
         return response()->json([
-        'the_loai'  =>  $data,
+        'tap_phim'  =>  $data,
         ]);
     }
     public function capnhatTapPhim(Request $request)
@@ -137,20 +153,63 @@ class TapPhimController extends Controller
     }
     public function kiemTraSlugTapPhimUpdate(Request $request)
     {
-        $mon_an = TapPhim::where('slug_tap_phim', $request->slug)
+        $tap_phim = TapPhim::where('slug_tap_phim', $request->slug)
                                      ->where('id', '<>' , $request->id)
                                      ->first();
 
-        if(!$mon_an) {
+        if(!$tap_phim) {
             return response()->json([
                 'status'            =>   true,
-                'message'           =>   'Tên Tập Phim phù hợp!',
+                'message'           =>   'Tập Phim phù hợp!',
             ]);
         } else {
             return response()->json([
                 'status'            =>   false,
-                'message'           =>   'Tên Tập Phim Đã Tồn Tại!',
+                'message'           =>   'Tập Phim Đã Tồn Tại!',
             ]);
         }
     }
+    public function layTenPhim(Request $request)
+    {
+        $ten_phim =     Phim::join('the_loais','id_the_loai','the_loais.id')
+                            ->join('loai_phims','id_loai_phim','loai_phims.id')
+                            ->join('tac_gias','id_tac_gia','tac_gias.id')
+                            ->where('phims.id', $request->id_phim)
+                            ->first();
+
+        if($ten_phim) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'lấy tên phim thành công!',
+                'ten_phim'          => $ten_phim,
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'lấy tên phim không thành công!',
+            ]);
+        }
+    }
+    public function layTenPhimUpdate(Request $request)
+    {
+        $ten_phim =     Phim::join('the_loais','id_the_loai','the_loais.id')
+                            ->join('loai_phims','id_loai_phim','loai_phims.id')
+                            ->join('tac_gias','id_tac_gia','tac_gias.id')
+                            ->where('phims.id', $request->id_phim)
+                            ->first();
+
+        if($ten_phim) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'lấy tên phim thành công!',
+                'ten_phim'          => $ten_phim,
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'lấy tên phim không thành công!',
+            ]);
+        }
+    }
+
 }

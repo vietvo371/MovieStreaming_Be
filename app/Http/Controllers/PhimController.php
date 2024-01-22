@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Phim;
+use App\Models\TapPhim;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -12,7 +13,6 @@ class PhimController extends Controller
 
     public function getData()
     {
-
         $dataAdmin   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
@@ -22,6 +22,20 @@ class PhimController extends Controller
 
         return response()->json([
         'phim_admin' => $dataAdmin,
+        ]);
+    }
+    public function getDataXemPhim(Request $request)
+    {
+        $data   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                        ->join('loai_phims','id_loai_phim','loai_phims.id')
+                        ->join('tac_gias','id_tac_gia','tac_gias.id')
+                        ->where('phims.id', $request->id)
+                        ->where('phims.tinh_trang', 1)
+                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                        ->first(); // get là ra 1 danh sách
+
+        return response()->json([
+        'phim' => $data,
         ]);
     }
     public function dataTheoTL(Request $request){
@@ -67,21 +81,35 @@ class PhimController extends Controller
                         ->orderBy('id', 'DESC') // sắp xếp giảm dần
                         ->take(3)
                         ->get(); // get là ra 1 danh sách
-        $data5   = Phim::join('the_loais','id_the_loai','the_loais.id')
-                        ->join('loai_phims','id_loai_phim','loai_phims.id')
-                        ->join('tac_gias','id_tac_gia','tac_gias.id')
-                        ->where('phims.tinh_trang', 1)
-                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
-                        ->inRandomOrder() // Lấy ngẫu nhiên
-                        ->take(5)
-                        ->get(); // get là ra 1 danh sách
+
         return response()->json([
         'phim'             =>  $data,
         'phim_9_obj'       =>  $data9,
         'phim_2_obj'       =>  $data2,
         'phim_3_obj'       =>  $data3,
-        'phim_5_obj'       =>  $data5,
         ]);
+    }
+    public function getDataDelist(Request $request)
+    {
+        $phim                   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                                       ->join('loai_phims','id_loai_phim','loai_phims.id')
+                                       ->join('tac_gias','id_tac_gia','tac_gias.id')
+                                       ->where('phims.tinh_trang', 1)
+                                       ->where('phims.id', $request->id_phim)
+                                       ->select('phims.*','the_loais.ten_the_loai','the_loais.id as id_tl','the_loais.slug_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                                       ->get();
+        $data5   = Phim::join('the_loais','id_the_loai','the_loais.id')
+                                       ->join('loai_phims','id_loai_phim','loai_phims.id')
+                                       ->join('tac_gias','id_tac_gia','tac_gias.id')
+                                       ->where('phims.tinh_trang', 1)
+                                       ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
+                                       ->inRandomOrder() // Lấy ngẫu nhiên
+                                       ->take(5)
+                                       ->get(); // get là ra 1 danh sách
+           return response()->json([
+           'phim'        =>  $phim,
+           'phim_5_obj'  =>  $data5,
+           ]);
     }
     public function sapxepHome(Request $request)
     {
