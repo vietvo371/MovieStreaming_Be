@@ -90,6 +90,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::post('/thong-tin-tim', [TapPhimController::class, 'timTapPhim']);
         Route::post('/kiem-tra-slug', [TapPhimController::class, 'kiemTraSlugTapPhim']);
         Route::post('/kiem-tra-slug-update', [TapPhimController::class, 'kiemTraSlugTapPhimUpdate']);
+        Route::post('/lay-ten-phim', [TapPhimController::class, 'layTenPhim']);
+        Route::post('/lay-ten-phim-update', [TapPhimController::class, 'layTenPhimUpdate']);
 
 
     });
@@ -184,14 +186,23 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
     Route::group(['prefix'  =>  '/phim' ], function() {
         //  Phim
         Route::get('/lay-du-lieu-show', [PhimController::class, 'getDataHome']);
+        Route::get('/lay-data-delist', [PhimController::class, 'getDataDelist']);
+
+    });
+    Route::group(['prefix'  =>  '/tap-phim' ], function() {
+        //  Phim
+        Route::get('/lay-du-lieu-show', [TapPhimController::class, 'getDataHome']);
     });
     Route::group(['prefix'  =>  '/the-loai'], function() {
         // The Loai Phim
         Route::get('/lay-du-lieu-show', [TheLoaiController::class, 'getDataHome']);
+        Route::get('/lay-du-lieu-show-tat-ca', [TheLoaiController::class, 'getDataHomeTLPhim']);
     });
     Route::group(['prefix'  =>  '/loai-phim'], function() {
         // Loại Phim
         Route::get('/lay-du-lieu-show', [LoaiPhimController::class, 'getDataHome']);
+        Route::get('/lay-du-lieu-show-tat-ca', [LoaiPhimController::class, 'getDataHomeLPhim']);
+
     });
     Route::group(['prefix'  =>  '/tac-gia'], function() {
         // Tác Giả
@@ -219,6 +230,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
     Route::get('/the-loai/sap-xep', [TheLoaiController::class, 'sapxepHome']);
     Route::get('/loai-phim/sap-xep', [LoaiPhimController::class, 'sapxepHome']);
     Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
+    Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
 
 
 
