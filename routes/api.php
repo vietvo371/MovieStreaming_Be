@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\Route;
     /// Khach hàng
     Route::post('/khach-hang/login',[KhachHangController::class , 'login']);
     Route::post('/khach-hang/register',[KhachHangController::class , 'register']);
+    Route::post('/kiem-tra-quen-hash-pass', [KhachHangController::class, 'kiemTraQuenMK']);
+    Route::post('/dat-lai-mat-khau', [KhachHangController::class, 'datLaiMK']);
+    Route::post('/quen-mat-khau', [KhachHangController::class, 'quenMK']);
     Route::post('/khach-hang/check',[KhachHangController::class , 'check']);
     Route::delete('/khach-hang/thong-tin-xoa/{id}', [KhachHangController::class, 'xoatoken']);
 

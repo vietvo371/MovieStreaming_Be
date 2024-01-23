@@ -17,6 +17,9 @@ class KhachHang extends Authenticatable
            'ho_va_ten',
            'password',
            'hinh_anh',
+           'hash_quen_mat_khau',
+           'hash_kich_hoat',
+           'is_done',
     ];
 
 }
