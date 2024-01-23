@@ -24,7 +24,7 @@ class TheLoaiController extends Controller
     public function getDataHomeTLPhim(Request $request)
     {
         $the_loai               = TheLoai::where('the_loais.tinh_trang',1)
-                                        ->where('the_loais.id',$request->id_tl)
+                                        ->where('the_loais.slug_the_loai',$request->slug_tl)
                                         ->select('the_loais.*')
                                         ->first();
 
@@ -32,7 +32,7 @@ class TheLoaiController extends Controller
                                        ->join('loai_phims','id_loai_phim','loai_phims.id')
                                        ->join('tac_gias','id_tac_gia','tac_gias.id')
                                        ->where('phims.tinh_trang', 1)
-                                       ->where('phims.id_the_loai', $request->id_tl)
+                                       ->where('the_loais.slug_the_loai', $request->slug_tl)
                                        ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
                                        ->get();
         $phim_9_obj              = Phim::join('the_loais','id_the_loai','the_loais.id')

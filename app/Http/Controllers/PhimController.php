@@ -95,9 +95,9 @@ class PhimController extends Controller
                                        ->join('loai_phims','id_loai_phim','loai_phims.id')
                                        ->join('tac_gias','id_tac_gia','tac_gias.id')
                                        ->where('phims.tinh_trang', 1)
-                                       ->where('phims.id', $request->id_phim)
+                                       ->where('phims.slug_phim', $request->slug)
                                        ->select('phims.*','the_loais.ten_the_loai','the_loais.id as id_tl','the_loais.slug_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
-                                       ->get();
+                                       ->first();
         $data5   = Phim::join('the_loais','id_the_loai','the_loais.id')
                                        ->join('loai_phims','id_loai_phim','loai_phims.id')
                                        ->join('tac_gias','id_tac_gia','tac_gias.id')

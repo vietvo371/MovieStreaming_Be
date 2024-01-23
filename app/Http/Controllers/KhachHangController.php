@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DangNhapRequest;
+use App\Mail\mailQuenMatKhau;
 use App\Models\KhachHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Jenssegers\Agent\Agent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
@@ -151,13 +155,13 @@ class KhachHangController extends Controller
     }
 
 
-    public function login(Request $request)
+    public function login(DangNhapRequest $request)
     {
-        $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->password, ]);
+        $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->password, 'is_done'    => 1 ]);
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
             return response()->json([
-                'message'   => 'Đăng Nhập thành công!!',
+                'message'   => 'Tài khoản chưa kích hoạt!!',
                 'status'    => true,
                 'token'     => $user->createToken('api-token-khach')->plainTextToken,
 
@@ -178,11 +182,73 @@ class KhachHangController extends Controller
             'ho_va_ten'     => $request->ho_va_ten,
             'password'      => bcrypt($request->password),
             'hinh_anh'      => $request->hinh_anh,
+            'is_done'      => $request->is_done,
+
         ]);
         return response()->json([
             'message'   => 'Tạo tài khoản thành công!!',
             'status'    =>  true
         ]);
+    }
+    public function kiemTraQuenMK(Request $request)
+    {
+        $check  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
+        if($check) {
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Vui lòng đặt lại mật khẩu!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Bạn không được đặt lại mật khẩu!',
+            ]);
+        }
+    }
+    public function datLaiMK(Request $request)
+    {
+
+        $khach_hang  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
+        if($khach_hang) {
+            $khach_hang->password             =   bcrypt($request->password);
+            $khach_hang->hash_quen_mat_khau   =   null;
+            $khach_hang->save();
+
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Đã đổi mật khẩu thành công!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Bạn không được phép ở đây!',
+            ]);
+        }
+    }
+
+    public function quenMK(Request $request)
+    {
+        // Gửi lên 1 thằng duy nhất $request->email
+        $khach_hang   = KhachHang::where('email', $request->email)->first();
+        if($khach_hang) {
+            // Tạo 1 mã hash_quen_mat_khau
+            $hash_pass                      =   Str::uuid();
+            $khach_hang->hash_quen_mat_khau   =   $hash_pass;
+            $khach_hang->save();
+            // Gửi Email
+            $info['name']  =    $khach_hang->ho_va_ten;
+            $info['link']  =    'http://localhost:5173/reset-password/' . $hash_pass;
+            Mail::to($request->email)->send(new mailQuenMatKhau('mail.quen_mat_khau', 'Khôi Phục Tài Khoản Của Bạn', $info));
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Vui lòng kiểm tra email của bạn để đổi lại mật khẩu!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tài khoản của bạn không tồn tại!',
+            ]);
+        }
     }
 
     public function check(Request $request)
