@@ -33,6 +33,18 @@ class BaiVietController extends Controller
            'bai_viet'        =>  $data,
            ]);
     }
+    public function getDelistBlog(Request $request)
+    {
+        $data   = BaiViet::where('bai_viets.tinh_trang',1)
+                        ->join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
+                        ->where('bai_viets.slug_tieu_de', $request->slug)
+                        ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
+                        ->first(); // get là ra 1 danh sách
+
+           return response()->json([
+           'bai_viet'        =>  $data,
+           ]);
+    }
 
 
     public function taoBaiViet(Request $request)
