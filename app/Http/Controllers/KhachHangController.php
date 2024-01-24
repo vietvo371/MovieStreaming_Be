@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DangKyRequest;
 use App\Http\Requests\DangNhapRequest;
+use App\Mail\KichHoatTaiKhoan;
 use App\Mail\mailQuenMatKhau;
 use App\Models\KhachHang;
 use Illuminate\Http\Request;
@@ -161,7 +163,7 @@ class KhachHangController extends Controller
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
             return response()->json([
-                'message'   => 'Tài khoản chưa kích hoạt!!',
+                'message'   => 'Đăng nhập thành công!!',
                 'status'    => true,
                 'token'     => $user->createToken('api-token-khach')->plainTextToken,
 
@@ -169,13 +171,13 @@ class KhachHangController extends Controller
         }
         else {
             return response()->json([
-                'message'   => 'Đăng Nhập không  thành công!!',
+                'message'   => 'Tài khoản của bạn chưa kích hoạt!!',
                 'status'    => false
             ]);
         }
     }
 
-    public function register(Request $request)
+    public function register(DangKyRequest $request)
     {
         KhachHang::create([
             'email'         => $request->email,
@@ -202,6 +204,50 @@ class KhachHangController extends Controller
             return response()->json([
                 'status'            =>   false,
                 'message'           =>   'Bạn không được đặt lại mật khẩu!',
+            ]);
+        }
+    }
+    public function kiemTraHashLogin(Request $request)
+    {
+        $khach_hang  = KhachHang::where('hash_kich_hoat', $request->hash_kich_hoat)
+                                    ->first();
+        if($khach_hang) {
+            $khach_hang->is_done   =   1;
+            $khach_hang->hash_kich_hoat   =   null;
+            $khach_hang->save();
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Kích hoạt email thành công!',
+                'email'             =>   $khach_hang->email,
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Bạn không được ở đây!',
+            ]);
+        }
+    }
+    public function kichHoatTK(Request $request)
+    {
+        // Gửi lên 1 thằng duy nhất $request->email
+        $khach_hang   = KhachHang::where('email', $request->email)->first();
+        if($khach_hang) {
+            // Tạo 1 mã hash_kich_hoat
+            $hash_kich_hoat                      =   Str::uuid();
+            $khach_hang->hash_kich_hoat   =   $hash_kich_hoat;
+            $khach_hang->save();
+            // Gửi Email
+            $info['name']  =    $khach_hang->ho_va_ten;
+            $info['link']  =    'http://localhost:5173/kich-hoat-email/' . $hash_kich_hoat;
+            Mail::to($request->email)->send(new KichHoatTaiKhoan('mail.kich_hoat_tai_khoan', 'KÍCH HOẠT TẢI KHOẢN ĐĂNG NHẬP', $info));
+            return response()->json([
+                'status'            =>   true,
+                'message'           =>   'Vui lòng kiểm tra email của bạn để kích hoạt!',
+            ]);
+        } else {
+            return response()->json([
+                'status'            =>   false,
+                'message'           =>   'Tài khoản của bạn không tồn tại!',
             ]);
         }
     }

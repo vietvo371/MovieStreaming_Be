@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Route;
     Route::post('/khach-hang/login',[KhachHangController::class , 'login']);
     Route::post('/khach-hang/register',[KhachHangController::class , 'register']);
     Route::post('/kiem-tra-quen-hash-pass', [KhachHangController::class, 'kiemTraQuenMK']);
+    Route::post('/kiem-tra-hash-kich-hoat', [KhachHangController::class, 'kiemTraHashLogin']);
+    Route::post('/gui-mail-kich-hoat', [KhachHangController::class, 'kichHoatTK']);
     Route::post('/dat-lai-mat-khau', [KhachHangController::class, 'datLaiMK']);
     Route::post('/quen-mat-khau', [KhachHangController::class, 'quenMK']);
     Route::post('/khach-hang/check',[KhachHangController::class , 'check']);
@@ -214,6 +216,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
     Route::group(['prefix'  =>  '/bai-viet'], function() {
         // Bài Viết Blog
         Route::get('/lay-du-lieu-show', [BaiVietController::class, 'getDataHome']);
+        Route::post('/lay-du-lieu-delist-blog', [BaiVietController::class, 'getDelistBlog']);
     });
     Route::group(['prefix'  =>  '/chuyen-muc'], function() {
         // Chuyên Mục Blog
