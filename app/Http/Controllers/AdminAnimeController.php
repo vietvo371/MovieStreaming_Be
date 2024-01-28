@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnime;
+use App\Models\PhanQuyen;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,8 +15,21 @@ class AdminAnimeController extends Controller
 {
     public function getData()
     {
-        $data   = AdminAnime::select('admin_animes.*')
-                         ->get(); // get là ra 1 danh sách
+        $id_chuc_nang = 1;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
+        $data   = AdminAnime::join('chuc_vus','id_chuc_vu','chuc_vus.id')
+                            ->select('admin_animes.*','chuc_vus.ten_chuc_vu')
+                             ->get(); // get là ra 1 danh sách
         return response()->json([
             'admin'  =>  $data,
         ]);
@@ -60,6 +74,7 @@ class AdminAnimeController extends Controller
                         'ho_va_ten'             =>$request->ho_va_ten,
                         'password'              =>($request->password),
                         'hinh_anh'              =>$request->hinh_anh,
+                        'id_chuc_vu'            =>$request->id_chuc_vu,
                     ]);
 
             return response()->json([
@@ -78,11 +93,24 @@ class AdminAnimeController extends Controller
     public function taoAdmin(Request $request)
     {
         try {
+            $id_chuc_nang = 1;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
             AdminAnime::create([
                 'email'                 =>$request->email,
                 'ho_va_ten'             =>$request->ho_va_ten,
                 'password'              =>bcrypt($request->password),
                 'hinh_anh'              =>$request->hinh_anh,
+                'id_chuc_vu'            =>$request->id_chuc_vu,
                 ]);
                 return response()->json([
                     'status'   => true ,
@@ -110,6 +138,18 @@ class AdminAnimeController extends Controller
     public function xoaAdmin($id)
     {
         try {
+            $id_chuc_nang = 1;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
             AdminAnime::where('id', $id)->delete();
 
             return response()->json([
@@ -130,12 +170,25 @@ class AdminAnimeController extends Controller
     public function capnhatAdmin(Request $request)
     {
         try {
+            $id_chuc_nang = 1;
+            // $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            // $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            // $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+            //                     ->where('id_chuc_nang', $id_chuc_nang)
+            //                     ->first();
+            // if(!$check) {
+            //     return response()->json([
+            //         'status'  =>  false,
+            //         'message' =>  'Bạn không có quyền chức năng này'
+            //     ]);
+            // }
             AdminAnime::where('id', $request->id)
                     ->update([
                         'email'                 =>$request->email,
                         'ho_va_ten'             =>$request->ho_va_ten,
                         'password'              =>($request->password),
                         'hinh_anh'              =>$request->hinh_anh,
+                        'id_chuc_vu'            =>$request->id_chuc_vu,
                     ]);
 
             return response()->json([
