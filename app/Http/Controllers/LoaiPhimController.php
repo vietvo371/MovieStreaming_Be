@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\LoaiPhim;
+use App\Models\PhanQuyen;
 use App\Models\Phim;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class LoaiPhimController extends Controller
@@ -15,6 +17,18 @@ class LoaiPhimController extends Controller
      */
     public function getData()
     {
+        $id_chuc_nang = 8;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
         $dataAdmin   = LoaiPhim::select('loai_phims.*')
                          ->get(); // get là ra 1 danh sách
             return response()->json([
@@ -22,7 +36,7 @@ class LoaiPhimController extends Controller
             ]);
      }
      public function getDataHome()
-    {
+     {
         $data   = LoaiPhim::where('loai_phims.tinh_trang',1)
                          ->select('loai_phims.*')
                          ->get(); // get là ra 1 danh sách
@@ -96,6 +110,18 @@ class LoaiPhimController extends Controller
      public function taoLoaiPhim(Request $request)
      {
          try {
+            $id_chuc_nang = 8;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
              LoaiPhim::create([
                 'ten_loai_phim'          =>$request->ten_loai_phim,
                 'slug_loai_phim'         =>$request->slug_loai_phim,
@@ -125,6 +151,18 @@ class LoaiPhimController extends Controller
      public function capnhatLoaiPhim(Request $request)
      {
          try {
+            $id_chuc_nang = 8;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
              LoaiPhim::where('id', $request->id)
                      ->update([
                         'ten_loai_phim'          =>$request->ten_loai_phim,
@@ -146,6 +184,18 @@ class LoaiPhimController extends Controller
      public function xoaLoaiPhim($id)
      {
          try {
+            $id_chuc_nang = 8;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
              LoaiPhim::where('id', $id)->delete();
 
              return response()->json([

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\BaiViet;
+use App\Models\PhanQuyen;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class BaiVietController extends Controller
@@ -14,6 +16,18 @@ class BaiVietController extends Controller
      */
     public function getData()
     {
+        $id_chuc_nang = 10;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
         $dataAdmim   = BaiViet::join('chuyen_mucs','id_chuyen_muc','chuyen_mucs.id')
                         ->select('bai_viets.*','chuyen_mucs.ten_chuyen_muc')
                         ->get(); // get là ra 1 danh sách
@@ -50,6 +64,18 @@ class BaiVietController extends Controller
     public function taoBaiViet(Request $request)
     {
         try {
+            $id_chuc_nang = 10;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             BaiViet::create([
                 'tieu_de'               =>$request->tieu_de,
                 'slug_tieu_de'           =>$request->slug_tieu_de,
@@ -85,6 +111,18 @@ class BaiVietController extends Controller
     public function xoaBaiViet($id)
     {
         try {
+            $id_chuc_nang = 10;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             BaiViet::where('id', $id)->delete();
 
             return response()->json([
@@ -105,6 +143,18 @@ class BaiVietController extends Controller
     public function capnhatBaiViet(Request $request)
     {
         try {
+            $id_chuc_nang = 10;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             BaiViet::where('id', $request->id)
                     ->update([
                         'tieu_de'               =>$request->tieu_de,

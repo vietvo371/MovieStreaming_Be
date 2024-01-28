@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PhanQuyen;
 use App\Models\Phim;
 use App\Models\TapPhim;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class PhimController extends Controller
@@ -13,6 +15,18 @@ class PhimController extends Controller
 
     public function getData()
     {
+        $id_chuc_nang = 5;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
         $dataAdmin   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
@@ -137,6 +151,18 @@ class PhimController extends Controller
     public function taoPhim(Request $request)
     {
         try {
+            $id_chuc_nang = 5;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             Phim::create([
                 'ten_phim'                  =>$request->ten_phim,
                 'hinh_anh'                  =>$request->hinh_anh,
@@ -176,6 +202,18 @@ class PhimController extends Controller
     public function xoaPhim($id)
     {
         try {
+            $id_chuc_nang = 5;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             Phim::where('id', $id)->delete();
 
             return response()->json([
@@ -196,6 +234,18 @@ class PhimController extends Controller
     public function capnhatPhim(Request $request)
     {
         try {
+            $id_chuc_nang = 5;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             Phim::where('id', $request->id)
                     ->update([
                         'ten_phim'                  =>$request->ten_phim,

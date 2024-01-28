@@ -7,6 +7,7 @@ use App\Http\Requests\DangNhapRequest;
 use App\Mail\KichHoatTaiKhoan;
 use App\Mail\mailQuenMatKhau;
 use App\Models\KhachHang;
+use App\Models\PhanQuyen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,18 @@ class KhachHangController extends Controller
 {
     public function getData()
     {
+        $id_chuc_nang = 2;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
         $data   = KhachHang::select('khach_hangs.*')
                          ->get(); // get là ra 1 danh sách
         return response()->json([
@@ -34,6 +47,18 @@ class KhachHangController extends Controller
     public function taoKhachHang(Request $request)
     {
         try {
+            $id_chuc_nang = 2;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
             KhachHang::create([
                 'email'                 =>$request->email,
                 'ho_va_ten'             =>$request->ho_va_ten,
@@ -115,6 +140,18 @@ class KhachHangController extends Controller
     public function xoaKhachHang($id)
     {
         try {
+            $id_chuc_nang = 2;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
             KhachHang::where('id', $id)->delete();
 
             return response()->json([
@@ -135,6 +172,18 @@ class KhachHangController extends Controller
     public function capnhatKhachHang(Request $request)
     {
         try {
+            $id_chuc_nang = 2;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
             KhachHang::where('id', $request->id)
                     ->update([
                         'email'                 =>$request->email,

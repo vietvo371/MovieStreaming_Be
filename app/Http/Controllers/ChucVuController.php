@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChuyenMuc;
+use App\Models\ChucVu;
 use App\Models\PhanQuyen;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
-class ChuyenMucController extends Controller
+class ChucVuController extends Controller
 {
-
     public function getData()
     {
-        $id_chuc_nang = 11;
+        $id_chuc_nang = 3;
         $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
         $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
         $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
@@ -26,70 +25,58 @@ class ChuyenMucController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataAdmin   = ChuyenMuc::select('chuyen_mucs.*')
-                        ->get(); // get là ra 1 danh sách
+        $dataAmin       = ChucVu::select('chuc_vus.*')
+                         ->get(); // get là ra 1 danh sách
            return response()->json([
-           'chuyen_muc_admin'  =>  $dataAdmin,
-           ]);
-    }
-    public function getDataHome()
-    {
-        $data   = ChuyenMuc::where('chuyen_mucs.tinh_trang',1)
-                        ->select('chuyen_mucs.*')
-                        ->get(); // get là ra 1 danh sách
-           return response()->json([
-           'chuyen_muc'        =>  $data,
+           'chuc_vu_admin'  =>  $dataAmin,
            ]);
     }
 
-
-    public function taoChuyenMuc(Request $request)
+    public function taoChucVu(Request $request)
     {
         try {
-            $id_chuc_nang = 11;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
-                return response()->json([
-                    'status'  =>  false,
-                    'message' =>  'Bạn không có quyền chức năng này'
-                ]);
-            }
-            ChuyenMuc::create([
-                'ten_chuyen_muc'    =>$request->ten_chuyen_muc,
-                'slug_chuyen_muc'   =>$request->slug_chuyen_muc,
-                'tinh_trang'        =>$request->tinh_trang,
+            $id_chuc_nang = 3;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
+            ChucVu::create([
+                'ten_chuc_vu'   =>$request->ten_chuc_vu,
+                'slug_chuc_vu'  =>$request->slug_chuc_vu,
+                'tinh_trang'    =>$request->tinh_trang,
                 ]);
                 return response()->json([
                     'status'   => true ,
-                    'message'  => 'Bạn thêm chuyên mục thành công!',
+                    'message'  => 'Bạn thêm Thể Chức Vụ thành công!',
                 ]);
         } catch (ExceptionEvent $e) {
                 return response()->json([
                     'status'     => false,
-                    'message'    => 'Xoá chuyên mục không thành công!!'
+                    'message'    => 'Xoá Thể Chức Vụ không thành công!!'
                 ]);
         }
-
     }
-
-     public function timChuyenMuc(Request $request)
+    public function timChucVu(Request $request)
     {
         $key    = '%'. $request->key . '%';
-        $data   = ChuyenMuc::select('chuyen_mucs.*')
-                    ->where('ten_chuyen_muc', 'like', $key)
+        $data   = ChucVu::select('chuc_vus.*')
+                    ->where('ten_chuc_vu', 'like', $key)
                     ->get(); // get là ra 1 danh sách
         return response()->json([
-        'chuyen_muc'  =>  $data,
+        'chuc_vu_admin'  =>  $data,
         ]);
     }
-    public function xoaChuyenMuc($id)
+    public function capnhatChucVu(Request $request)
     {
         try {
-            $id_chuc_nang = 11;
+            $id_chuc_nang = 3;
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
@@ -101,65 +88,62 @@ class ChuyenMucController extends Controller
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
-            ChuyenMuc::where('id', $id)->delete();
-
-            return response()->json([
-                'status'     => true,
-                'message'    => 'Đã xoá chuyên mục thành công!!'
-            ]);
-        } catch (ExceptionEvent $e) {
-            //throw $th;
-            return response()->json([
-                'status'     => false,
-                'message'    => 'Xoá chuyên mục không thành công!!'
-            ]);
-
-        }
-
-    }
-
-    public function capnhatChuyenMuc(Request $request)
-    {
-        try {
-            $id_chuc_nang = 11;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
-                return response()->json([
-                    'status'  =>  false,
-                    'message' =>  'Bạn không có quyền chức năng này'
-                ]);
-            }
-            ChuyenMuc::where('id', $request->id)
+            ChucVu::where('id', $request->id)
                     ->update([
-                        'ten_chuyen_muc'    =>$request->ten_chuyen_muc,
-                        'slug_chuyen_muc'   =>$request->slug_chuyen_muc,
-                        'tinh_trang'        =>$request->tinh_trang,
-                    ]);
+                        'ten_chuc_vu'   =>$request->ten_chuc_vu,
+                        'slug_chuc_vu'  =>$request->slug_chuc_vu,
+                        'tinh_trang'    =>$request->tinh_trang,
+                            ]);
 
             return response()->json([
                 'status'     => true,
-                'message'    => 'Đã Cập Nhật chuyên mục thành công!' ,
+                'message'    => 'Đã Cập Nhật thành ' . $request->ten_the_loai,
+            ]);
+        } catch (Exception $e) {
+            //throw $th;
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Cập Nhật Chức Vụ không thành công!!'
+            ]);
+        }
+    }
+    public function xoaChucVu($id)
+    {
+        try {
+            $id_chuc_nang = 3;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
+            ChucVu::where('id', $id)->delete();
+
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Đã xoá Chức vụ thành công!!'
             ]);
         } catch (ExceptionEvent $e) {
             //throw $th;
             return response()->json([
                 'status'     => false,
-                'message'    => 'Cập Nhật chuyên mục không thành công!!'
+                'message'    => 'Xoá Chức vụ không thành công!!'
             ]);
+
         }
+
     }
-
-    public function thaydoiTrangThaiChuyenMuc(Request $request)
+    public function thaydoiTrangThaiChucVu(Request $request)
     {
-
         try {
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
-            ChuyenMuc::where('id', $request->id)
+            ChucVu::where('id', $request->id)
                     ->update([
                         'tinh_trang'    =>$tinh_trang_moi
                     ]);
@@ -176,37 +160,37 @@ class ChuyenMucController extends Controller
             ]);
         }
     }
-    public function kiemTraSlugChuyenMuc(Request $request)
+    public function kiemTraSlugChucVu(Request $request)
     {
-        $tac_gia = ChuyenMuc::where('slug_chuyen_muc', $request->slug)->first();
+        $tac_gia = ChucVu::where('slug_chuc_vu', $request->slug)->first();
 
         if(!$tac_gia) {
             return response()->json([
                 'status'            =>   true,
-                'message'           =>   'Tên Chuyên Mục phù hợp!',
+                'message'           =>   'Tên Chức Vụ phù hợp!',
             ]);
         } else {
             return response()->json([
                 'status'            =>   false,
-                'message'           =>   'Tên Chuyên Mục Đã Tồn Tại!',
+                'message'           =>   'Tên Chức Vụ Đã Tồn Tại!',
             ]);
         }
     }
-    public function kiemTraSlugChuyenMucUpdate(Request $request)
+    public function kiemTraSlugChucVuUpdate(Request $request)
     {
-        $mon_an = ChuyenMuc::where('slug_chuyen_muc', $request->slug)
+        $mon_an = ChucVu::where('slug_chuc_vu', $request->slug)
                                      ->where('id', '<>' , $request->id)
                                      ->first();
 
         if(!$mon_an) {
             return response()->json([
                 'status'            =>   true,
-                'message'           =>   'Tên Chuyên Mục phù hợp!',
+                'message'           =>   'Tên Chức Vụ phù hợp!',
             ]);
         } else {
             return response()->json([
                 'status'            =>   false,
-                'message'           =>   'Tên Chuyên Mục Đã Tồn Tại!',
+                'message'           =>   'Tên Chức Vụ Đã Tồn Tại!',
             ]);
         }
     }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PhanQuyen;
 use App\Models\Phim;
 use App\Models\TapPhim;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class TapPhimController extends Controller
@@ -15,6 +17,18 @@ class TapPhimController extends Controller
      */
     public function getData()
     {
+        $id_chuc_nang = 6;
+        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                            ->where('id_chuc_nang', $id_chuc_nang)
+                            ->first();
+        if(!$check) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
         $dataAmin       = TapPhim::join('phims','id_phim','phims.id')
                                 ->orderBy('slug_tap_phim', 'ASC')
                                 ->select('tap_phims.*','phims.ten_phim')
@@ -39,6 +53,18 @@ class TapPhimController extends Controller
     public function taoTapPhim(Request $request)
     {
         try {
+            $id_chuc_nang = 6;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TapPhim::create([
                         'ten_tap_phim'  => $request-> ten_tap_phim,
                         'slug_tap_phim' => $request-> slug_tap_phim ,
@@ -72,6 +98,18 @@ class TapPhimController extends Controller
     public function capnhatTapPhim(Request $request)
     {
         try {
+            $id_chuc_nang = 6;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TapPhim::where('id', $request->id)
                     ->update([
                         'ten_tap_phim'  => $request-> ten_tap_phim,
@@ -96,6 +134,18 @@ class TapPhimController extends Controller
     public function xoaTapPhim($id)
     {
         try {
+            $id_chuc_nang = 6;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TapPhim::where('id', $id)->delete();
 
             return response()->json([

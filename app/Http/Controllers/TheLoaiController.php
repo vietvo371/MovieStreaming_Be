@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PhanQuyen;
 use App\Models\Phim;
 use App\Models\TheLoai;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class TheLoaiController extends Controller
@@ -15,6 +17,18 @@ class TheLoaiController extends Controller
      */
     public function getData()
     {
+        $id_chuc_nang = 7;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
         $dataAmin       = TheLoai::select('the_loais.*')
                          ->get(); // get là ra 1 danh sách
            return response()->json([
@@ -112,6 +126,18 @@ class TheLoaiController extends Controller
     public function taoTheLoai(Request $request)
     {
         try {
+            $id_chuc_nang = 7;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TheLoai::create([
                 'ten_the_loai'      =>$request->ten_the_loai,
                 'slug_the_loai'     =>$request->slug_the_loai,
@@ -141,6 +167,18 @@ class TheLoaiController extends Controller
     public function capnhatTheLoai(Request $request)
     {
         try {
+            $id_chuc_nang = 7;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TheLoai::where('id', $request->id)
                     ->update([
                         'ten_the_loai'      =>$request->ten_the_loai,
@@ -163,6 +201,18 @@ class TheLoaiController extends Controller
     public function xoaTheLoai($id)
     {
         try {
+            $id_chuc_nang = 7;
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             TheLoai::where('id', $id)->delete();
 
             return response()->json([

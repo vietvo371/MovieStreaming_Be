@@ -4,9 +4,11 @@ use App\Http\Controllers\AdminAnimeController;
 use App\Http\Controllers\BaiVietController;
 use App\Http\Controllers\BinhLuanBaiVietController;
 use App\Http\Controllers\BinhLuanPhimController;
+use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\ChuyenMucController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LoaiPhimController;
+use App\Http\Controllers\PhanQuyenController;
 use App\Http\Controllers\PhimController;
 use App\Http\Controllers\TacGiaController;
 use App\Http\Controllers\TapPhimController;
@@ -67,9 +69,23 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::put('/doi-thong-tin', [KhachHangController::class, 'doiThongTin']);
         Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfile']);
 
-
-
-
+    });
+    Route::group(['prefix'  =>  '/chuc-vu'], function() {
+        // The Loai Chức vụ
+        Route::get('/lay-du-lieu', [ChucVuController::class, 'getData']);
+        Route::post('/thong-tin-tao', [ChucVuController::class, 'taoChucVu']);
+        Route::delete('/thong-tin-xoa/{id}', [ChucVuController::class, 'xoaChucVu']);
+        Route::put('/thong-tin-cap-nhat', [ChucVuController::class, 'capnhatChucVu']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [ChucVuController::class, 'thaydoiTrangThaiChucVu']);
+        Route::post('/thong-tin-tim', [ChucVuController::class, 'timChucVu']);
+        Route::post('/kiem-tra-slug', [ChucVuController::class, 'kiemTraSlugChucVu']);
+        Route::post('/kiem-tra-slug-update', [ChucVuController::class, 'kiemTraSlugChucVuUpdate']);
+    });
+    Route::group(['prefix'  =>  '/phan-quyen'], function () {
+        Route::get('/lay-du-lieu', [PhanQuyenController::class, 'getDataPhanQuyen']);
+        Route::post('/create', [PhanQuyenController::class, 'createPhanQuyen']);
+        Route::post('/get-chuc-nang', [PhanQuyenController::class, 'getChucNang']);
+        Route::delete('/xoa-phan-quyen/{id}', [PhanQuyenController::class, 'xoaPhanQuyen']);
     });
     Route::group(['prefix'  =>  '/phim' ], function() {
         //  Phim
