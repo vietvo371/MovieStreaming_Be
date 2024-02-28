@@ -13,6 +13,7 @@ use App\Http\Controllers\PhimController;
 use App\Http\Controllers\TacGiaController;
 use App\Http\Controllers\TapPhimController;
 use App\Http\Controllers\TheLoaiController;
+use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\YeuThichController;
 use App\Models\AdminAnime;
 use App\Models\BinhLuanPhim;
@@ -200,8 +201,12 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
         Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
         Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
     });
+    // Thống Kê
+    Route::group(['prefix'  =>  '/thong-ke'], function() {
+        Route::post('/data-thong-ke-1', [ThongKeController::class, 'getDataThongke1']);
 
-});
+    });
+    });
 
  // Show data ở Home
     Route::group(['prefix'  =>  '/phim' ], function() {
@@ -253,7 +258,3 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() 
     Route::get('/loai-phim/sap-xep', [LoaiPhimController::class, 'sapxepHome']);
     Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
     Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
-
-
-
-
