@@ -233,7 +233,8 @@ class KhachHangController extends Controller
             'ho_va_ten'     => $request->ho_va_ten,
             'password'      => bcrypt($request->password),
             'hinh_anh'      => $request->hinh_anh,
-            'is_done'      => $request->is_done,
+            'ngay_sinh'     => $request->ngay_sinh,
+            'is_done'       => $request->is_done,
 
         ]);
         return response()->json([

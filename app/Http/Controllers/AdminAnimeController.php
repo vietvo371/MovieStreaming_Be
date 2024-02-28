@@ -35,7 +35,10 @@ class AdminAnimeController extends Controller
         ]);
     }
     public function getDataProfile(Request $request){
-        $user = AdminAnime::where('id',$request->id_admin)->first();
+        $user = AdminAnime::join('chuc_vus','id_chuc_vu','chuc_vus.id')
+                              ->select('admin_animes.*','chuc_vus.ten_chuc_vu')
+                             ->where('admin_animes. id',$request->id_admin)
+                             ->first();
         return response()->json([
             'obj_admin'  => $user,
         ]);
@@ -254,6 +257,7 @@ class AdminAnimeController extends Controller
             'ho_va_ten'     => $request->ho_va_ten,
             'password'      => bcrypt($request->password),
             'hinh_anh'      => $request->hinh_anh,
+            'ngay_sinh'      => $request->ngay_sinh,
         ]);
         return response()->json([
             'message'   => 'Tạo tài khoản thành công!!',
