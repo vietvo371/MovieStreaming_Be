@@ -60,10 +60,12 @@ class KhachHangController extends Controller
             ]);
         }
             KhachHang::create([
-                'email'                 =>$request->email,
-                'ho_va_ten'             =>$request->ho_va_ten,
-                'password'              =>bcrypt($request->password),
-                'hinh_anh'              =>$request->hinh_anh,
+                'email'         => $request->email,
+                'ho_va_ten'     => $request->ho_va_ten,
+                'password'      => bcrypt($request->password),
+                'hinh_anh'      => $request->hinh_anh,
+                'ngay_sinh'     => $request->ngay_sinh,
+                'is_done'       => $request->is_done,
                 ]);
                 return response()->json([
                     'status'   => true ,
@@ -82,10 +84,12 @@ class KhachHangController extends Controller
         try {
             KhachHang::where('id', $request->id)
                     ->update([
-                        'email'                 =>$request->email,
-                        'ho_va_ten'             =>$request->ho_va_ten,
-                        'password'              =>($request->password),
-                        'hinh_anh'              =>$request->hinh_anh,
+                        'email'         => $request->email,
+                        'ho_va_ten'     => $request->ho_va_ten,
+                        'password'      => bcrypt($request->password),
+                        'hinh_anh'      => $request->hinh_anh,
+                        'ngay_sinh'     => $request->ngay_sinh,
+                        'is_done'       => $request->is_done,
                     ]);
 
             return response()->json([
