@@ -37,7 +37,7 @@ class AdminAnimeController extends Controller
     public function getDataProfile(Request $request){
         $user = AdminAnime::join('chuc_vus','id_chuc_vu','chuc_vus.id')
                               ->select('admin_animes.*','chuc_vus.ten_chuc_vu')
-                             ->where('admin_animes. id',$request->id_admin)
+                             ->where('admin_animes.id',$request->id_admin)
                              ->first();
         return response()->json([
             'obj_admin'  => $user,
@@ -174,17 +174,17 @@ class AdminAnimeController extends Controller
     {
         try {
             $id_chuc_nang = 1;
-            // $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            // $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            // $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-            //                     ->where('id_chuc_nang', $id_chuc_nang)
-            //                     ->first();
-            // if(!$check) {
-            //     return response()->json([
-            //         'status'  =>  false,
-            //         'message' =>  'Bạn không có quyền chức năng này'
-            //     ]);
-            // }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                                ->where('id_chuc_nang', $id_chuc_nang)
+                                ->first();
+            if(!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             AdminAnime::where('id', $request->id)
                     ->update([
                         'email'                 =>$request->email,
