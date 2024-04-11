@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() {
+    Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function() {
     Route::group(['prefix'  =>  '/admin' ], function() {
         //  Tài Khoản Admin
         Route::get('/lay-du-lieu', [AdminAnimeController::class, 'getData']);

@@ -71,7 +71,13 @@ class PhimController extends Controller
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
                         ->where('phims.tinh_trang', 1)
                         ->select('phims.*','the_loais.ten_the_loai','loai_phims.ten_loai_phim','tac_gias.ten_tac_gia')
-                        ->get(); // get là ra 1 danh sách
+                        ->get();
+                        // get là ra 1 danh sách
+                        // phaan trang php
+                        // ->paginate(9);
+                        // return response()->json([
+                        //     'data' => $data
+                        // ]);
         $data9   = Phim::join('the_loais','id_the_loai','the_loais.id')
                         ->join('loai_phims','id_loai_phim','loai_phims.id')
                         ->join('tac_gias','id_tac_gia','tac_gias.id')
