@@ -13,20 +13,17 @@ class KichHoatTaiKhoan extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $view;
-    public $title;
-    public $info;
+    protected $data;
 
-    public function __construct($view, $title, $info)
+    public function __construct($data)
     {
-        $this->view     = $view;
-        $this->title    = $title;
-        $this->info     = $info;
+        $this->data     = $data;
+
     }
 
     public function build()
     {
-        return $this->subject($this->title)
-                    ->view($this->view, ['info' => $this->info]);
+        return $this->subject('KÍCH HOẠT TÀI KHOẢN CỦA BẠN!')
+                    ->view('mail.kich_hoat_tai_khoan', ['data' => $this->data]);
     }
 }

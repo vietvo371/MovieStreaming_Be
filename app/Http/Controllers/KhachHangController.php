@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DangKyRequest;
 use App\Http\Requests\DangNhapRequest;
+use App\Jobs\MailQuenMatKhau as JobsMailQuenMatKhau;
+use App\Jobs\MailQueue;
 use App\Mail\KichHoatTaiKhoan;
 use App\Mail\mailQuenMatKhau;
 use App\Models\KhachHang;
@@ -291,9 +293,11 @@ class KhachHangController extends Controller
             $khach_hang->hash_kich_hoat   =   $hash_kich_hoat;
             $khach_hang->save();
             // Gửi Email
-            $info['name']  =    $khach_hang->ho_va_ten;
-            $info['link']  =    'http://localhost:5173/kich-hoat-email/' . $hash_kich_hoat;
-            Mail::to($request->email)->send(new KichHoatTaiKhoan('mail.kich_hoat_tai_khoan', 'KÍCH HOẠT TẢI KHOẢN ĐĂNG NHẬP', $info));
+            $data['email']  =    $request->email;
+            $data['name']  =    $khach_hang->ho_va_ten;
+            $data['link']  =    'http://localhost:5173/kich-hoat-email/' . $hash_kich_hoat;
+            MailQueue::dispatch($data);
+
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Vui lòng kiểm tra email của bạn để kích hoạt!',
@@ -336,9 +340,10 @@ class KhachHangController extends Controller
             $khach_hang->hash_quen_mat_khau   =   $hash_pass;
             $khach_hang->save();
             // Gửi Email
-            $info['name']  =    $khach_hang->ho_va_ten;
-            $info['link']  =    'http://localhost:5173/reset-password/' . $hash_pass;
-            Mail::to($request->email)->send(new mailQuenMatKhau('mail.quen_mat_khau', 'Khôi Phục Tài Khoản Của Bạn', $info));
+            $data['email']  =    $request->email;
+            $data['name']  =    $khach_hang->ho_va_ten;
+            $data['link']  =    'http://localhost:5173/reset-password/' . $hash_pass;
+            JobsMailQuenMatKhau::dispatch($data);
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Vui lòng kiểm tra email của bạn để đổi lại mật khẩu!',

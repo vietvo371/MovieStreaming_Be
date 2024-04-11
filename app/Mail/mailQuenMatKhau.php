@@ -12,21 +12,18 @@ use Illuminate\Queue\SerializesModels;
 class mailQuenMatKhau extends Mailable
 {
     use Queueable, SerializesModels;
-    public $view;
-    public $title;
-    public $info;
+    protected $data;
 
-    public function __construct($view, $title, $info)
+    public function __construct($data)
     {
-        $this->view     = $view;
-        $this->title    = $title;
-        $this->info     = $info;
+        $this->data     = $data;
+
     }
 
     public function build()
     {
-        return $this->subject($this->title)
-                    ->view($this->view, ['info' => $this->info]);
+        return $this->subject('LẤY LẠI MẬT KHẨU CỦA BẠN!')
+                    ->view('mail.quen_mat_khau', ['data' => $this->data]);
     }
 
 }
