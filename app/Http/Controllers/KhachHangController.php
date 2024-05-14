@@ -295,7 +295,7 @@ class KhachHangController extends Controller
             // Gửi Email
             $data['email']  =    $request->email;
             $data['name']  =    $khach_hang->ho_va_ten;
-            $data['link']  =    'http://localhost:5173/kich-hoat-email/' . $hash_kich_hoat;
+            $data['link']  =    'http://localhost:5173/home/kich-hoat-email/' . $hash_kich_hoat;
             MailQueue::dispatch($data);
 
             return response()->json([
@@ -342,7 +342,7 @@ class KhachHangController extends Controller
             // Gửi Email
             $data['email']  =    $request->email;
             $data['name']  =    $khach_hang->ho_va_ten;
-            $data['link']  =    'http://localhost:5173/reset-password/' . $hash_pass;
+            $data['link']  =    'http://localhost:5173/home/reset-password/' . $hash_pass;
             JobsMailQuenMatKhau::dispatch($data);
             return response()->json([
                 'status'            =>   true,
