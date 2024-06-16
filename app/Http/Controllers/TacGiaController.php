@@ -27,9 +27,21 @@ class TacGiaController extends Controller
             ]);
         }
         $dataAdmin   = TacGia::select('tac_gias.*')
-            ->get(); // get là ra 1 danh sách
+            ->paginate(6); // get là ra 1  sách
+
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-            'tac_gia_admin'  =>  $dataAdmin,
+            'tac_gia_admin'  =>  $response,
         ]);
     }
     public function getDataHome()
@@ -76,11 +88,23 @@ class TacGiaController extends Controller
     public function timTacGia(Request $request)
     {
         $key    = '%' . $request->key . '%';
-        $data   = TacGia::select('tac_gias.*')
+        $dataAdmin   = TacGia::select('tac_gias.*')
             ->where('ten_tac_gia', 'like', $key)
-            ->get(); // get là ra 1 danh sách
+            ->paginate(6); // get là ra 1  sách
+
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-            'tac_gia'  =>  $data,
+            'tac_gia_admin'  =>  $response,
         ]);
     }
     public function capnhatTacGia(Request $request)
