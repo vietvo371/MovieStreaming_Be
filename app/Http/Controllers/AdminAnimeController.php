@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnime;
+use App\Models\ChucVu;
 use App\Models\PhanQuyen;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,40 +20,55 @@ class AdminAnimeController extends Controller
         $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
         $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
         $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
+            ->where('id_chuc_nang', $id_chuc_nang)
+            ->first();
+        if (!$check) {
             return response()->json([
                 'status'  =>  false,
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $data   = AdminAnime::join('chuc_vus','id_chuc_vu','chuc_vus.id')
-                            ->select('admin_animes.*','chuc_vus.ten_chuc_vu')
-                             ->get(); // get là ra 1 danh sách
+        $chuc_vu_admin   = ChucVu::select('chuc_vus.*')
+            ->get(); // get là ra 1  sách
+        $dataAdmin   = AdminAnime::join('chuc_vus', 'id_chuc_vu', 'chuc_vus.id')
+            ->select('admin_animes.*', 'chuc_vus.ten_chuc_vu')
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-            'admin'  =>  $data,
+            'admin'  =>  $response,
+            'chuc_vu_admin'  =>  $chuc_vu_admin,
         ]);
     }
-    public function getDataProfile(Request $request){
-        $user = AdminAnime::join('chuc_vus','id_chuc_vu','chuc_vus.id')
-                              ->select('admin_animes.*','chuc_vus.ten_chuc_vu')
-                             ->where('admin_animes.id',$request->id_admin)
-                             ->first();
+    public function getDataProfile(Request $request)
+    {
+        $user = AdminAnime::join('chuc_vus', 'id_chuc_vu', 'chuc_vus.id')
+            ->select('admin_animes.*', 'chuc_vus.ten_chuc_vu')
+            ->where('admin_animes.id', $request->id_admin)
+            ->first();
         return response()->json([
             'obj_admin'  => $user,
         ]);
     }
     public function doiPass(Request $request)
     {
-       $check = Auth::guard('admin')->attempt(['email'=>$request->email,'password' =>$request->old_pass, ]);
+        $check = Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->old_pass,]);
         if ($check) {
             $user = Auth::guard('admin')->user();
             $user->update([
-                    'email'                 =>$request->email,
-                    'ho_va_ten'             =>$request->ho_va_ten,
-                    'password'              =>bcrypt($request->new_pass),
-                    'hinh_anh'              =>$request->hinh_anh,
+                'email'                 => $request->email,
+                'ho_va_ten'             => $request->ho_va_ten,
+                'password'              => bcrypt($request->new_pass),
+                'hinh_anh'              => $request->hinh_anh,
             ]);
 
             return response()->json([
@@ -60,8 +76,7 @@ class AdminAnimeController extends Controller
                 'status'    => true,
 
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'message'   => 'Mật khẩu cũ không hợp lệ!!',
                 'status'    => 'false'
@@ -72,17 +87,17 @@ class AdminAnimeController extends Controller
     {
         try {
             AdminAnime::where('id', $request->id)
-                    ->update([
-                        'email'                 =>$request->email,
-                        'ho_va_ten'             =>$request->ho_va_ten,
-                        'password'              =>($request->password),
-                        'hinh_anh'              =>$request->hinh_anh,
-                        'id_chuc_vu'            =>$request->id_chuc_vu,
-                    ]);
+                ->update([
+                    'email'                 => $request->email,
+                    'ho_va_ten'             => $request->ho_va_ten,
+                    'password'              => ($request->password),
+                    'hinh_anh'              => $request->hinh_anh,
+                    'id_chuc_vu'            => $request->id_chuc_vu,
+                ]);
 
             return response()->json([
                 'status'     => true,
-                'ho_ten'     => $request ->ho_va_ten,
+                'ho_ten'     => $request->ho_va_ten,
                 'message'    => 'Cập nhật tài khoản thành công!',
             ]);
         } catch (ExceptionEvent $e) {
@@ -97,62 +112,76 @@ class AdminAnimeController extends Controller
     {
         try {
             $id_chuc_nang = 1;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
+            AdminAnime::create([
+                'email'                 => $request->email,
+                'ho_va_ten'             => $request->ho_va_ten,
+                'password'              => bcrypt($request->password),
+                'hinh_anh'              => $request->hinh_anh,
+                'id_chuc_vu'            => $request->id_chuc_vu,
+            ]);
             return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
+                'status'   => true,
+                'message'  => 'Bạn thêm admin thành công!',
+            ]);
+        } catch (ExceptionEvent $e) {
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá admin không thành công!!'
             ]);
         }
-            AdminAnime::create([
-                'email'                 =>$request->email,
-                'ho_va_ten'             =>$request->ho_va_ten,
-                'password'              =>bcrypt($request->password),
-                'hinh_anh'              =>$request->hinh_anh,
-                'id_chuc_vu'            =>$request->id_chuc_vu,
-                ]);
-                return response()->json([
-                    'status'   => true ,
-                    'message'  => 'Bạn thêm admin thành công!',
-                ]);
-        } catch (ExceptionEvent $e) {
-                return response()->json([
-                    'status'     => false,
-                    'message'    => 'Xoá admin không thành công!!'
-                ]);
-        }
-
     }
 
-     public function timAdmin(Request $request)
+    public function timAdmin(Request $request)
     {
-        $key    = '%'. $request->key . '%';
-        $data   = AdminAnime::select('admin_animes.*')
-                    ->where('ho_va_ten', 'like', $key)
-                    ->get(); // get là ra 1 danh sách
+        $key    = '%' . $request->key . '%';
+        $chuc_vu_admin   = ChucVu::select('chuc_vus.*')
+            ->get(); // get là ra 1  sách
+        $dataAdmin   = AdminAnime::join('chuc_vus', 'id_chuc_vu', 'chuc_vus.id')
+            ->select('admin_animes.*', 'chuc_vus.ten_chuc_vu')
+            ->where('ho_va_ten', 'like', $key)
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-        'admin'  =>  $data,
+            'admin'  =>  $response,
+            'chuc_vu_admin'  =>  $chuc_vu_admin,
         ]);
     }
     public function xoaAdmin($id)
     {
         try {
             $id_chuc_nang = 1;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
-            return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
-            ]);
-        }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             AdminAnime::where('id', $id)->delete();
 
             return response()->json([
@@ -165,9 +194,7 @@ class AdminAnimeController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá Admin không thành công!!'
             ]);
-
         }
-
     }
 
     public function capnhatAdmin(Request $request)
@@ -177,22 +204,22 @@ class AdminAnimeController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
             AdminAnime::where('id', $request->id)
-                    ->update([
-                        'email'                 =>$request->email,
-                        'ho_va_ten'             =>$request->ho_va_ten,
-                        'password'              =>($request->password),
-                        'hinh_anh'              =>$request->hinh_anh,
-                        'id_chuc_vu'            =>$request->id_chuc_vu,
-                    ]);
+                ->update([
+                    'email'                 => $request->email,
+                    'ho_va_ten'             => $request->ho_va_ten,
+                    'password'              => ($request->password),
+                    'hinh_anh'              => $request->hinh_anh,
+                    'id_chuc_vu'            => $request->id_chuc_vu,
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -214,9 +241,9 @@ class AdminAnimeController extends Controller
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
             AdminAnime::where('id', $request->id)
-                    ->update([
-                        'tinh_trang'    =>$tinh_trang_moi
-                    ]);
+                ->update([
+                    'tinh_trang'    => $tinh_trang_moi
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -232,7 +259,7 @@ class AdminAnimeController extends Controller
     }
     public function login(Request $request)
     {
-        $check = Auth::guard('admin')->attempt(['email'=>$request->email,'password' =>$request->password, ]);
+        $check = Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password,]);
         if ($check) {
             $user = Auth::guard('admin')->user();
             return response()->json([
@@ -241,8 +268,7 @@ class AdminAnimeController extends Controller
                 'token'     => $user->createToken('api-token-admin')->plainTextToken,
 
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'message'   => 'Đăng Nhập không  thành công!!',
                 'status'    => 'false'
@@ -270,42 +296,39 @@ class AdminAnimeController extends Controller
 
         $user = Auth::guard('sanctum')->user();
 
-        if($user)
-        {
+        if ($user) {
             $agent   = new Agent();
             $device  = $agent->device();
             $os      = $agent->platform();
             $browser = $agent->browser();
             DB::table('personal_access_tokens')
-            ->where('id',$user->currentAccessToken()->id)
-            ->update([
-                'ip'            =>  request()->ip(),
-                'device'        =>  $device,
-                'os'            =>  $os,
-                'trinh_duyet'   =>  $browser
-            ]);
+                ->where('id', $user->currentAccessToken()->id)
+                ->update([
+                    'ip'            =>  request()->ip(),
+                    'device'        =>  $device,
+                    'os'            =>  $os,
+                    'trinh_duyet'   =>  $browser
+                ]);
             return response()->json([
-                'email'      => $user ->email,
-                'ho_ten'     => $user ->ho_va_ten,
-                'hinh_anh'   => $user ->hinh_anh,
-                'id_admin'   => $user ->id,
-                'list'       => $user ->tokens,
+                'email'      => $user->email,
+                'ho_ten'     => $user->ho_va_ten,
+                'hinh_anh'   => $user->hinh_anh,
+                'id_admin'   => $user->id,
+                'list'       => $user->tokens,
 
-            ],200);
-        }
-        else
-        {
+            ], 200);
+        } else {
             return response()->json([
                 'message'   => 'Bạn cần đăng nhập hệ thống !!',
                 'status'    => false
-            ],401);
+            ], 401);
         }
     }
     public function xoatoken($id)
     {
         try {
             DB::table('personal_access_tokens')
-            ->where('id', $id)->delete();
+                ->where('id', $id)->delete();
 
             return response()->json([
                 'status'     => true,
@@ -317,8 +340,6 @@ class AdminAnimeController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá token không thành công!!'
             ]);
-
         }
-
     }
 }

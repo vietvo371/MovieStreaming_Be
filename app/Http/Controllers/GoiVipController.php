@@ -25,10 +25,21 @@ class GoiVipController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $data   = GoiVip::select('goi_vips.*')
-            ->get(); // get là ra 1 danh sách
+        $dataAdmin   = GoiVip::select('goi_vips.*')
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-            'goi_vips'  =>  $data,
+            'goi_vips'  =>  $response,
         ]);
     }
     public function taoGoiVip(Request $request)
@@ -38,31 +49,30 @@ class GoiVipController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
             GoiVip::create([
-                'ten_goi_vip'       =>$request->ten_goi_vip,
-                'slug_goi_vip'      =>$request->slug_goi_vip,
-                'gia_tien'          =>$request->gia_tien,
-                'tinh_trang'          =>$request->tinh_trang,
-                ]);
-                return response()->json([
-                    'status'   => true ,
-                    'message'  => 'Bạn thêm gói vip thành công!',
-                ]);
+                'ten_goi_vip'       => $request->ten_goi_vip,
+                'slug_goi_vip'      => $request->slug_goi_vip,
+                'gia_tien'          => $request->gia_tien,
+                'tinh_trang'          => $request->tinh_trang,
+            ]);
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Bạn thêm gói vip thành công!',
+            ]);
         } catch (ExceptionEvent $e) {
-                return response()->json([
-                    'status'     => false,
-                    'message'    => 'thêm gói vip không thành công!!'
-                ]);
+            return response()->json([
+                'status'     => false,
+                'message'    => 'thêm gói vip không thành công!!'
+            ]);
         }
-
     }
     public function xoaGoiVip($id)
     {
@@ -71,9 +81,9 @@ class GoiVipController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -91,9 +101,7 @@ class GoiVipController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá goi vip không thành công!!'
             ]);
-
         }
-
     }
 
     public function capnhatGoiVip(Request $request)
@@ -103,25 +111,25 @@ class GoiVipController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
             GoiVip::where('id', $request->id)
-                    ->update([
-                        'ten_goi_vip'       =>$request->ten_goi_vip,
-                        'slug_goi_vip'      =>$request->slug_goi_vip,
-                        'gia_tien'          =>$request->gia_tien,
-                        'tinh_trang'          =>$request->tinh_trang,
-                    ]);
+                ->update([
+                    'ten_goi_vip'       => $request->ten_goi_vip,
+                    'slug_goi_vip'      => $request->slug_goi_vip,
+                    'gia_tien'          => $request->gia_tien,
+                    'tinh_trang'          => $request->tinh_trang,
+                ]);
 
             return response()->json([
                 'status'     => true,
-                'message'    => 'Đã Cập Nhật goi vip thành công!' ,
+                'message'    => 'Đã Cập Nhật goi vip thành công!',
             ]);
         } catch (ExceptionEvent $e) {
             //throw $th;
@@ -139,9 +147,9 @@ class GoiVipController extends Controller
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
             GoiVip::where('id', $request->id)
-                    ->update([
-                        'tinh_trang'    =>$tinh_trang_moi
-                    ]);
+                ->update([
+                    'tinh_trang'    => $tinh_trang_moi
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -159,7 +167,7 @@ class GoiVipController extends Controller
     {
         $tac_gia = GoiVip::where('slug_goi_vip', $request->slug)->first();
 
-        if(!$tac_gia) {
+        if (!$tac_gia) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Tên Gói Vip phù hợp!',
@@ -174,10 +182,10 @@ class GoiVipController extends Controller
     public function kiemTraSlugGoiVipUpdate(Request $request)
     {
         $mon_an = GoiVip::where('slug_goi_vip', $request->slug)
-                                     ->where('id', '<>' , $request->id)
-                                     ->first();
+            ->where('id', '<>', $request->id)
+            ->first();
 
-        if(!$mon_an) {
+        if (!$mon_an) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Tên Gói Vip phù hợp!',
@@ -191,12 +199,23 @@ class GoiVipController extends Controller
     }
     public function timGoiVip(Request $request)
     {
-        $key    = '%'. $request->key . '%';
-        $data   = GoiVip::select('goi_vips.*')
-                    ->where('ten_goi_vip', 'like', $key)
-                    ->get(); // get là ra 1 danh sách
-        return response()->json([
-        'goi_vips'  =>  $data,
-        ]);
+        $key    = '%' . $request->key . '%';
+        $dataAdmin   = GoiVip::select('goi_vips.*')
+            ->where('ten_goi_vip', 'like', $key)
+            ->paginate(6); // get là ra 1  sách
+            $response = [
+                'pagination' => [
+                    'total' => $dataAdmin->total(),
+                    'per_page' => $dataAdmin->perPage(),
+                    'current_page' => $dataAdmin->currentPage(),
+                    'last_page' => $dataAdmin->lastPage(),
+                    'from' => $dataAdmin->firstItem(),
+                    'to' => $dataAdmin->lastItem()
+                ],
+                'dataAdmin' => $dataAdmin
+            ];
+            return response()->json([
+                'goi_vips'  =>  $response,
+            ]);
     }
 }

@@ -17,60 +17,82 @@ class ChucVuController extends Controller
         $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
         $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
         $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
+            ->where('id_chuc_nang', $id_chuc_nang)
+            ->first();
+        if (!$check) {
             return response()->json([
                 'status'  =>  false,
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataAmin       = ChucVu::select('chuc_vus.*')
-                         ->get(); // get là ra 1 danh sách
-           return response()->json([
-           'chuc_vu_admin'  =>  $dataAmin,
-           ]);
+        $dataAdmin       = ChucVu::select('chuc_vus.*')
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
+        return response()->json([
+            'chuc_vu_admin'  =>  $response,
+        ]);
     }
 
     public function taoChucVu(Request $request)
     {
         try {
             $id_chuc_nang = 3;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
-            return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
-            ]);
-        }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             ChucVu::create([
-                'ten_chuc_vu'   =>$request->ten_chuc_vu,
-                'slug_chuc_vu'  =>$request->slug_chuc_vu,
-                'tinh_trang'    =>$request->tinh_trang,
-                ]);
-                return response()->json([
-                    'status'   => true ,
-                    'message'  => 'Bạn thêm Chức Vụ thành công!',
-                ]);
+                'ten_chuc_vu'   => $request->ten_chuc_vu,
+                'slug_chuc_vu'  => $request->slug_chuc_vu,
+                'tinh_trang'    => $request->tinh_trang,
+            ]);
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Bạn thêm Chức Vụ thành công!',
+            ]);
         } catch (ExceptionEvent $e) {
-                return response()->json([
-                    'status'     => false,
-                    'message'    => 'Xoá Chức Vụ không thành công!!'
-                ]);
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá Chức Vụ không thành công!!'
+            ]);
         }
     }
     public function timChucVu(Request $request)
     {
-        $key    = '%'. $request->key . '%';
-        $data   = ChucVu::select('chuc_vus.*')
-                    ->where('ten_chuc_vu', 'like', $key)
-                    ->get(); // get là ra 1 danh sách
+        $key    = '%' . $request->key . '%';
+        $dataAdmin   = ChucVu::select('chuc_vus.*')
+            ->where('ten_chuc_vu', 'like', $key)
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-        'chuc_vu_admin'  =>  $data,
+            'chuc_vu_admin'  =>  $response,
         ]);
     }
     public function capnhatChucVu(Request $request)
@@ -80,20 +102,20 @@ class ChucVuController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
             ChucVu::where('id', $request->id)
-                    ->update([
-                        'ten_chuc_vu'   =>$request->ten_chuc_vu,
-                        'slug_chuc_vu'  =>$request->slug_chuc_vu,
-                        'tinh_trang'    =>$request->tinh_trang,
-                            ]);
+                ->update([
+                    'ten_chuc_vu'   => $request->ten_chuc_vu,
+                    'slug_chuc_vu'  => $request->slug_chuc_vu,
+                    'tinh_trang'    => $request->tinh_trang,
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -114,9 +136,9 @@ class ChucVuController extends Controller
             $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
             $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
             $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                                ->where('id_chuc_nang', $id_chuc_nang)
-                                ->first();
-            if(!$check) {
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -134,9 +156,7 @@ class ChucVuController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá Chức vụ không thành công!!'
             ]);
-
         }
-
     }
     public function thaydoiTrangThaiChucVu(Request $request)
     {
@@ -144,9 +164,9 @@ class ChucVuController extends Controller
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
             ChucVu::where('id', $request->id)
-                    ->update([
-                        'tinh_trang'    =>$tinh_trang_moi
-                    ]);
+                ->update([
+                    'tinh_trang'    => $tinh_trang_moi
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -164,7 +184,7 @@ class ChucVuController extends Controller
     {
         $tac_gia = ChucVu::where('slug_chuc_vu', $request->slug)->first();
 
-        if(!$tac_gia) {
+        if (!$tac_gia) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Tên Chức Vụ phù hợp!',
@@ -179,10 +199,10 @@ class ChucVuController extends Controller
     public function kiemTraSlugChucVuUpdate(Request $request)
     {
         $mon_an = ChucVu::where('slug_chuc_vu', $request->slug)
-                                     ->where('id', '<>' , $request->id)
-                                     ->first();
+            ->where('id', '<>', $request->id)
+            ->first();
 
-        if(!$mon_an) {
+        if (!$mon_an) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Tên Chức Vụ phù hợp!',

@@ -26,22 +26,35 @@ class KhachHangController extends Controller
         $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
         $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
         $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
+            ->where('id_chuc_nang', $id_chuc_nang)
+            ->first();
+        if (!$check) {
             return response()->json([
                 'status'  =>  false,
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $data   = KhachHang::select('khach_hangs.*')
-                         ->get(); // get là ra 1 danh sách
+        $dataAdmin   = KhachHang::select('khach_hangs.*')
+            ->paginate(6); // get là ra 1  sách
+
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
         return response()->json([
-            'khach_hang'  =>  $data,
+            'khach_hang'  =>  $response,
         ]);
     }
-    public function getDataProfile(Request $request){
-        $user = KhachHang::where('id',$request->id_khach_hang)->first();
+    public function getDataProfile(Request $request)
+    {
+        $user = KhachHang::where('id', $request->id_khach_hang)->first();
         return response()->json([
             'obj_user'  => $user,
         ]);
@@ -50,17 +63,17 @@ class KhachHangController extends Controller
     {
         try {
             $id_chuc_nang = 2;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
-            return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
-            ]);
-        }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             KhachHang::create([
                 'email'         => $request->email,
                 'ho_va_ten'     => $request->ho_va_ten,
@@ -68,35 +81,34 @@ class KhachHangController extends Controller
                 'hinh_anh'      => $request->hinh_anh,
                 'ngay_sinh'     => $request->ngay_sinh,
                 'is_done'       => $request->is_done,
-                ]);
-                return response()->json([
-                    'status'   => true ,
-                    'message'  => 'Bạn thêm khách hàng thành công!',
-                ]);
+            ]);
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Bạn thêm khách hàng thành công!',
+            ]);
         } catch (ExceptionEvent $e) {
-                return response()->json([
-                    'status'     => false,
-                    'message'    => 'Xoá khách hàng không thành công!!'
-                ]);
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Xoá khách hàng không thành công!!'
+            ]);
         }
-
     }
     public function doiThongTin(Request $request)
     {
         try {
             KhachHang::where('id', $request->id)
-                    ->update([
-                        'email'         => $request->email,
-                        'ho_va_ten'     => $request->ho_va_ten,
-                        'password'      => bcrypt($request->password),
-                        'hinh_anh'      => $request->hinh_anh,
-                        'ngay_sinh'     => $request->ngay_sinh,
-                        'is_done'       => $request->is_done,
-                    ]);
+                ->update([
+                    'email'         => $request->email,
+                    'ho_va_ten'     => $request->ho_va_ten,
+                    'password'      => bcrypt($request->password),
+                    'hinh_anh'      => $request->hinh_anh,
+                    'ngay_sinh'     => $request->ngay_sinh,
+                    'is_done'       => $request->is_done,
+                ]);
 
             return response()->json([
                 'status'     => true,
-                'ho_ten_user'=> $request ->ho_va_ten,
+                'ho_ten_user' => $request->ho_va_ten,
                 'message'    => 'Cập nhật tài khoản thành công!',
             ]);
         } catch (ExceptionEvent $e) {
@@ -109,14 +121,14 @@ class KhachHangController extends Controller
     }
     public function doiPass(Request $request)
     {
-       $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->old_pass, ]);
+        $check = Auth::guard('khach_hang')->attempt(['email' => $request->email, 'password' => $request->old_pass,]);
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
             $user->update([
-                    'email'                 =>$request->email,
-                    'ho_va_ten'             =>$request->ho_va_ten,
-                    'password'              =>bcrypt($request->new_pass),
-                    'hinh_anh'              =>$request->hinh_anh,
+                'email'                 => $request->email,
+                'ho_va_ten'             => $request->ho_va_ten,
+                'password'              => bcrypt($request->new_pass),
+                'hinh_anh'              => $request->hinh_anh,
             ]);
 
             return response()->json([
@@ -124,8 +136,7 @@ class KhachHangController extends Controller
                 'status'    => true,
 
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'message'   => 'Mật khẩu cũ không hợp lệ!!',
                 'status'    => 'false'
@@ -133,31 +144,43 @@ class KhachHangController extends Controller
         }
     }
 
-     public function timKhachHang(Request $request)
+    public function timKhachHang(Request $request)
     {
-        $key    = '%'. $request->key . '%';
-        $data   = KhachHang::select('khach_hangs.*')
-                    ->where('ho_va_ten', 'like', $key)
-                    ->get(); // get là ra 1 danh sách
-        return response()->json([
-        'khach_hang'  =>  $data,
-        ]);
+        $key    = '%' . $request->key . '%';
+        $dataAdmin   = KhachHang::select('khach_hangs.*')
+            ->where('ho_va_ten', 'like', $key)
+            ->paginate(6); // get là ra 1  sách
+
+            $response = [
+                'pagination' => [
+                    'total' => $dataAdmin->total(),
+                    'per_page' => $dataAdmin->perPage(),
+                    'current_page' => $dataAdmin->currentPage(),
+                    'last_page' => $dataAdmin->lastPage(),
+                    'from' => $dataAdmin->firstItem(),
+                    'to' => $dataAdmin->lastItem()
+                ],
+                'dataAdmin' => $dataAdmin
+            ];
+            return response()->json([
+                'khach_hang'  =>  $response,
+            ]);
     }
     public function xoaKhachHang($id)
     {
         try {
             $id_chuc_nang = 2;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
-            return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
-            ]);
-        }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             KhachHang::where('id', $id)->delete();
 
             return response()->json([
@@ -170,33 +193,31 @@ class KhachHangController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá khách hàng không thành công!!'
             ]);
-
         }
-
     }
 
     public function capnhatKhachHang(Request $request)
     {
         try {
             $id_chuc_nang = 2;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                            ->where('id_chuc_nang', $id_chuc_nang)
-                            ->first();
-        if(!$check) {
-            return response()->json([
-                'status'  =>  false,
-                'message' =>  'Bạn không có quyền chức năng này'
-            ]);
-        }
+            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
+            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
+            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
+                ->where('id_chuc_nang', $id_chuc_nang)
+                ->first();
+            if (!$check) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             KhachHang::where('id', $request->id)
-                    ->update([
-                        'email'                 =>$request->email,
-                        'ho_va_ten'             =>$request->ho_va_ten,
-                        'password'              =>($request->password),
-                        'hinh_anh'              =>$request->hinh_anh,
-                    ]);
+                ->update([
+                    'email'                 => $request->email,
+                    'ho_va_ten'             => $request->ho_va_ten,
+                    'password'              => ($request->password),
+                    'hinh_anh'              => $request->hinh_anh,
+                ]);
 
             return response()->json([
                 'status'     => true,
@@ -214,7 +235,7 @@ class KhachHangController extends Controller
 
     public function login(DangNhapRequest $request)
     {
-        $check = Auth::guard('khach_hang')->attempt(['email'=>$request->email,'password' =>$request->password, 'is_done'    => 1 ]);
+        $check = Auth::guard('khach_hang')->attempt(['email' => $request->email, 'password' => $request->password, 'is_done'    => 1]);
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
             return response()->json([
@@ -223,8 +244,7 @@ class KhachHangController extends Controller
                 'token'     => $user->createToken('api-token-khach')->plainTextToken,
 
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'message'   => 'Tài khoản của bạn chưa kích hoạt!!',
                 'status'    => false
@@ -251,7 +271,7 @@ class KhachHangController extends Controller
     public function kiemTraQuenMK(Request $request)
     {
         $check  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
-        if($check) {
+        if ($check) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Vui lòng đặt lại mật khẩu!',
@@ -266,8 +286,8 @@ class KhachHangController extends Controller
     public function kiemTraHashLogin(Request $request)
     {
         $khach_hang  = KhachHang::where('hash_kich_hoat', $request->hash_kich_hoat)
-                                    ->first();
-        if($khach_hang) {
+            ->first();
+        if ($khach_hang) {
             $khach_hang->is_done   =   1;
             $khach_hang->hash_kich_hoat   =   null;
             $khach_hang->save();
@@ -287,7 +307,7 @@ class KhachHangController extends Controller
     {
         // Gửi lên 1 thằng duy nhất $request->email
         $khach_hang   = KhachHang::where('email', $request->email)->first();
-        if($khach_hang) {
+        if ($khach_hang) {
             // Tạo 1 mã hash_kich_hoat
             $hash_kich_hoat                      =   Str::uuid();
             $khach_hang->hash_kich_hoat   =   $hash_kich_hoat;
@@ -313,7 +333,7 @@ class KhachHangController extends Controller
     {
 
         $khach_hang  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
-        if($khach_hang) {
+        if ($khach_hang) {
             $khach_hang->password             =   bcrypt($request->password);
             $khach_hang->hash_quen_mat_khau   =   null;
             $khach_hang->save();
@@ -334,7 +354,7 @@ class KhachHangController extends Controller
     {
         // Gửi lên 1 thằng duy nhất $request->email
         $khach_hang   = KhachHang::where('email', $request->email)->first();
-        if($khach_hang) {
+        if ($khach_hang) {
             // Tạo 1 mã hash_quen_mat_khau
             $hash_pass                      =   Str::uuid();
             $khach_hang->hash_quen_mat_khau   =   $hash_pass;
@@ -361,42 +381,39 @@ class KhachHangController extends Controller
 
         $user = Auth::guard('sanctum')->user();
 
-        if($user)
-        {
+        if ($user) {
             $agent   = new Agent();
             $device  = $agent->device();
             $os      = $agent->platform();
             $browser = $agent->browser();
             DB::table('personal_access_tokens')
-            ->where('id',$user->currentAccessToken()->id)
-            ->update([
-                'ip'            =>  request()->ip(),
-                'device'        =>  $device,
-                'os'            =>  $os,
-                'trinh_duyet'   =>  $browser
-            ]);
+                ->where('id', $user->currentAccessToken()->id)
+                ->update([
+                    'ip'            =>  request()->ip(),
+                    'device'        =>  $device,
+                    'os'            =>  $os,
+                    'trinh_duyet'   =>  $browser
+                ]);
             return response()->json([
-                'email'                => $user ->email,
-                'id_user'              => $user ->id,
-                'ho_ten_user'          => $user ->ho_va_ten,
-                'hinh_anh_user'        => $user ->hinh_anh,
-                'list'                 => $user ->tokens,
+                'email'                => $user->email,
+                'id_user'              => $user->id,
+                'ho_ten_user'          => $user->ho_va_ten,
+                'hinh_anh_user'        => $user->hinh_anh,
+                'list'                 => $user->tokens,
 
-            ],200);
-        }
-        else
-        {
+            ], 200);
+        } else {
             return response()->json([
                 'message'   => 'Bạn cần đăng nhập hệ thống !!',
                 'status'    => false
-            ],401);
+            ], 401);
         }
     }
     public function xoatoken($id)
     {
         try {
             DB::table('personal_access_tokens')
-            ->where('id', $id)->delete();
+                ->where('id', $id)->delete();
 
             return response()->json([
                 'status'     => true,
@@ -408,8 +425,6 @@ class KhachHangController extends Controller
                 'status'     => false,
                 'message'    => 'Xoá Nha token không thành công!!'
             ]);
-
         }
-
     }
 }
