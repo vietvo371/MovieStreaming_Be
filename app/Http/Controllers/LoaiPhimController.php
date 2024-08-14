@@ -55,10 +55,10 @@ class LoaiPhimController extends Controller
             'loai_phim'  =>  $data,
         ]);
     }
-    public function getDataHomeLPhim(Request $request)
+    public function getDataHomeLPhim($slug)
     {
         $loai_phim               = LoaiPhim::where('loai_phims.tinh_trang', 1)
-            ->where('loai_phims.slug_loai_phim', $request->slug_lp)
+            ->where('loai_phims.slug_loai_phim', $slug)
             ->select('loai_phims.*')
             ->first();
 
@@ -66,10 +66,21 @@ class LoaiPhimController extends Controller
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
             ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
             ->where('phims.tinh_trang', 1)
-            ->where('loai_phims.slug_loai_phim', $request->slug_lp)
+            ->where('loai_phims.slug_loai_phim', $slug)
             ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
-            ->get();
+            ->paginate(6); // get là ra 1  sách
 
+        $response = [
+                'pagination' => [
+                    'total' => $phim->total(),
+                    'per_page' => $phim->perPage(),
+                    'current_page' => $phim->currentPage(),
+                    'last_page' => $phim->lastPage(),
+                    'from' => $phim->firstItem(),
+                    'to' => $phim->lastItem()
+                ],
+                'dataPhim' => $phim
+            ];
         $phim_9_obj              = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
             ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
@@ -80,28 +91,30 @@ class LoaiPhimController extends Controller
             ->get(); // get là ra 1 danh sách
         return response()->json([
             'loai_phim'    =>  $loai_phim,
-            'phim'        =>  $phim,
+            'phim'        =>  $response,
             'phim_9_obj'  =>  $phim_9_obj,
         ]);
     }
-    public function sapxepHome(Request $request)
+    public function sapxepHome($id_lp, $catagory)
     {
-        $catagory = $request->catagory;
-        $id_lp    = $request->id_lp;
         if ($catagory === 'az') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
                 ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
                 ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
+                ->where('id_loai_phim', $id_lp)
                 ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
                 ->orderBy('ten_phim', 'ASC')  // tăng dần
-                ->get();
+                ->paginate(6); // get là ra 1  sách
+
         } else if ($catagory === 'za') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
                 ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
                 ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
+                ->where('id_loai_phim', $id_lp)
                 ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
                 ->orderBy('ten_phim', 'DESC')  // giảm dần
-                ->get();
+                ->paginate(6); // get là ra 1  sách
+
         } else if ($catagory === '1to10') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
                 ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
@@ -111,10 +124,22 @@ class LoaiPhimController extends Controller
                 ->orderBy('id', 'DESC')  // giảm dần
                 ->skip(0)
                 ->take(9)
-                ->get();
+                ->paginate(6); // get là ra 1  sách
         }
+
+        $response = [
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+            ],
+            'dataPhim' => $data
+        ];
         return response()->json([
-            'phim'  =>  $data,
+            'phim'  =>  $response,
         ]);
     }
 

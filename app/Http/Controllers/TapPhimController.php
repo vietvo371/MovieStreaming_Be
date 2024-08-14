@@ -29,6 +29,10 @@ class TapPhimController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
+        $dataAdmin1       = Phim::where('tinh_trang',1)
+        ->orderBy('slug_phim', 'ASC')
+        ->select('phims.ten_phim','phims.id','phims.slug_phim')
+        ->get(); // get là ra 1  sách
         $dataAdmin       = TapPhim::join('phims', 'id_phim', 'phims.id')
             ->orderBy('slug_tap_phim', 'ASC')
             ->select('tap_phims.*', 'phims.ten_phim')
@@ -46,6 +50,7 @@ class TapPhimController extends Controller
         ];
         return response()->json([
             'tap_phim_admin'  =>  $response,
+            'phim_admin'  =>  $dataAdmin1,
         ]);
     }
     public function getDataHome()

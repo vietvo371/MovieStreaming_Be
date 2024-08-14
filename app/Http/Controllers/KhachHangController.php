@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DangKyRequest;
 use App\Http\Requests\DangNhapRequest;
+use App\Http\Requests\DoiPassRequest;
+use App\Http\Requests\DoiThongTinRequest;
+use App\Http\Requests\QuenMatKhauRequest;
 use App\Jobs\MailQuenMatKhau as JobsMailQuenMatKhau;
 use App\Jobs\MailQueue;
 use App\Mail\KichHoatTaiKhoan;
@@ -54,8 +57,10 @@ class KhachHangController extends Controller
     }
     public function getDataProfile(Request $request)
     {
-        $user = KhachHang::where('id', $request->id_khach_hang)->first();
+        $user   = Auth::guard('sanctum')->user();
+        $user = KhachHang::where('id', $user->id)->first();
         return response()->json([
+            'status'    => true,
             'obj_user'  => $user,
         ]);
     }
@@ -93,17 +98,15 @@ class KhachHangController extends Controller
             ]);
         }
     }
-    public function doiThongTin(Request $request)
+    public function doiThongTin(DoiThongTinRequest $request)
     {
         try {
             KhachHang::where('id', $request->id)
                 ->update([
                     'email'         => $request->email,
                     'ho_va_ten'     => $request->ho_va_ten,
-                    'password'      => bcrypt($request->password),
-                    'hinh_anh'      => $request->hinh_anh,
-                    'ngay_sinh'     => $request->ngay_sinh,
-                    'is_done'       => $request->is_done,
+                    'avatar'        => $request->avatar,
+                    'so_dien_thoai' => $request->so_dien_thoai,
                 ]);
 
             return response()->json([
@@ -119,16 +122,16 @@ class KhachHangController extends Controller
             ]);
         }
     }
-    public function doiPass(Request $request)
+    public function doiPass(DoiPassRequest $request)
     {
         $check = Auth::guard('khach_hang')->attempt(['email' => $request->email, 'password' => $request->old_pass,]);
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
             $user->update([
-                'email'                 => $request->email,
-                'ho_va_ten'             => $request->ho_va_ten,
+                // 'email'                 => $request->email,
+                // 'ho_va_ten'             => $request->ho_va_ten,
                 'password'              => bcrypt($request->new_pass),
-                'hinh_anh'              => $request->hinh_anh,
+                // 'hinh_anh'              => $request->hinh_anh,
             ]);
 
             return response()->json([
@@ -139,7 +142,48 @@ class KhachHangController extends Controller
         } else {
             return response()->json([
                 'message'   => 'Mật khẩu cũ không hợp lệ!!',
-                'status'    => 'false'
+                'status'    => false
+            ]);
+        }
+    }
+    public function doiAvatar(Request $request)
+    {
+        try {
+            // Handle file upload
+            $filePath = null;
+            if ($request->hasFile('hinh_anh')) {
+                $file = $request->file('hinh_anh');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+
+                // Fetch the current user
+                $check = Auth::guard('sanctum')->user();
+                $user = KhachHang::where('id', $check->id)->first();
+
+                // Delete old avatar if it exists
+                if ($user->avatar) {
+                    $oldFilePath = public_path(parse_url($user->avatar, PHP_URL_PATH));
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                // Move the new file to the Avatar_user directory
+                $file->move(public_path('Avatar_user'), $fileName);
+                $filePath = asset('Avatar_user/' . $fileName);
+
+                // Update user avatar path
+                $user->avatar = $filePath;
+                $user->save();
+            }
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Đổi ảnh đại diện thành công!',
+            ]);
+        } catch (ExceptionEvent $e) {
+            return response()->json([
+                'status'     => false,
+                'message'    => 'đã xảy ra lỗi!'
             ]);
         }
     }
@@ -151,20 +195,20 @@ class KhachHangController extends Controller
             ->where('ho_va_ten', 'like', $key)
             ->paginate(6); // get là ra 1  sách
 
-            $response = [
-                'pagination' => [
-                    'total' => $dataAdmin->total(),
-                    'per_page' => $dataAdmin->perPage(),
-                    'current_page' => $dataAdmin->currentPage(),
-                    'last_page' => $dataAdmin->lastPage(),
-                    'from' => $dataAdmin->firstItem(),
-                    'to' => $dataAdmin->lastItem()
-                ],
-                'dataAdmin' => $dataAdmin
-            ];
-            return response()->json([
-                'khach_hang'  =>  $response,
-            ]);
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
+        return response()->json([
+            'khach_hang'  =>  $response,
+        ]);
     }
     public function xoaKhachHang($id)
     {
@@ -235,19 +279,37 @@ class KhachHangController extends Controller
 
     public function login(DangNhapRequest $request)
     {
-        $check = Auth::guard('khach_hang')->attempt(['email' => $request->email, 'password' => $request->password, 'is_done'    => 1]);
+        $check = Auth::guard('khach_hang')->attempt([
+            'email'         => $request->email,
+            'password'      => $request->password
+        ]);
+
         if ($check) {
             $user = Auth::guard('khach_hang')->user();
-            return response()->json([
-                'message'   => 'Đăng nhập thành công!!',
-                'status'    => true,
-                'token'     => $user->createToken('api-token-khach')->plainTextToken,
-
-            ]);
+            if ($user->is_active) {
+                if ($user->is_block) {
+                    return response()->json([
+                        'message'   =>   'Đã đăng nhập thành công!',
+                        'status'    =>   true,
+                        'token' =>   $user->createToken('token_khach_hang')->plainTextToken,
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => "tài khoản bạn đã bị khoá!"
+                    ]);
+                }
+            } else {
+                Auth::guard('khach_hang')->logout();
+                return response()->json([
+                    'status' => false,
+                    'message' => "Tài khoản chưa được kích hoạt!"
+                ]);
+            }
         } else {
             return response()->json([
-                'message'   => 'Tài khoản của bạn chưa kích hoạt!!',
-                'status'    => false
+                'status' => false,
+                'message' => "Thông tin đăng nhập không chính xác!"
             ]);
         }
     }
@@ -255,13 +317,9 @@ class KhachHangController extends Controller
     public function register(DangKyRequest $request)
     {
         KhachHang::create([
-            'email'         => $request->email,
-            'ho_va_ten'     => $request->ho_va_ten,
-            'password'      => bcrypt($request->password),
-            'hinh_anh'      => $request->hinh_anh,
-            'ngay_sinh'     => $request->ngay_sinh,
-            'is_done'       => $request->is_done,
-
+            'ho_va_ten'   => $request->ho_va_ten,
+            'email'       => $request->email,
+            'password'    => bcrypt($request->password) ,
         ]);
         return response()->json([
             'message'   => 'Tạo tài khoản thành công!!',
@@ -285,11 +343,11 @@ class KhachHangController extends Controller
     }
     public function kiemTraHashLogin(Request $request)
     {
-        $khach_hang  = KhachHang::where('hash_kich_hoat', $request->hash_kich_hoat)
+        $khach_hang  = KhachHang::where('hash_active', $request->hash_active)
             ->first();
         if ($khach_hang) {
-            $khach_hang->is_done   =   1;
-            $khach_hang->hash_kich_hoat   =   null;
+            $khach_hang->is_active   =   1;
+            $khach_hang->hash_active   =   null;
             $khach_hang->save();
             return response()->json([
                 'status'            =>   true,
@@ -309,13 +367,13 @@ class KhachHangController extends Controller
         $khach_hang   = KhachHang::where('email', $request->email)->first();
         if ($khach_hang) {
             // Tạo 1 mã hash_kich_hoat
-            $hash_kich_hoat                      =   Str::uuid();
-            $khach_hang->hash_kich_hoat   =   $hash_kich_hoat;
+            $hash_active                      =   Str::uuid();
+            $khach_hang->hash_active   =   $hash_active;
             $khach_hang->save();
             // Gửi Email
             $data['email']  =    $request->email;
             $data['name']  =    $khach_hang->ho_va_ten;
-            $data['link']  =    'http://localhost:5173/home/kich-hoat-email/' . $hash_kich_hoat;
+            $data['link']  =    'http://localhost:5173/home/kich-hoat-email/' . $hash_active;
             MailQueue::dispatch($data);
 
             return response()->json([
@@ -332,10 +390,10 @@ class KhachHangController extends Controller
     public function datLaiMK(Request $request)
     {
 
-        $khach_hang  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
+        $khach_hang  = KhachHang::where('hash_reset', $request->hash_quen_mat_khau)->first();
         if ($khach_hang) {
             $khach_hang->password             =   bcrypt($request->password);
-            $khach_hang->hash_quen_mat_khau   =   null;
+            $khach_hang->hash_reset   =   null;
             $khach_hang->save();
 
             return response()->json([
@@ -350,19 +408,19 @@ class KhachHangController extends Controller
         }
     }
 
-    public function quenMK(Request $request)
+    public function quenMK(QuenMatKhauRequest $request)
     {
         // Gửi lên 1 thằng duy nhất $request->email
         $khach_hang   = KhachHang::where('email', $request->email)->first();
         if ($khach_hang) {
             // Tạo 1 mã hash_quen_mat_khau
             $hash_pass                      =   Str::uuid();
-            $khach_hang->hash_quen_mat_khau   =   $hash_pass;
+            $khach_hang->hash_reset   =   $hash_pass;
             $khach_hang->save();
             // Gửi Email
             $data['email']  =    $request->email;
-            $data['name']  =    $khach_hang->ho_va_ten;
-            $data['link']  =    'http://localhost:5173/home/reset-password/' . $hash_pass;
+            $data['name']   =    $khach_hang->ho_va_ten;
+            $data['link']   =    'http://localhost:5173/home/reset-password/' . $hash_pass;
             JobsMailQuenMatKhau::dispatch($data);
             return response()->json([
                 'status'            =>   true,
@@ -398,8 +456,8 @@ class KhachHangController extends Controller
                 'email'                => $user->email,
                 'id_user'              => $user->id,
                 'ho_ten_user'          => $user->ho_va_ten,
-                'hinh_anh_user'        => $user->hinh_anh,
-                'list'                 => $user->tokens,
+                'hinh_anh_user'        => $user->avatar,
+                // 'list'                 => $user->tokens,
 
             ], 200);
         } else {

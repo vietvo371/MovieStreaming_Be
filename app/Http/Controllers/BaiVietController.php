@@ -91,10 +91,19 @@ class BaiVietController extends Controller
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
+
+            // Handle file upload
+            $filePath = null;
+            if ($request->hasFile('hinh_anh')) {
+                $file = $request->file('hinh_anh');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('BaiViet'), $fileName);
+                $filePath = asset('BaiViet/' . $fileName);
+            }
             BaiViet::create([
                 'tieu_de'               => $request->tieu_de,
                 'slug_tieu_de'           => $request->slug_tieu_de,
-                'hinh_anh'              => $request->hinh_anh,
+                'hinh_anh'              => $filePath,
                 'mo_ta'                 => $request->mo_ta,
                 'mo_ta_chi_tiet'        => $request->mo_ta_chi_tiet,
                 'id_chuyen_muc'         => $request->id_chuyen_muc,
@@ -178,10 +187,32 @@ class BaiVietController extends Controller
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
+            $baiViet = BaiViet::find($request->id);
+
+            if (!$baiViet) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy bài viết',
+                ]);
+            }
+
+            $filePath = $baiViet->hinh_anh; // Giữ nguyên đường dẫn ảnh cũ nếu không có file mới được gửi
+            if ($request->hasFile('hinh_anh')) {
+                $file = $request->file('hinh_anh');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('BaiViet'), $fileName);
+                $filePath = asset('BaiViet/' . $fileName);
+
+                // Xóa ảnh cũ nếu có
+                if ($baiViet->hinh_anh && file_exists(public_path('BaiViet/' . basename($baiViet->hinh_anh)))) {
+                    unlink(public_path('BaiViet/' . basename($baiViet->hinh_anh)));
+                }
+            }
             BaiViet::where('id', $request->id)
                 ->update([
                     'tieu_de'               => $request->tieu_de,
-                    'hinh_anh'              => $request->hinh_anh,
+                    'slug_tieu_de'           => $request->slug_tieu_de,
+                    'hinh_anh'              => $filePath,
                     'mo_ta'                 => $request->mo_ta,
                     'mo_ta_chi_tiet'        => $request->mo_ta_chi_tiet,
                     'id_chuyen_muc'         => $request->id_chuyen_muc,

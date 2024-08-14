@@ -141,7 +141,6 @@ class AdminAnimeController extends Controller
             ]);
         }
     }
-
     public function timAdmin(Request $request)
     {
         $key    = '%' . $request->key . '%';
