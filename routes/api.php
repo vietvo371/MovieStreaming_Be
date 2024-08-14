@@ -253,6 +253,7 @@ Route::group(['prefix'  =>  '/tac-gia'], function () {
 Route::group(['prefix'  =>  '/bai-viet'], function () {
     // Bài Viết Blog
     Route::get('/lay-du-lieu-show', [BaiVietController::class, 'getDataHome']);
+    Route::post('/change-chuyen-muc', [BaiVietController::class, 'changeChuyenMuc']);
     Route::post('/lay-du-lieu-delist-blog', [BaiVietController::class, 'getDelistBlog']);
 });
 Route::group(['prefix'  =>  '/chuyen-muc'], function () {

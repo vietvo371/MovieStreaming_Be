@@ -52,23 +52,62 @@ class BaiVietController extends Controller
     }
     public function getDataHome()
     {
-        $data   = BaiViet::where('bai_viets.tinh_trang', 1)
-            ->join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
+        $chuyenmuc   = ChuyenMuc::where('chuyen_mucs.tinh_trang', 1)->select('chuyen_mucs.*')->take(1)->first();
+        $data   = BaiViet::join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
+            ->where('bai_viets.tinh_trang', 1)
+            ->where('chuyen_mucs.tinh_trang', $chuyenmuc->id)
+            ->where('id_chuyen_muc', 1)
             ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
             ->orderBy('id', 'DESC') // sắp xếp giảm dần
-            ->get(); // get là ra 1 danh sách
-
+            ->paginate(6); // get là ra 1  sách
+        $response = [
+                'pagination' => [
+                    'total' => $data->total(),
+                    'per_page' => $data->perPage(),
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'from' => $data->firstItem(),
+                    'to' => $data->lastItem()
+                ],
+                'dataAdmin' => $data
+            ];
         return response()->json([
-            'bai_viet'        =>  $data,
+            'bai_viet'        =>  $response,
         ]);
+    }
+    public function changeChuyenMuc(Request $request)
+    {
+        $data   = BaiViet::join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
+        ->where('bai_viets.tinh_trang', 1)
+        ->where('chuyen_mucs.tinh_trang', 1)
+        ->where('id_chuyen_muc',$request->id_chuyen_muc)
+        ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
+        // ->orderBy('id', 'DESC') // sắp xếp giảm dần
+        ->paginate(6); // get là ra 1  sách
+        $response = [
+                'pagination' => [
+                    'total' => $data->total(),
+                    'per_page' => $data->perPage(),
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'from' => $data->firstItem(),
+                    'to' => $data->lastItem()
+                ],
+                'dataAdmin' => $data
+            ];
+    return response()->json([
+        'bai_viet'        =>  $response,
+    ]);
+
     }
     public function getDelistBlog(Request $request)
     {
-        $data   = BaiViet::where('bai_viets.tinh_trang', 1)
-            ->join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
-            ->where('bai_viets.slug_tieu_de', $request->slug)
-            ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
-            ->first(); // get là ra 1 danh sách
+        $data   = BaiViet::join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
+        ->where('bai_viets.tinh_trang', 1)
+        ->where('chuyen_mucs.tinh_trang', 1)
+        ->where('bai_viets.slug_tieu_de', $request->slug)
+        ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
+        ->first(); // get là ra 1 danh sách
 
         return response()->json([
             'bai_viet'        =>  $data,

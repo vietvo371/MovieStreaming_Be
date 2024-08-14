@@ -30,7 +30,7 @@ class LoaiPhimController extends Controller
             ]);
         }
         $dataAdmin   = LoaiPhim::select('loai_phims.*')
-            ->paginate(6); // get là ra 1  sách
+            ->paginate(9); // get là ra 1  sách
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -66,9 +66,11 @@ class LoaiPhimController extends Controller
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
             ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
             ->where('phims.tinh_trang', 1)
+            ->where('the_loais.tinh_trang', 1)
+            ->where('loai_phims.tinh_trang', 1)
             ->where('loai_phims.slug_loai_phim', $slug)
             ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
-            ->paginate(6); // get là ra 1  sách
+            ->paginate(9); // get là ra 1  sách
 
         $response = [
                 'pagination' => [
@@ -85,6 +87,8 @@ class LoaiPhimController extends Controller
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
             ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
             ->where('phims.tinh_trang', 1)
+            ->where('the_loais.tinh_trang', 1)
+            ->where('loai_phims.tinh_trang', 1)
             ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
             ->inRandomOrder() // Lấy ngẫu nhiên
             ->take(9)
@@ -104,7 +108,7 @@ class LoaiPhimController extends Controller
                 ->where('id_loai_phim', $id_lp)
                 ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
                 ->orderBy('ten_phim', 'ASC')  // tăng dần
-                ->paginate(6); // get là ra 1  sách
+                ->paginate(9); // get là ra 1  sách
 
         } else if ($catagory === 'za') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
@@ -113,7 +117,7 @@ class LoaiPhimController extends Controller
                 ->where('id_loai_phim', $id_lp)
                 ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
                 ->orderBy('ten_phim', 'DESC')  // giảm dần
-                ->paginate(6); // get là ra 1  sách
+                ->paginate(9); // get là ra 1  sách
 
         } else if ($catagory === '1to10') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
@@ -124,7 +128,7 @@ class LoaiPhimController extends Controller
                 ->orderBy('id', 'DESC')  // giảm dần
                 ->skip(0)
                 ->take(9)
-                ->paginate(6); // get là ra 1  sách
+                ->paginate(9); // get là ra 1  sách
         }
 
         $response = [
@@ -179,7 +183,7 @@ class LoaiPhimController extends Controller
         $key    = '%' . $request->key . '%';
         $dataAdmin   = LoaiPhim::select('loai_phims.*')
             ->where('ten_loai_phim', 'like', $key)
-            ->paginate(6); // get là ra 1  sách
+            ->paginate(9); // get là ra 1  sách
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
