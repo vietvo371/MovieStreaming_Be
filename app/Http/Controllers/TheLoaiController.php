@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DanhMucWeb;
 use App\Models\PhanQuyen;
 use App\Models\Phim;
 use App\Models\TheLoai;
@@ -18,19 +19,21 @@ class TheLoaiController extends Controller
     public function getData()
     {
         $id_chuc_nang = 7;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-            ->where('id_chuc_nang', $id_chuc_nang)
-            ->first();
-        if (!$check) {
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
             return response()->json([
                 'status'  =>  false,
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataAdmin       = TheLoai::select('the_loais.*')
-            ->paginate(9); // get là ra 1  sách
+        $dataAdmin       = TheLoai::join('danh_muc_webs', 'the_loais.id_danh_muc', 'danh_muc_webs.id')
+            ->select('the_loais.*', 'danh_muc_webs.ten_danh_muc')
+            ->paginate(6); // get là ra 1  sách
+
+        $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
+            ->select('danh_muc_webs.*')
+            ->get(); // get là ra 1  sách
+
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -44,6 +47,7 @@ class TheLoaiController extends Controller
         ];
         return response()->json([
             'the_loai'  =>  $response,
+            'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
     public function getDataHomeTLPhim(Request $request)
@@ -55,12 +59,11 @@ class TheLoaiController extends Controller
 
         $phim                   = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-            ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
             ->where('phims.tinh_trang', 1)
             ->where('the_loais.tinh_trang', 1)
             ->where('loai_phims.tinh_trang', 1)
             ->where('the_loais.slug_the_loai', $request->slug)
-            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
+            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
             ->paginate(9); // get là ra 1  sách
 
         $response = [
@@ -77,11 +80,10 @@ class TheLoaiController extends Controller
 
         $phim_9_obj              = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
             ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-            ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
             ->where('phims.tinh_trang', 1)
             ->where('the_loais.tinh_trang', 1)
             ->where('loai_phims.tinh_trang', 1)
-            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
+            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
             ->inRandomOrder() // Lấy ngẫu nhiên
             ->take(9)
             ->get(); // get là ra 1 danh sách
@@ -97,30 +99,17 @@ class TheLoaiController extends Controller
         if ($catagory === 'az') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
                 ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-                ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
                 ->where('id_the_loai', $id_tl)
-                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
+                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
                 ->orderBy('ten_phim', 'ASC')  // tăng dần
                 ->paginate(9); // get là ra 1  sách
 
         } else if ($catagory === 'za') {
             $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
                 ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-                ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
                 ->where('id_the_loai', $id_tl)
-                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
+                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
                 ->orderBy('ten_phim', 'DESC')  // giảm dần
-                ->paginate(9); // get là ra 1  sách
-
-        } else if ($catagory === '1to10') {
-            $data = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-                ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-                ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
-                ->where('id_the_loai', $id_tl)
-                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
-                ->orderBy('id', 'DESC')  // giảm dần
-                ->skip(0)
-                ->take(9)
                 ->paginate(9); // get là ra 1  sách
 
         }
@@ -137,8 +126,7 @@ class TheLoaiController extends Controller
         ];
         return response()->json([
             'phim'  =>  $response,
-            'id_tl'  =>  $id_tl,
-            'catagory'  =>  $catagory,
+            'phim1'  =>  $data,
         ]);
     }
     public function getDataHome()
@@ -148,14 +136,11 @@ class TheLoaiController extends Controller
             ->get();
         $phims   = [];  // mảng chứa phim theo thể loại
         foreach ($data as $key  => $value) {
-            $phim_theo_the_loai = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-                ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-                ->join('tac_gias', 'id_tac_gia', 'tac_gias.id')
+            $phim_theo_the_loai = Phim::join('loai_phims', 'id_loai_phim', 'loai_phims.id')
                 ->where('phims.tinh_trang', 1)
-                ->where('the_loais.tinh_trang', 1)
                 ->where('loai_phims.tinh_trang', 1)
                 ->where('phims.id_the_loai', $value->id)
-                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim', 'tac_gias.ten_tac_gia')
+                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
                 //    ->orderBy('id', 'DESC') sắp xép giảm dần
                 ->inRandomOrder()
                 ->take(3)
@@ -174,12 +159,8 @@ class TheLoaiController extends Controller
     {
         try {
             $id_chuc_nang = 7;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -188,9 +169,11 @@ class TheLoaiController extends Controller
             TheLoai::create([
                 'ten_the_loai'      => $request->ten_the_loai,
                 'slug_the_loai'     => $request->slug_the_loai,
+                'id_danh_muc'        => $request->id_danh_muc,
                 'tinh_trang'        => $request->tinh_trang,
             ]);
             return response()->json([
+
                 'status'   => true,
                 'message'  => 'Bạn thêm Thể Thể Loại thành công!',
             ]);
@@ -203,10 +186,22 @@ class TheLoaiController extends Controller
     }
     public function timTheLoai(Request $request)
     {
+        $id_chuc_nang = 7;
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
         $key    = '%' . $request->key . '%';
-        $dataAdmin   = TheLoai::select('the_loais.*')
+        $dataAdmin       = TheLoai::join('danh_muc_webs', 'the_loais.id_danh_muc', 'danh_muc_webs.id')
+            ->select('the_loais.*', 'danh_muc_webs.ten_danh_muc')
             ->where('ten_the_loai', 'like', $key)
-            ->paginate(9); // get là ra 1  sách
+            ->paginate(6); // get là ra 1  sách
+        $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
+            ->select('danh_muc_webs.*')
+            ->get(); // get là ra 1  sách
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -220,18 +215,15 @@ class TheLoaiController extends Controller
         ];
         return response()->json([
             'the_loai'  =>  $response,
+            'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
     public function capnhatTheLoai(Request $request)
     {
         try {
             $id_chuc_nang = 7;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -241,6 +233,7 @@ class TheLoaiController extends Controller
                 ->update([
                     'ten_the_loai'      => $request->ten_the_loai,
                     'slug_the_loai'     => $request->slug_the_loai,
+                    'id_danh_muc'        => $request->id_danh_muc,
                     'tinh_trang'        => $request->tinh_trang,
                 ]);
 
@@ -260,12 +253,8 @@ class TheLoaiController extends Controller
     {
         try {
             $id_chuc_nang = 7;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -289,6 +278,14 @@ class TheLoaiController extends Controller
     {
 
         try {
+            $id_chuc_nang = 7;
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
             TheLoai::where('id', $request->id)

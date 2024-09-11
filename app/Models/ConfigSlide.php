@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LoaiPhim extends Model
+class ConfigSlide extends Model
 {
     use HasFactory;
-    protected $table = 'loai_phims';
+    protected $table = 'config_slides';
     protected $fillable = [
-            'ten_loai_phim',
-            'slug_loai_phim',
-            'tinh_trang',
-            'id_danh_muc'
+        'slide',
+        'id_phim',
+        'tinh_trang',
     ];
 }

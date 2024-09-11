@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tap_phims', function (Blueprint $table) {
+        Schema::create('config_slides', function (Blueprint $table) {
             $table->id();
-            $table->string('slug_tap_phim');
-            $table->integer('so_tap');
-            $table->string('url');
-            $table->integer('id_phim');
-            $table->integer('tinh_trang');
+            $table->string('slide');
+            $table->string('id_phim');
+            $table->integer('tinh_trang')->default(1);
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tap_phims');
+        Schema::dropIfExists('config_slides');
     }
 };

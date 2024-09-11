@@ -18,12 +18,8 @@ class BaiVietController extends Controller
     public function getData()
     {
         $id_chuc_nang = 10;
-        $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-        $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-        $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-            ->where('id_chuc_nang', $id_chuc_nang)
-            ->first();
-        if (!$check) {
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
             return response()->json([
                 'status'  =>  false,
                 'message' =>  'Bạn không có quyền chức năng này'
@@ -61,16 +57,16 @@ class BaiVietController extends Controller
             ->orderBy('id', 'DESC') // sắp xếp giảm dần
             ->paginate(6); // get là ra 1  sách
         $response = [
-                'pagination' => [
-                    'total' => $data->total(),
-                    'per_page' => $data->perPage(),
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
-                    'from' => $data->firstItem(),
-                    'to' => $data->lastItem()
-                ],
-                'dataAdmin' => $data
-            ];
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+            ],
+            'dataAdmin' => $data
+        ];
         return response()->json([
             'bai_viet'        =>  $response,
         ]);
@@ -78,36 +74,35 @@ class BaiVietController extends Controller
     public function changeChuyenMuc(Request $request)
     {
         $data   = BaiViet::join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
-        ->where('bai_viets.tinh_trang', 1)
-        ->where('chuyen_mucs.tinh_trang', 1)
-        ->where('id_chuyen_muc',$request->id_chuyen_muc)
-        ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
-        // ->orderBy('id', 'DESC') // sắp xếp giảm dần
-        ->paginate(6); // get là ra 1  sách
+            ->where('bai_viets.tinh_trang', 1)
+            ->where('chuyen_mucs.tinh_trang', 1)
+            ->where('id_chuyen_muc', $request->id_chuyen_muc)
+            ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
+            // ->orderBy('id', 'DESC') // sắp xếp giảm dần
+            ->paginate(6); // get là ra 1  sách
         $response = [
-                'pagination' => [
-                    'total' => $data->total(),
-                    'per_page' => $data->perPage(),
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
-                    'from' => $data->firstItem(),
-                    'to' => $data->lastItem()
-                ],
-                'dataAdmin' => $data
-            ];
-    return response()->json([
-        'bai_viet'        =>  $response,
-    ]);
-
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+            ],
+            'dataAdmin' => $data
+        ];
+        return response()->json([
+            'bai_viet'        =>  $response,
+        ]);
     }
     public function getDelistBlog(Request $request)
     {
         $data   = BaiViet::join('chuyen_mucs', 'id_chuyen_muc', 'chuyen_mucs.id')
-        ->where('bai_viets.tinh_trang', 1)
-        ->where('chuyen_mucs.tinh_trang', 1)
-        ->where('bai_viets.slug_tieu_de', $request->slug)
-        ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
-        ->first(); // get là ra 1 danh sách
+            ->where('bai_viets.tinh_trang', 1)
+            ->where('chuyen_mucs.tinh_trang', 1)
+            ->where('bai_viets.slug_tieu_de', $request->slug)
+            ->select('bai_viets.*', 'chuyen_mucs.ten_chuyen_muc')
+            ->first(); // get là ra 1 danh sách
 
         return response()->json([
             'bai_viet'        =>  $data,
@@ -119,12 +114,8 @@ class BaiVietController extends Controller
     {
         try {
             $id_chuc_nang = 10;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -136,8 +127,8 @@ class BaiVietController extends Controller
             if ($request->hasFile('hinh_anh')) {
                 $file = $request->file('hinh_anh');
                 $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('BaiViet'), $fileName);
-                $filePath = asset('BaiViet/' . $fileName);
+                $file->move(public_path('uploads/admin/blogs'), $fileName);
+                $filePath = asset('uploads/admin/blogs/' . $fileName);
             }
             BaiViet::create([
                 'tieu_de'               => $request->tieu_de,
@@ -155,13 +146,21 @@ class BaiVietController extends Controller
         } catch (ExceptionEvent $e) {
             return response()->json([
                 'status'     => false,
-                'message'    => 'Xoá bài viết không thành công!!'
+                'message'    => 'Đã xảy ra lỗi'
             ]);
         }
     }
 
     public function timBaiViet(Request $request)
     {
+        $id_chuc_nang = 10;
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
         $key    = '%' . $request->key . '%';
         $dataAdmin   = BaiViet::select('bai_viets.*')
             ->where('tieu_de', 'like', $key)
@@ -185,16 +184,16 @@ class BaiVietController extends Controller
     {
         try {
             $id_chuc_nang = 10;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
+            }
+            $BaiViet = BaiViet::where('id', $id)->first();
+            if ($BaiViet->hinh_anh && file_exists(public_path('uploads/admin/blogs/' . basename($BaiViet->hinh_anh)))) {
+                unlink(public_path('uploads/admin/blogs/' . basename($BaiViet->hinh_anh)));
             }
             BaiViet::where('id', $id)->delete();
 
@@ -206,7 +205,7 @@ class BaiVietController extends Controller
             //throw $th;
             return response()->json([
                 'status'     => false,
-                'message'    => 'Xoá bài viết không thành công!!'
+                'message'    => 'Đã xảy ra lỗi'
             ]);
         }
     }
@@ -215,12 +214,8 @@ class BaiVietController extends Controller
     {
         try {
             $id_chuc_nang = 10;
-            $user   = Auth::guard('sanctum')->user(); // Chính là người đang login
-            $user_chuc_vu   = $user->id_chuc_vu;    // Giả sử
-            $check  = PhanQuyen::where('id_chuc_vu', $user_chuc_vu)
-                ->where('id_chuc_nang', $id_chuc_nang)
-                ->first();
-            if (!$check) {
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
                 return response()->json([
                     'status'  =>  false,
                     'message' =>  'Bạn không có quyền chức năng này'
@@ -239,12 +234,12 @@ class BaiVietController extends Controller
             if ($request->hasFile('hinh_anh')) {
                 $file = $request->file('hinh_anh');
                 $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('BaiViet'), $fileName);
-                $filePath = asset('BaiViet/' . $fileName);
+                $file->move(public_path('uploads/admin/blogs'), $fileName);
+                $filePath = asset('uploads/admin/blogs/' . $fileName);
 
                 // Xóa ảnh cũ nếu có
-                if ($baiViet->hinh_anh && file_exists(public_path('BaiViet/' . basename($baiViet->hinh_anh)))) {
-                    unlink(public_path('BaiViet/' . basename($baiViet->hinh_anh)));
+                if ($baiViet->hinh_anh && file_exists(public_path('uploads/admin/blogs/' . basename($baiViet->hinh_anh)))) {
+                    unlink(public_path('uploads/admin/blogs/' . basename($baiViet->hinh_anh)));
                 }
             }
             BaiViet::where('id', $request->id)
@@ -275,6 +270,14 @@ class BaiVietController extends Controller
     {
 
         try {
+            $id_chuc_nang = 10;
+            $check = $this->checkQuyen($id_chuc_nang);
+            if ($check == false) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Bạn không có quyền chức năng này'
+                ]);
+            }
             $tinh_trang_moi = !$request->tinh_trang;
             //   $tinh_trang_moi là trái ngược của $request->tinh_trangs
             BaiViet::where('id', $request->id)

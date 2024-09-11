@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LoaiPhim extends Model
+class LuotPhim extends Model
 {
     use HasFactory;
-    protected $table = 'loai_phims';
+    protected $table = 'luot_xems';
     protected $fillable = [
-            'ten_loai_phim',
-            'slug_loai_phim',
-            'tinh_trang',
-            'id_danh_muc'
+        'id_phim',
+        'id_tap_phim',
+        'ngay_xem',
+        'so_luot_xem',
     ];
 }
