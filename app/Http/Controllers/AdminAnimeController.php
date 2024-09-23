@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DoiPassAdminReuqest;
 use App\Http\Requests\DoiPassRequest;
+use App\Http\Requests\LoginAdminRequest;
 use App\Models\AdminAnime;
 use App\Models\ChucVu;
 use App\Models\PhanQuyen;
@@ -367,7 +368,7 @@ class AdminAnimeController extends Controller
             ]);
         }
     }
-    public function login(Request $request)
+    public function login(LoginAdminRequest $request)
     {
         $check = Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password,]);
         if ($check) {

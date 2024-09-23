@@ -50,10 +50,12 @@ class GoiVipController extends Controller
                 ]);
             }
             GoiVip::create([
-                'ten_goi_vip'       => $request->ten_goi_vip,
-                'slug_goi_vip'      => $request->slug_goi_vip,
-                'gia_tien'          => $request->gia_tien,
-                'tinh_trang'          => $request->tinh_trang,
+                'ten_goi'       => $request->ten_goi,
+                'slug_goi_vip'  => $request->slug_goi_vip,
+                'thoi_han'      => $request->thoi_han,
+                'tien_goc'      => $request->tien_goc,
+                'tien_sale'     => $request->tien_sale,
+                'tinh_trang'    => $request->tinh_trang,
             ]);
             return response()->json([
                 'status'   => true,
@@ -105,10 +107,12 @@ class GoiVipController extends Controller
             }
             GoiVip::where('id', $request->id)
                 ->update([
-                    'ten_goi_vip'       => $request->ten_goi_vip,
-                    'slug_goi_vip'      => $request->slug_goi_vip,
-                    'gia_tien'          => $request->gia_tien,
-                    'tinh_trang'          => $request->tinh_trang,
+                'ten_goi'       => $request->ten_goi,
+                'slug_goi_vip'  => $request->slug_goi_vip,
+                'thoi_han'      => $request->thoi_han,
+                'tien_goc'      => $request->tien_goc,
+                'tien_sale'     => $request->tien_sale,
+                'tinh_trang'    => $request->tinh_trang,
                 ]);
 
             return response()->json([
@@ -201,7 +205,7 @@ class GoiVipController extends Controller
         }
         $key    = '%' . $request->key . '%';
         $dataAdmin   = GoiVip::select('goi_vips.*')
-            ->where('ten_goi_vip', 'like', $key)
+            ->where('ten_goi', 'like', $key)
             ->paginate(6); // get là ra 1  sách
         $response = [
             'pagination' => [
