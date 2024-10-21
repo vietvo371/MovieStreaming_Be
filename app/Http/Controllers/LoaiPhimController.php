@@ -6,6 +6,7 @@ use App\Models\DanhMucWeb;
 use App\Models\LoaiPhim;
 use App\Models\PhanQuyen;
 use App\Models\Phim;
+use App\Models\TheLoai;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,7 @@ class LoaiPhimController extends Controller
         $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
             ->select('danh_muc_webs.*')
             ->get(); // get là ra 1  sách
-        $dataAdmin   = LoaiPhim::join('danh_muc_webs', 'loai_phims.id_danh_muc', 'danh_muc_webs.id')->select('loai_phims.*','danh_muc_webs.ten_danh_muc')
+        $dataAdmin   = LoaiPhim::join('danh_muc_webs', 'loai_phims.id_danh_muc', 'danh_muc_webs.id')->select('loai_phims.*', 'danh_muc_webs.ten_danh_muc')
             ->paginate(9); // get là ra 1  sách
         $response = [
             'pagination' => [
@@ -52,8 +53,14 @@ class LoaiPhimController extends Controller
         $data   = LoaiPhim::where('loai_phims.tinh_trang', 1)
             ->select('loai_phims.*')
             ->get(); // get là ra 1 danh sách
+
+        $data_1   = TheLoai::where('the_loais.tinh_trang', 1)
+            ->select('the_loais.*')
+            ->get(); // get là ra 1 danh sách
+
         return response()->json([
             'loai_phim'  =>  $data,
+            'the_loai'  =>  $data_1,
         ]);
     }
     public function getDataHomeLPhim($slug)
