@@ -218,30 +218,30 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::post('/kiem-tra-slug-update', [ChuyenMucController::class, 'kiemTraSlugChuyenMucUpdate']);
     });
     //quản lý Yêu thích phim
-    Route::group(['prefix'  =>  '/yeu-thich'], function () {
-        // Yêu Thich
-        Route::get('/lay-du-lieu', [YeuThichController::class, 'getData']);
-        Route::post('/thong-tin-tao', [YeuThichController::class, 'taoYeuThich']);
-        Route::post('/kiem-tra', [YeuThichController::class, 'checkYeuThich']);
-        Route::post('/thong-tin-xoa', [YeuThichController::class, 'xoaYeuThich']);
-        Route::put('/thong-tin-cap-nhat', [YeuThichController::class, 'capnhatYeuThich']);
-        Route::put('/thong-tin-thay-doi-trang-thai', [YeuThichController::class, 'thaydoiTrangThaiYeuThich']);
-        Route::post('/thong-tin-tim', [YeuThichController::class, 'timYeuThich']);
-    });
+    // Route::group(['prefix'  =>  '/yeu-thich'], function () {
+    //     // Yêu Thich
+    //     Route::get('/lay-du-lieu', [YeuThichController::class, 'getData']);
+    //     Route::post('/thong-tin-tao', [YeuThichController::class, 'taoYeuThich']);
+    //     Route::post('/kiem-tra', [YeuThichController::class, 'checkYeuThich']);
+    //     Route::post('/thong-tin-xoa', [YeuThichController::class, 'xoaYeuThich']);
+    //     Route::put('/thong-tin-cap-nhat', [YeuThichController::class, 'capnhatYeuThich']);
+    //     Route::put('/thong-tin-thay-doi-trang-thai', [YeuThichController::class, 'thaydoiTrangThaiYeuThich']);
+    //     Route::post('/thong-tin-tim', [YeuThichController::class, 'timYeuThich']);
+    // });
     //quản lý Bình luận phim
-    Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
-        // Bình luận Phim
-        Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
-    });
-    //quản lý Bình luận Blog
-    Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
-        // Bình luận Blog
-        Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
-    });
+    // Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
+    //     // Bình luận Phim
+    //     Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
+    //     Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
+    //     Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
+    // });
+    // //quản lý Bình luận Blog
+    // Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
+    //     // Bình luận Blog
+    //     Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
+    //     Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
+    //     Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
+    // });
     // Quản lý Thống Kê
     Route::group(['prefix'  =>  '/thong-ke'], function () {
         Route::post('/data-thong-ke-1', [ThongKeController::class, 'getDataThongke1']);
@@ -264,6 +264,31 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     Route::put('/doi-thong-tin', [KhachHangController::class, 'doiThongTinUser']);
     Route::post('/doi-avatar', [KhachHangController::class, 'doiAvatarUser']);
     Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfileUser']);
+    Route::group(['prefix'  =>  '/yeu-thich'], function () {
+        // Yêu Thich
+        Route::get('/lay-du-lieu', [YeuThichController::class, 'getData']);
+        Route::post('/thong-tin-tao', [YeuThichController::class, 'taoYeuThich']);
+        Route::post('/kiem-tra', [YeuThichController::class, 'checkYeuThich']);
+        Route::post('/thong-tin-xoa', [YeuThichController::class, 'xoaYeuThich']);
+        Route::put('/thong-tin-cap-nhat', [YeuThichController::class, 'capnhatYeuThich']);
+        Route::put('/thong-tin-thay-doi-trang-thai', [YeuThichController::class, 'thaydoiTrangThaiYeuThich']);
+        Route::post('/thong-tin-tim', [YeuThichController::class, 'timYeuThich']);
+    });
+    //quản lý Bình luận phim
+    Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
+        // Bình luận Phim
+        Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
+        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
+        Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
+        Route::put('/thong-tin-sua', [BinhLuanPhimController::class, 'capNhatBinhLuanPhim']);
+    });
+    //quản lý Bình luận Blog
+    Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
+        // Bình luận Blog
+        Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
+        Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
+        Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
+    });
 });
 
 

@@ -342,6 +342,7 @@ class PhimController extends Controller
     {
         $phim = DB::table(DB::raw('
     (SELECT
+        phims.id,
         phims.ten_phim,
         phims.slug_phim,
         phims.hinh_anh,
