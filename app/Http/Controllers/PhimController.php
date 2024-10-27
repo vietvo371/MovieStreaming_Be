@@ -130,17 +130,18 @@ class PhimController extends Controller
     }
     public function getDataXemPhim(Request $request)
     {
-        $data   = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-            ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-            ->where('phims.slug_phim', $request->slug)
-            ->where('phims.tinh_trang', 1)
-            ->where('the_loais.tinh_trang', 1)
-            ->where('loai_phims.tinh_trang', 1)
-            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
-            ->first(); // get là ra 1 danh sách
+        $the_loai = TheLoai::select('ten_the_loai')
+            ->where('tinh_trang', 1)
+            ->get();
 
+        $phim = Phim::where('slug_phim', $request->slugMovie)->firstOrFail();
+        $tap_phims = TapPhim::where('id_phim', $phim->id)->orderBy('so_tap', 'ASC')->get();
+        $tap = TapPhim::where('slug_tap_phim', $request->slugEpisode)->firstOrFail();
         return response()->json([
-            'phim' => $data,
+            'the_loai'  =>  $the_loai,
+            'phim'      =>  $phim,
+            'tap_phims' =>  $tap_phims,
+            'tap'       =>  $tap,
         ]);
     }
     public function dataTheoTL(Request $request)
@@ -157,22 +158,83 @@ class PhimController extends Controller
     }
     public function getAllPhim()
     {
-        $data   = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-            ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-            ->where('phims.tinh_trang', 1)
-            ->where('the_loais.tinh_trang', 1)
-            ->where('loai_phims.tinh_trang', 1)
-            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
-            ->paginate(6); // get là ra 1  sách
+        $data = DB::table(DB::raw('
+        (
+            SELECT
+                phims.id,
+                phims.ten_phim,
+                phims.hinh_anh,
+                loai_phims.ten_loai_phim,
+                phims.slug_phim,
+                phims.mo_ta,
+                phims.tong_luong_xem,
+                phims.so_tap_phim,
+                GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                (
+                    SELECT COUNT(tap_phims.id)
+                    FROM tap_phims
+                    WHERE tap_phims.id_phim = phims.id
+                ) as tong_tap
+            FROM
+                phims
+            JOIN
+                chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+            JOIN
+                loai_phims ON loai_phims.id = phims.id_loai_phim
+            JOIN
+                the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+            WHERE
+                phims.tinh_trang = 1
+            AND
+                loai_phims.tinh_trang = 1
+            AND
+                the_loais.tinh_trang = 1
+            GROUP BY
+                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+            HAVING
+                tong_tap > 0
+        ) as subquery
+    '))
+            ->paginate(9);
 
-        $data9   = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-            ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-            ->where('phims.tinh_trang', 1)
-            ->where('the_loais.tinh_trang', 1)
-            ->where('loai_phims.tinh_trang', 1)
-            ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
-            ->take(9)
-            ->get(); // get là ra 1  sách
+        $data_9 = DB::table(DB::raw('
+        (
+            SELECT
+                phims.id,
+                phims.ten_phim,
+                phims.hinh_anh,
+                loai_phims.ten_loai_phim,
+                phims.slug_phim,
+                phims.mo_ta,
+                phims.tong_luong_xem,
+                phims.so_tap_phim,
+                GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                (
+                    SELECT COUNT(tap_phims.id)
+                    FROM tap_phims
+                    WHERE tap_phims.id_phim = phims.id
+                ) as tong_tap
+            FROM
+                phims
+            JOIN
+                chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+            JOIN
+                loai_phims ON loai_phims.id = phims.id_loai_phim
+            JOIN
+                the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+            WHERE
+                phims.tinh_trang = 1
+            AND
+                loai_phims.tinh_trang = 1
+            AND
+                the_loais.tinh_trang = 1
+            GROUP BY
+                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+            HAVING
+                tong_tap > 0
+        ) as subquery
+    '))
+            ->take(8)->inRandomOrder()->get();
         $response = [
             'pagination' => [
                 'total' => $data->total(),
@@ -186,7 +248,7 @@ class PhimController extends Controller
         ];
         return response()->json([
             'phim'             =>  $response,
-            'phim_9_obj'       =>  $data9,
+            'phim_9_obj'       =>  $data_9,
         ]);
     }
     public function getDataHome()
@@ -251,7 +313,7 @@ class PhimController extends Controller
                     phims.tong_luong_xem,
                     phims.mo_ta,
                     phims.so_tap_phim,
-                    phims.created_at,  -- Include created_at in the SELECT statement
+                    MAX(tap_phims.updated_at) as tap_moi_nhat,  -- Lấy thời gian cập nhật mới nhất của tập phim
                     GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                     (
                         SELECT COUNT(tap_phims.id)
@@ -275,14 +337,15 @@ class PhimController extends Controller
                 AND
                     loai_phims.tinh_trang = 1
                 GROUP BY
-                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim, phims.created_at  -- Add created_at to GROUP BY
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
         '))
-            ->orderBy('created_at', 'DESC') // sắp xếp giảm dần theo created_at
+            ->orderBy('tap_moi_nhat', 'DESC') // Sắp xếp theo tập mới cập nhật
             ->take(6)
             ->get();
+
 
         $tat_ca_phim = DB::table(DB::raw('
             (
@@ -290,6 +353,7 @@ class PhimController extends Controller
                     phims.id,
                     phims.ten_phim,
                     phims.hinh_anh,
+                    loai_phims.ten_loai_phim,
                     phims.slug_phim,
                     phims.mo_ta,
                     phims.tong_luong_xem,
@@ -315,27 +379,145 @@ class PhimController extends Controller
                 AND
                     the_loais.tinh_trang = 1
                 GROUP BY
-                    phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                    phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
         '))
+            ->take(6)
             ->get();
 
 
 
+        $tat_ca_phim_hoan_thanh = DB::table(DB::raw('
+    (
+        SELECT
+            phims.id,
+            phims.ten_phim,
+            phims.hinh_anh,
+            loai_phims.ten_loai_phim,
+            phims.slug_phim,
+            phims.mo_ta,
+            phims.tong_luong_xem,
+            phims.so_tap_phim,
+            GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+            (
+                SELECT COUNT(tap_phims.id)
+                FROM tap_phims
+                WHERE tap_phims.id_phim = phims.id
+            ) as tong_tap
+        FROM
+            phims
+        JOIN
+            chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+        JOIN
+            loai_phims ON loai_phims.id = phims.id_loai_phim
+        JOIN
+            the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+        WHERE
+            phims.tinh_trang = 1
+        AND
+            loai_phims.tinh_trang = 1
+        AND
+            the_loais.tinh_trang = 1
+        GROUP BY
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+        HAVING
+            tong_tap > 0 AND phims.so_tap_phim = tong_tap
+    ) as subquery
+'))
+            ->take(6)
+            ->get();
 
-        $so_luong_tap = TapPhim::join('phims', 'tap_phims.id_phim', 'phims.id')
-            ->where('phims.tinh_trang', 1)
-            ->select('phims.ten_phim', DB::raw('COUNT(tap_phims.id_phim) as tong_so_tap'))
-            ->groupBy('phims.ten_phim')
-            ->take(9)
+        $phim_xem_nhieu_nhat = DB::table(DB::raw('
+            (
+                SELECT
+                    phims.id,
+                    phims.ten_phim,
+                    loai_phims.ten_loai_phim,
+                    phims.hinh_anh,
+                    phims.slug_phim,
+                    phims.tong_luong_xem,
+                    phims.mo_ta,
+                    phims.so_tap_phim,
+                    GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                    (
+                        SELECT COUNT(tap_phims.id)
+                        FROM tap_phims
+                        WHERE tap_phims.id_phim = phims.id
+                    ) as tong_tap
+                FROM
+                    phims
+                JOIN
+                    chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                JOIN
+                    loai_phims ON loai_phims.id = phims.id_loai_phim
+                JOIN
+                    the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                WHERE
+                    phims.tinh_trang = 1
+                AND
+                    loai_phims.tinh_trang = 1
+                AND
+                    the_loais.tinh_trang = 1
+                GROUP BY
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                HAVING
+                    tong_tap > 0
+            ) as subquery
+        '))
+            ->orderBy('tong_luong_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
+            ->take(3) // Lấy 6 phim có lượt xem cao nhất
+            ->get();
+        $phim_hot = DB::table(DB::raw('
+            (
+                SELECT
+                    phims.id,
+                    phims.ten_phim,
+                    loai_phims.ten_loai_phim,
+                    phims.hinh_anh,
+                    phims.slug_phim,
+                    phims.tong_luong_xem,
+                    phims.mo_ta,
+                    phims.so_tap_phim,
+                    GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                    (
+                        SELECT COUNT(tap_phims.id)
+                        FROM tap_phims
+                        WHERE tap_phims.id_phim = phims.id
+                    ) as tong_tap
+                FROM
+                    phims
+                JOIN
+                    chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                JOIN
+                    loai_phims ON loai_phims.id = phims.id_loai_phim
+                JOIN
+                    the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                WHERE
+                    phims.tinh_trang = 1
+                AND
+                    loai_phims.tinh_trang = 1
+                AND
+                    the_loais.tinh_trang = 1
+                GROUP BY
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                HAVING
+                    tong_tap > 0
+            ) as subquery
+        '))
+            ->orderBy('tong_luong_xem', 'DESC')
+            ->inRandomOrder() // Sắp xếp theo tổng lượt xem giảm dần
+            ->take(6) // Lấy 6 phim có lượt xem cao nhất
             ->get();
 
         return response()->json([
-            'phim_moi_cap_nhats'  =>  $phim_moi_cap_nhat,
-            'tat_ca_phim'  =>  $tat_ca_phim,
-            'top_view_thang'  =>  $top_view_thang,
+            'phim_hot'                   =>  $phim_hot,
+            'phim_moi_cap_nhats'         =>  $phim_moi_cap_nhat,
+            'tat_ca_phim'                =>  $tat_ca_phim,
+            'top_view_thang'             =>  $top_view_thang,
+            'phim_xem_nhieu_nhat'        => $phim_xem_nhieu_nhat,
+            'tat_ca_phim_hoan_thanh'     => $tat_ca_phim_hoan_thanh
         ]);
     }
     public function getDataDelist(Request $request)
@@ -357,11 +539,13 @@ class PhimController extends Controller
         phims.tong_luong_xem,
         phims.tinh_trang,
         phims.cong_ty_san_xuat,
+        loai_phims.ten_loai_phim,
         GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
         COUNT(tap_phims.id) as tong_tap
     FROM phims
     JOIN chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
     JOIN the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+    JOIN loai_phims ON phims.id_loai_phim = loai_phims.id
     LEFT JOIN tap_phims ON tap_phims.id_phim = phims.id
     WHERE phims.slug_phim = :slug_phim
     AND phims.tinh_trang = 1
@@ -380,7 +564,8 @@ class PhimController extends Controller
         phims.so_tap_phim,
         phims.tong_luong_xem,
         phims.tinh_trang,
-        phims.cong_ty_san_xuat
+        phims.cong_ty_san_xuat,
+        loai_phims.ten_loai_phim
     HAVING tong_tap > 0
     LIMIT 1
     ) as phim
@@ -426,12 +611,12 @@ class PhimController extends Controller
 ) as subquery
 '))->setBindings(['slug_phim' => $request->slug])
             ->take(5)->get();
-
-
+        $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
 
         return response()->json([
             'phim'        =>  $phim,
             'phim_5_obj'  =>  $select5film,
+            'tap'         =>  $tap,
         ]);
     }
     public function sapxepHome(Request $request)
@@ -452,6 +637,79 @@ class PhimController extends Controller
         }
         return response()->json([
             'phim'  =>  $data,
+        ]);
+    }
+    public function sapxepAllPhim($catagory)
+    {
+        $data = DB::table(DB::raw('
+        (
+            SELECT
+                phims.id,
+                phims.ten_phim,
+                loai_phims.ten_loai_phim,
+                phims.hinh_anh,
+                phims.slug_phim,
+                phims.tong_luong_xem,
+                phims.mo_ta,
+                phims.so_tap_phim,
+                GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                (
+                    SELECT COUNT(tap_phims.id)
+                    FROM tap_phims
+                    WHERE tap_phims.id_phim = phims.id
+                ) as tong_tap
+            FROM
+                phims
+            JOIN
+                chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+            JOIN
+                loai_phims ON loai_phims.id = phims.id_loai_phim
+            JOIN
+                the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+            WHERE
+                phims.tinh_trang = 1
+            AND
+                loai_phims.tinh_trang = 1
+            AND
+                the_loais.tinh_trang = 1
+            GROUP BY
+                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+            HAVING
+                tong_tap > 0
+        ) as subquery
+    '))
+            ->orderBy('ten_phim', $catagory) // Sắp xếp theo tổng lượt xem giảm dần
+            ->paginate(9);
+        $response = [
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+            ],
+            'dataPhim' => $data
+        ];
+        return response()->json([
+            'phim'  =>  $response,
+            'response'  =>  $response,
+        ]);
+    }
+    public function watchingFilm($slugMovie, $slugEpisode)
+    {
+        $the_loai = TheLoai::select('ten_the_loai')
+            ->where('tinh_trang', 1)
+            ->get();
+
+        $phim = Phim::where('slug_phim', $slugMovie)->firstOrFail();
+        $tap_phims = TapPhim::where('id_phim', $phim->id)->orderBy('so_tap', 'ASC')->get();
+        $tap = TapPhim::where('slug_tap_phim', $slugEpisode)->firstOrFail();
+        return response()->json([
+            'the_loai'  =>  $the_loai,
+            'phim'      =>  $phim,
+            'tap_phims' =>  $tap_phims,
+            'tap'       =>  $tap,
         ]);
     }
 

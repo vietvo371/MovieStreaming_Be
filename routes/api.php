@@ -264,6 +264,10 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     Route::put('/doi-thong-tin', [KhachHangController::class, 'doiThongTinUser']);
     Route::post('/doi-avatar', [KhachHangController::class, 'doiAvatarUser']);
     Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfileUser']);
+
+    //xem phim
+    Route::post('/{slugMovie}/{slugEpisode}', [PhimController::class, 'watchingFilm']);
+
     Route::group(['prefix'  =>  '/yeu-thich'], function () {
         // Yêu Thich
         Route::get('/lay-du-lieu', [YeuThichController::class, 'getData']);
@@ -279,7 +283,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
         // Bình luận Phim
         Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
         Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
+        Route::post('/thong-tin-xoa', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
         Route::put('/thong-tin-sua', [BinhLuanPhimController::class, 'capNhatBinhLuanPhim']);
     });
     //quản lý Bình luận Blog
@@ -338,9 +342,9 @@ Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
 
 Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
 Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
-Route::get('/the-loai/sap-xep/{id_tl}/{catagory}', [TheLoaiController::class, 'sapxepHome']);
-Route::get('/loai-phim/sap-xep/{id_lp}/{catagory}', [LoaiPhimController::class, 'sapxepHome']);
+Route::get('/the-loai/sap-xep/{slug_the_loai}/{catagory}', [TheLoaiController::class, 'sapxepHome']);
+Route::get('/loai-phim/sap-xep/{slug_loai_phim}/{catagory}', [LoaiPhimController::class, 'sapxepHome']);
 Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
 Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
 Route::get('/lay-tat-ca-phim', [PhimController::class, 'getAllPhim']);
-Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'getAllPhim']);
+Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'sapxepAllPhim']);

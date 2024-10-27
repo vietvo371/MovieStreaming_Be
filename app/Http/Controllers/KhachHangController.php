@@ -517,7 +517,7 @@ class KhachHangController extends Controller
     }
     public function kiemTraQuenMK(Request $request)
     {
-        $check  = KhachHang::where('hash_quen_mat_khau', $request->hash_quen_mat_khau)->first();
+        $check  = KhachHang::where('hash_reset', $request->hash_quen_mat_khau)->first();
         if ($check) {
             return response()->json([
                 'status'            =>   true,

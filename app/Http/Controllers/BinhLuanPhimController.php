@@ -88,10 +88,10 @@ class BinhLuanPhimController extends Controller
 
 
 
-    public function xoaBinhLuanPhim(DeleteDanhGiaPhimRequest $id)
+    public function xoaBinhLuanPhim(DeleteDanhGiaPhimRequest $request)
     {
         try {
-            BinhLuanPhim::where('id', $id)->delete();
+            BinhLuanPhim::where('id', $request->id)->delete();
 
             return response()->json([
                 'status'     => true,
