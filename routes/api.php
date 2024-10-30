@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAnimeController;
 use App\Http\Controllers\BaiVietController;
 use App\Http\Controllers\BinhLuanBaiVietController;
 use App\Http\Controllers\BinhLuanPhimController;
+use App\Http\Controllers\BinhLuanTapPhimControllerr;
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\ChuyenMucController;
 use App\Http\Controllers\DanhMucWebController;
@@ -266,7 +267,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfileUser']);
 
     //xem phim
-    Route::post('/{slugMovie}/{slugEpisode}', [PhimController::class, 'watchingFilm']);
+    // Route::post('/{slugMovie}/{slugEpisode}', [PhimController::class, 'watchingFilm']);
 
     Route::group(['prefix'  =>  '/yeu-thich'], function () {
         // Yêu Thich
@@ -280,24 +281,31 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     });
     //quản lý Bình luận phim
     Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
-        // Bình luận Phim
-        Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
+        // Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
         Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
         Route::post('/thong-tin-xoa', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
         Route::put('/thong-tin-sua', [BinhLuanPhimController::class, 'capNhatBinhLuanPhim']);
     });
+    //quản lý Bình luận tập phim
+    Route::group(['prefix'  =>  '/binh-luan-tap-phim'], function () {
+        // Route::post('/lay-du-lieu', [BinhLuanTapPhimControllerr::class, 'getDataBinhLuanPhim']);
+        Route::post('/thong-tin-tao', [BinhLuanTapPhimControllerr::class, 'taoBinhLuanPhim']);
+        Route::post('/thong-tin-xoa', [BinhLuanTapPhimControllerr::class, 'xoaBinhLuanPhim']);
+        Route::put('/thong-tin-sua', [BinhLuanTapPhimControllerr::class, 'capNhatBinhLuanPhim']);
+    });
     //quản lý Bình luận Blog
     Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
-        // Bình luận Blog
-        Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
+        // Route::get('/lay-du-lieu', [BinhLuanBaiVietController::class, 'getData']);
         Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
-        Route::delete('/thong-tin-xoa/{id}', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
+        Route::post('/thong-tin-xoa', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
+        Route::put('/thong-tin-sua', [BinhLuanBaiVietController::class, 'capNhatBlog']);
+
     });
 });
 
 
 
-// Show data ở Home
+// Show data ở Client
 Route::group(['prefix'  =>  '/phim'], function () {
     //  Phim
     Route::get('/lay-du-lieu-show', [PhimController::class, 'getDataHome']);
@@ -331,17 +339,17 @@ Route::group(['prefix'  =>  '/chuyen-muc'], function () {
     // Chuyên Mục Blog
     Route::get('/lay-du-lieu-show', [ChuyenMucController::class, 'getDataHome']);
 });
-Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
-    // Bình luận Phim
-    Route::get('/lay-du-lieu-show', [BinhLuanPhimController::class, 'getData']);
-});
-Route::group(['prefix'  =>  '/binh-luan-blog'], function () {
-    // Bình luận Blog
-    Route::get('/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
-});
+
+// Bình luận Phim
+Route::get('/binh-luan-phim/lay-du-lieu-show', [BinhLuanPhimController::class, 'getData']);
+// Bình luận Tập Phim
+Route::get('/binh-luan-tap-phim/lay-du-lieu', [BinhLuanTapPhimControllerr::class, 'getDataBinhLuanPhim']);
+// Bình luận Blog
+Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
 
 Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
 Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
+Route::post('/phim/load-thong-tin-tim', [PhimController::class, 'loadTimPhimHome']);
 Route::get('/the-loai/sap-xep/{slug_the_loai}/{catagory}', [TheLoaiController::class, 'sapxepHome']);
 Route::get('/loai-phim/sap-xep/{slug_loai_phim}/{catagory}', [LoaiPhimController::class, 'sapxepHome']);
 Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);

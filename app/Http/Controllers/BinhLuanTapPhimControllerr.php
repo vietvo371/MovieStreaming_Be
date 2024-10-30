@@ -2,57 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CapNhatBlogRequest;
-use App\Http\Requests\TaoBinhLuanBlogRequest;
-use App\Http\Requests\XoaBinhLuanBlogRequest;
-use App\Models\BinhLuanBaiViet;
+use App\Http\Requests\CapNhatBinhLuanPhimRequest;
+use App\Http\Requests\TaoBinhLuanPhimRequest;
+use App\Http\Requests\XoaBinhLuanPhimRequest;
+use App\Models\BinhLuatTapPhim;
+use App\Models\TapPhim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
-class BinhLuanBaiVietController extends Controller
+class BinhLuanTapPhimControllerr extends Controller
 {
-    public function getData()
+    public function getDataBinhLuanPhim()
     {
-        $data   = BinhLuanBaiViet::join('bai_viets', 'id_bai_viet', 'bai_viets.id')
-            ->join('khach_hangs', 'id_khach_hang', 'khach_hangs.id')
-            ->select('binh_luan_bai_viets.*', 'khach_hangs.ho_va_ten', 'khach_hangs.avatar')
-            // ->take(3)
-            ->get(); // get là ra 1 danh sách
+        // Truy vấn bình luận của tập phim
+        $coment = BinhLuatTapPhim::join('tap_phims', 'binh_luat_tap_phims.id_tap_phim', '=', 'tap_phims.id')
+            ->join('khach_hangs', 'binh_luat_tap_phims.id_khach_hang', '=', 'khach_hangs.id')
+            ->select('binh_luat_tap_phims.*', 'khach_hangs.ho_va_ten', 'khach_hangs.avatar')
+            ->orderBy('binh_luat_tap_phims.created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return response()->json([
-            'binh_luan_bai_viet'  =>  $data,
+            'binh_luan_tap_phim' => $coment,
         ]);
     }
 
-    public function taoBinhLuanBlog(TaoBinhLuanBlogRequest $request)
+
+
+    public function taoBinhLuanPhim(TaoBinhLuanPhimRequest $request)
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            BinhLuanBaiViet::create([
+            BinhLuatTapPhim::create([
                 'noi_dung'              => $request->noi_dung,
-                'id_bai_viet'           => $request->id_bai_viet,
+                'id_tap_phim'           => $request->id_tap_phim,
                 'id_khach_hang'         => $user->id,
             ]);
             return response()->json([
                 'status'   => true,
-                'message'  => 'Thêm binh luận thành công!',
+                'message'  => 'Đánh giá thành công!',
             ]);
         } catch (ExceptionEvent $e) {
             return response()->json([
                 'status'     => false,
-                'message'    => ' binh luận không thành công!!'
+                'message'    => 'Đánh giá không thành công!!'
             ]);
         }
     }
-    public function capNhatBlog(CapNhatBlogRequest $request)
+    public function capNhatBinhLuanPhim(CapNhatBinhLuanPhimRequest $request)
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            BinhLuanBaiViet::updateOrCreate(
+            BinhLuatTapPhim::updateOrCreate(
                 [
                     'id' => $request->id,
                     'id_khach_hang' => $user->id,
-                    'id_bai_viet' => $request->id_bai_viet
+                    'id_tap_phim' => $request->id_tap_phim
                 ],
                 [
                     'noi_dung' => $request->noi_dung,
@@ -69,11 +75,12 @@ class BinhLuanBaiVietController extends Controller
             ]);
         }
     }
-    public function xoaBinhLuanBlog(XoaBinhLuanBlogRequest $request)
+
+    public function xoaBinhLuanPhim(XoaBinhLuanPhimRequest $request)
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            BinhLuanBaiViet::where('id', $request->id)->where('id_khach_hang', $user->id)->delete();
+            BinhLuatTapPhim::where('id', $request->id)->where('id_khach_hang',$user->id)->delete();
             return response()->json([
                 'status'     => true,
                 'message'    => 'Đã xoá bình luận thành công!!'
@@ -82,7 +89,7 @@ class BinhLuanBaiVietController extends Controller
             //throw $th;
             return response()->json([
                 'status'     => false,
-                'message'    => ' bình luận không thành công!!'
+                'message'    => 'Xoá bình luận không thành công!!'
             ]);
         }
     }

@@ -965,14 +965,113 @@ class PhimController extends Controller
         if ($request->key == "") {
             $data = [];
         } else {
-            $data   = Phim::join('the_loais', 'id_the_loai', 'the_loais.id')
-                ->join('loai_phims', 'id_loai_phim', 'loai_phims.id')
-                ->select('phims.*', 'the_loais.ten_the_loai', 'loai_phims.ten_loai_phim')
-                ->where('ten_phim', 'like', $key)
-                ->get(); // get là ra 1 danh sách
+            $data = DB::table(DB::raw('
+    (
+        SELECT
+            phims.id,
+            phims.ten_phim,
+            phims.hinh_anh,
+            loai_phims.ten_loai_phim,
+            phims.slug_phim,
+            phims.mo_ta,
+            phims.tong_luong_xem,
+            phims.so_tap_phim,
+            GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+            (
+                SELECT COUNT(tap_phims.id)
+                FROM tap_phims
+                WHERE tap_phims.id_phim = phims.id
+            ) as tong_tap
+        FROM
+            phims
+        JOIN
+            chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+        JOIN
+            loai_phims ON loai_phims.id = phims.id_loai_phim
+        JOIN
+            the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+        WHERE
+            phims.tinh_trang = 1
+        AND
+            loai_phims.tinh_trang = 1
+        AND
+            the_loais.tinh_trang = 1
+        AND
+            phims.ten_phim LIKE ?
+        GROUP BY
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+        HAVING
+            tong_tap > 0
+    ) as subquery
+'))
+                ->setBindings([$key]) // Bind the key parameter
+                ->get();
         }
         return response()->json([
             'phim'  =>  $data,
+        ]);
+    }
+    public function loadTimPhimHome(Request $request)
+    {
+        $key    = '%' . $request->key . '%';
+        if ($request->key == "") {
+            $data = [];
+        } else {
+            $data = DB::table(DB::raw('
+    (
+        SELECT
+            phims.id,
+            phims.ten_phim,
+            phims.hinh_anh,
+            loai_phims.ten_loai_phim,
+            phims.slug_phim,
+            phims.mo_ta,
+            phims.tong_luong_xem,
+            phims.so_tap_phim,
+            GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+            (
+                SELECT COUNT(tap_phims.id)
+                FROM tap_phims
+                WHERE tap_phims.id_phim = phims.id
+            ) as tong_tap
+        FROM
+            phims
+        JOIN
+            chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+        JOIN
+            loai_phims ON loai_phims.id = phims.id_loai_phim
+        JOIN
+            the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+        WHERE
+            phims.tinh_trang = 1
+        AND
+            loai_phims.tinh_trang = 1
+        AND
+            the_loais.tinh_trang = 1
+        AND
+            phims.ten_phim LIKE ?
+        GROUP BY
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+        HAVING
+            tong_tap > 0
+    ) as subquery
+'))
+                ->setBindings([$key]) // Bind the key parameter
+                ->paginate(12);
+        }
+        $response = [
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+            ],
+            'dataPhim' => $data
+        ];
+        return response()->json([
+            'phim'  =>  $response,
         ]);
     }
     public function kiemTraSlugPhim(Request $request)

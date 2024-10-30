@@ -91,7 +91,8 @@ class BinhLuanPhimController extends Controller
     public function xoaBinhLuanPhim(DeleteDanhGiaPhimRequest $request)
     {
         try {
-            BinhLuanPhim::where('id', $request->id)->delete();
+            $user = Auth::guard('sanctum')->user();
+            BinhLuanPhim::where('id', $request->id)->where('id_khach_hang',$user->id)->delete();
 
             return response()->json([
                 'status'     => true,
