@@ -25,12 +25,14 @@ class BinhLuanPhimController extends Controller
             ->select('id_phim', DB::raw('AVG(so_sao) AS so_sao_trung_binh'), DB::raw('COUNT(id) AS tong_so_luot_danh_gia'))
             ->groupBy('id_phim')
             ->get();
+        $limit = $request->limit;
         $coment = BinhLuanPhim::join('phims', 'binh_luan_phims.id_phim', '=', 'phims.id')
             ->join('khach_hangs', 'binh_luan_phims.id_khach_hang', '=', 'khach_hangs.id')
+            ->where('phims.id', $film->id)  // Sửa điều kiện ở đây
             ->select('binh_luan_phims.*', 'khach_hangs.ho_va_ten', 'khach_hangs.avatar')
-            ->orderBy('binh_luan_phims.created_at', 'desc') // Sắp xếp theo thời gian bình luận mới nhất
-            ->take(10)  // Lấy 3 bình luận mới nhất
-            ->get();  // Lấy danh sách kết quả
+            ->orderBy('binh_luan_phims.created_at', 'desc')
+            ->take($limit)
+            ->get();
         return response()->json([
             'binh_luan_phim'  =>  $coment,
             'rate'            =>  $rate,
@@ -92,7 +94,7 @@ class BinhLuanPhimController extends Controller
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            BinhLuanPhim::where('id', $request->id)->where('id_khach_hang',$user->id)->delete();
+            BinhLuanPhim::where('id', $request->id)->where('id_khach_hang', $user->id)->delete();
 
             return response()->json([
                 'status'     => true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChiTietTheLoai;
+use App\Models\HoaDon;
 use App\Models\LoaiPhim;
 use App\Models\PhanQuyen;
 use App\Models\Phim;
@@ -523,100 +524,114 @@ class PhimController extends Controller
     public function getDataDelist(Request $request)
     {
         $phim = DB::table(DB::raw('
-    (SELECT
-        phims.id,
-        phims.ten_phim,
-        phims.slug_phim,
-        phims.hinh_anh,
-        phims.mo_ta,
-        phims.thoi_gian_chieu,
-        phims.nam_san_xuat,
-        phims.quoc_gia,
-        phims.id_loai_phim,
-        phims.id_the_loai,
-        phims.dao_dien,
-        phims.so_tap_phim,
-        phims.tong_luong_xem,
-        phims.tinh_trang,
-        phims.cong_ty_san_xuat,
-        loai_phims.ten_loai_phim,
-        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
-        COUNT(tap_phims.id) as tong_tap
-    FROM phims
-    JOIN chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
-    JOIN the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
-    JOIN loai_phims ON phims.id_loai_phim = loai_phims.id
-    LEFT JOIN tap_phims ON tap_phims.id_phim = phims.id
-    WHERE phims.slug_phim = :slug_phim
-    AND phims.tinh_trang = 1
-    GROUP BY
-        phims.id,
-        phims.ten_phim,
-        phims.slug_phim,
-        phims.hinh_anh,
-        phims.mo_ta,
-        phims.thoi_gian_chieu,
-        phims.nam_san_xuat,
-        phims.quoc_gia,
-        phims.id_loai_phim,
-        phims.id_the_loai,
-        phims.dao_dien,
-        phims.so_tap_phim,
-        phims.tong_luong_xem,
-        phims.tinh_trang,
-        phims.cong_ty_san_xuat,
-        loai_phims.ten_loai_phim
-    HAVING tong_tap > 0
-    LIMIT 1
-    ) as phim
-'))->setBindings(['slug_phim' => $request->slug])->first();
+                    (
+                     SELECT
+                        phims.id,
+                        phims.ten_phim,
+                        phims.slug_phim,
+                        phims.hinh_anh,
+                        phims.mo_ta,
+                        phims.thoi_gian_chieu,
+                        phims.nam_san_xuat,
+                        phims.quoc_gia,
+                        phims.id_loai_phim,
+                        phims.id_the_loai,
+                        phims.dao_dien,
+                        phims.so_tap_phim,
+                        phims.tong_luong_xem,
+                        phims.tinh_trang,
+                        phims.cong_ty_san_xuat,
+                        loai_phims.ten_loai_phim,
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        COUNT(tap_phims.id) as tong_tap
+                    FROM phims
+                    JOIN chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                    JOIN the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                    JOIN loai_phims ON phims.id_loai_phim = loai_phims.id
+                    LEFT JOIN tap_phims ON tap_phims.id_phim = phims.id
+                    WHERE phims.slug_phim = :slug_phim
+                    AND phims.tinh_trang = 1
+                    GROUP BY
+                        phims.id,
+                        phims.ten_phim,
+                        phims.slug_phim,
+                        phims.hinh_anh,
+                        phims.mo_ta,
+                        phims.thoi_gian_chieu,
+                        phims.nam_san_xuat,
+                        phims.quoc_gia,
+                        phims.id_loai_phim,
+                        phims.id_the_loai,
+                        phims.dao_dien,
+                        phims.so_tap_phim,
+                        phims.tong_luong_xem,
+                        phims.tinh_trang,
+                        phims.cong_ty_san_xuat,
+                        loai_phims.ten_loai_phim
+                    HAVING tong_tap > 0
+                    LIMIT 1
+                )
+                    as phim
+                '))->setBindings(['slug_phim' => $request->slug])->first();
+        $isUserTurmed = false;
+        $user = Auth::guard('sanctum')->user();
+        $id_khach_hang = $user ? $user->id : null;
+        if ($user instanceof \App\Models\KhachHang) {
+            $goihientai = HoaDon::where('id_khach_hang', $id_khach_hang)
+                ->where('tinh_trang', 1)
+                ->where('ngay_bat_dau', '<=', now())
+                ->where('ngay_ket_thuc', '>=', now())
+                ->latest()
+                ->first();
 
-
+            $isUserTurmed = (bool) $goihientai; // Gán true nếu có gói hợp lệ
+        }
         $select5film = DB::table(DB::raw('
-(
-    SELECT
-        phims.id,
-        phims.ten_phim,
-        phims.hinh_anh,
-        phims.slug_phim,
-        phims.mo_ta,
-        phims.tong_luong_xem,
-        phims.so_tap_phim,
-        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
-        (
-            SELECT COUNT(tap_phims.id)
-            FROM tap_phims
-            WHERE tap_phims.id_phim = phims.id
-        ) as tong_tap
-    FROM
-        phims
-    JOIN
-        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
-    JOIN
-        loai_phims ON loai_phims.id = phims.id_loai_phim
-    JOIN
-        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
-    WHERE
-        phims.tinh_trang = 1
-    AND
-        loai_phims.tinh_trang = 1
-    AND
-        the_loais.tinh_trang = 1
-    AND
-     phims.slug_phim != :slug_phim
-    GROUP BY
-        phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
-    HAVING
-        tong_tap > 0
-) as subquery
+                (
+                    SELECT
+                        phims.id,
+                        phims.ten_phim,
+                        phims.hinh_anh,
+                        phims.slug_phim,
+                        phims.mo_ta,
+                        phims.tong_luong_xem,
+                        phims.so_tap_phim,
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        (
+                            SELECT COUNT(tap_phims.id)
+                            FROM tap_phims
+                            WHERE tap_phims.id_phim = phims.id
+                        ) as tong_tap
+                    FROM
+                        phims
+                    JOIN
+                        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                    JOIN
+                        loai_phims ON loai_phims.id = phims.id_loai_phim
+                    JOIN
+                        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                    WHERE
+                        phims.tinh_trang = 1
+                    AND
+                        loai_phims.tinh_trang = 1
+                    AND
+                        the_loais.tinh_trang = 1
+                    AND
+                    phims.slug_phim != :slug_phim
+                    GROUP BY
+                        phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                    HAVING
+                        tong_tap > 0
+                ) as subquery
 '))->setBindings(['slug_phim' => $request->slug])
             ->take(5)->get();
         $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
 
         return response()->json([
-            'phim'        =>  $phim,
-            'phim_5_obj'  =>  $select5film,
-            'tap'         =>  $tap,
+            'phim'          =>  $phim,
+            'phim_5_obj'    =>  $select5film,
+            'tap'           =>  $tap,
+            'isUserTurmed'  =>  $isUserTurmed,
         ]);
     }
     public function sapxepHome(Request $request)

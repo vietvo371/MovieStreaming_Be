@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'adminAnime'=> \App\Http\Middleware\AdminAnimeLoginMiddleware::class,
         'khach_hang'=> \App\Http\Middleware\KhachHangMiddleWare::class,
+        'autoIncreViews'=> \App\Http\Middleware\AutoIncreViews::class,
+        'checkUserTerm'=> \App\Http\Middleware\checkUserTerm::class,
     ];
 }

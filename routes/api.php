@@ -282,7 +282,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     //quản lý Bình luận phim
     Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
         // Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim']);
+        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim'])->middleware(['checkUserTerm']);
         Route::post('/thong-tin-xoa', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
         Route::put('/thong-tin-sua', [BinhLuanPhimController::class, 'capNhatBinhLuanPhim']);
     });
@@ -299,17 +299,21 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
         Route::post('/thong-tin-tao', [BinhLuanBaiVietController::class, 'taoBinhLuanBlog']);
         Route::post('/thong-tin-xoa', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
         Route::put('/thong-tin-sua', [BinhLuanBaiVietController::class, 'capNhatBlog']);
-
     });
 });
 
+Route::middleware('khach_hang')->group(function () {
+    Route::post('/check-user-term', [KhachHangController::class, 'checkUserTerm']);
+    // Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
+    Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim'])->middleware(['autoIncreViews','checkUserTerm']);
+});
 
 
 // Show data ở Client
 Route::group(['prefix'  =>  '/phim'], function () {
     //  Phim
     Route::get('/lay-du-lieu-show', [PhimController::class, 'getDataHome']);
-    Route::get('/lay-data-delist', [PhimController::class, 'getDataDelist']);
+    Route::post('/lay-data-delist', [PhimController::class, 'getDataDelist']);
 });
 Route::group(['prefix'  =>  '/tap-phim'], function () {
     //  Phim
@@ -353,6 +357,5 @@ Route::post('/phim/load-thong-tin-tim', [PhimController::class, 'loadTimPhimHome
 Route::get('/the-loai/sap-xep/{slug_the_loai}/{catagory}', [TheLoaiController::class, 'sapxepHome']);
 Route::get('/loai-phim/sap-xep/{slug_loai_phim}/{catagory}', [LoaiPhimController::class, 'sapxepHome']);
 Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
-Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
 Route::get('/lay-tat-ca-phim', [PhimController::class, 'getAllPhim']);
 Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'sapxepAllPhim']);

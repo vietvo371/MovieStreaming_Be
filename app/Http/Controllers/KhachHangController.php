@@ -11,6 +11,7 @@ use App\Jobs\MailQuenMatKhau as JobsMailQuenMatKhau;
 use App\Jobs\MailQueue;
 use App\Mail\KichHoatTaiKhoan;
 use App\Mail\mailQuenMatKhau;
+use App\Models\HoaDon;
 use App\Models\KhachHang;
 use App\Models\PhanQuyen;
 use Exception;
@@ -664,5 +665,38 @@ class KhachHangController extends Controller
                 'message'    => 'Xoá Nha token không thành công!!'
             ]);
         }
+    }
+
+    public function checkUserTerm(Request $request)
+    {
+        $userId = Auth::guard('sanctum')->user()->id;
+
+        // Kiểm tra nếu người dùng chưa đăng nhập
+        // if (!$userId) {
+        //     return response()->json([
+        //         'status'  => 0,
+        //         'message' => 'Chức năng này yêu cầu đăng nhập!',
+        //     ]);
+        // }
+        // Tìm gói dịch vụ hợp lệ cho người dùng hiện tại
+        $goihientai = HoaDon::where('id_khach_hang', $userId)
+            ->where('tinh_trang', 1)
+            ->where('ngay_bat_dau', '<=', now())
+            ->where('ngay_ket_thuc', '>=', now())
+            ->latest()
+            ->first();
+
+        // Kiểm tra nếu người dùng không có gói hợp lệ
+        if (!$goihientai) {
+            return response()->json([
+                'status'  => 2,
+                'message' => 'Bạn chưa đăng ký gói hoặc gói của bạn đã hết hạn vui lòng mua thêm để tiếp tục!',
+            ]);
+        }
+        return response()->json([
+            'status'  => 1,
+            'message' => 'Hợp lệ!',
+        ]);
+
     }
 }
