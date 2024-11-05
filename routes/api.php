@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminAnimeController;
+use App\Http\Controllers\AdminHomepageController;
 use App\Http\Controllers\BaiVietController;
 use App\Http\Controllers\BinhLuanBaiVietController;
 use App\Http\Controllers\BinhLuanPhimController;
@@ -46,9 +47,10 @@ Route::post('/quen-mat-khau', [KhachHangController::class, 'quenMK']);
 Route::post('/khach-hang/check', [KhachHangController::class, 'check']);
 Route::delete('/khach-hang/thong-tin-xoa/{id}', [KhachHangController::class, 'xoatoken']);
 
-
-
 Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function () {
+    Route::get('/dashboard', [AdminHomepageController::class, 'getDashboard']);
+    Route::get('/dashboard/thong-ke-doanh-thu/{begin}/{end}', [AdminHomepageController::class, 'getDataThongkeDoanhThu']);
+    Route::get('/dashboard/thong-ke-luot-xem/{begin}/{end}', [AdminHomepageController::class, 'getDataThongkeLuotXem']);
     //quản lý admin
     Route::group(['prefix'  =>  '/admin'], function () {
         //  Tài Khoản Admin

@@ -58,10 +58,14 @@ class LoaiPhimController extends Controller
         $data_1   = TheLoai::where('the_loais.tinh_trang', 1)
             ->select('the_loais.*')
             ->get(); // get là ra 1 danh sách
+        $data_2   = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
+            ->select('danh_muc_webs.*')
+            ->get(); // get là ra 1 danh sách
 
         return response()->json([
             'loai_phim'  =>  $data,
             'the_loai'  =>  $data_1,
+            'danh_muc_webs'  =>  $data_2,
         ]);
     }
     public function getDataHomeLPhim($slug)
@@ -161,7 +165,7 @@ class LoaiPhimController extends Controller
                     tong_tap > 0
             ) as subquery
         '))
-                ->take(8)->inRandomOrder()->get();
+            ->take(8)->inRandomOrder()->get();
         return response()->json([
             'loai_phim'    =>  $loai_phim,
             'phim'        =>  $response,
