@@ -71,7 +71,6 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::get('/lay-du-lieu-profile', [AdminAnimeController::class, 'getDataProfile']);
     });
     //quản lý Khách hàng
-
     Route::group(['prefix'  =>  '/khach-hang'], function () {
         //  Tài Khoản Khách Hàng
         Route::get('/lay-du-lieu', [KhachHangController::class, 'getData']);
@@ -352,6 +351,8 @@ Route::get('/binh-luan-phim/lay-du-lieu-show', [BinhLuanPhimController::class, '
 Route::get('/binh-luan-tap-phim/lay-du-lieu', [BinhLuanTapPhimControllerr::class, 'getDataBinhLuanPhim']);
 // Bình luận Blog
 Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
+
+Route::get  ('/lay-data-goi-vip-open', [GoiVipController::class, 'goiVipOpen']);
 
 Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
 Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);

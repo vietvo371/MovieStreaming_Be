@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CapnhatLoaiPhimRequest;
+use App\Http\Requests\TaoLoaiPhimRequest;
+use App\Http\Requests\ThaydoiTrangThaiLoaiPhimRequest;
 use App\Models\DanhMucWeb;
 use App\Models\LoaiPhim;
 use App\Models\PhanQuyen;
@@ -231,7 +234,7 @@ class LoaiPhimController extends Controller
         ]);
     }
 
-    public function taoLoaiPhim(Request $request)
+    public function taoLoaiPhim(TaoLoaiPhimRequest $request)
     {
         try {
             $id_chuc_nang = 8;
@@ -288,7 +291,7 @@ class LoaiPhimController extends Controller
             'loai_phim_admin'  =>  $response,
         ]);
     }
-    public function capnhatLoaiPhim(Request $request)
+    public function capnhatLoaiPhim(CapnhatLoaiPhimRequest $request)
     {
         try {
             $id_chuc_nang = 8;
@@ -343,7 +346,7 @@ class LoaiPhimController extends Controller
             ]);
         }
     }
-    public function thaydoiTrangThaiLoaiPhim(Request $request)
+    public function thaydoiTrangThaiLoaiPhim(ThaydoiTrangThaiLoaiPhimRequest $request)
     {
 
         try {

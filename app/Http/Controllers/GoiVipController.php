@@ -11,6 +11,15 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class GoiVipController extends Controller
 {
+    public function goiVipOpen()
+    {
+        $dataOpen   = GoiVip::select('goi_vips.*')
+            ->where('tinh_trang', 1)
+            ->get();
+        return response()->json([
+            'data'  =>  $dataOpen,
+        ]);
+    }
     public function getData()
     {
         $id_chuc_nang = 13;
@@ -107,12 +116,12 @@ class GoiVipController extends Controller
             }
             GoiVip::where('id', $request->id)
                 ->update([
-                'ten_goi'       => $request->ten_goi,
-                'slug_goi_vip'  => $request->slug_goi_vip,
-                'thoi_han'      => $request->thoi_han,
-                'tien_goc'      => $request->tien_goc,
-                'tien_sale'     => $request->tien_sale,
-                'tinh_trang'    => $request->tinh_trang,
+                    'ten_goi'       => $request->ten_goi,
+                    'slug_goi_vip'  => $request->slug_goi_vip,
+                    'thoi_han'      => $request->thoi_han,
+                    'tien_goc'      => $request->tien_goc,
+                    'tien_sale'     => $request->tien_sale,
+                    'tinh_trang'    => $request->tinh_trang,
                 ]);
 
             return response()->json([

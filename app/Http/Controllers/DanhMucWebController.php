@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CapNhatDanhMucRequest;
+use App\Http\Requests\TaoDanhMucRequest;
+use App\Http\Requests\ThayDoiTrangThaiDanhMucRequest;
 use App\Models\DanhMucWeb;
 use App\Models\PhanQuyen;
 use Exception;
@@ -38,7 +41,7 @@ class DanhMucWebController extends Controller
             'danh_muc_admin'  =>  $response,
         ]);
     }
-    public function taoDanhMuc(Request $request)
+    public function taoDanhMuc(TaoDanhMucRequest $request)
     {
         try {
             $id_chuc_nang = 14;
@@ -95,7 +98,7 @@ class DanhMucWebController extends Controller
             'danh_muc_admin'  =>  $response,
         ]);
     }
-    public function capnhatDanhMuc(Request $request)
+    public function capnhatDanhMuc(CapNhatDanhMucRequest $request)
     {
         try {
             $id_chuc_nang = 14;
@@ -151,7 +154,7 @@ class DanhMucWebController extends Controller
             ]);
         }
     }
-    public function thaydoiTrangThaiDanhMuc(Request $request)
+    public function thaydoiTrangThaiDanhMuc(ThayDoiTrangThaiDanhMucRequest $request)
     {
 
         try {

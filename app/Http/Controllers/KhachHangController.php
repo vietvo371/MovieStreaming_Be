@@ -7,6 +7,8 @@ use App\Http\Requests\DangNhapRequest;
 use App\Http\Requests\DoiPassRequest;
 use App\Http\Requests\DoiThongTinRequest;
 use App\Http\Requests\QuenMatKhauRequest;
+use App\Http\Requests\TaoKhachHangRequest;
+use App\Http\Requests\UpdateKhachHangRequest;
 use App\Jobs\MailQuenMatKhau as JobsMailQuenMatKhau;
 use App\Jobs\MailQueue;
 use App\Mail\KichHoatTaiKhoan;
@@ -62,7 +64,7 @@ class KhachHangController extends Controller
             'obj_user'  => $user,
         ]);
     }
-    public function taoKhachHang(Request $request)
+    public function taoKhachHang(TaoKhachHangRequest $request)
     {
         try {
             $id_chuc_nang = 2;
@@ -74,7 +76,7 @@ class KhachHangController extends Controller
                 ]);
             }
             // Handle file upload
-            $filePath = null;
+            $filePath = asset('uploads/avatars/users/default_avatar.png');
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
                 $fileName = time() . '_' . $file->getClientOriginalName();
@@ -411,7 +413,7 @@ class KhachHangController extends Controller
         }
     }
 
-    public function capnhatKhachHang(Request $request)
+    public function capnhatKhachHang(UpdateKhachHangRequest $request)
     {
         try {
             $id_chuc_nang = 2;

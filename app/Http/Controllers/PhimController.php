@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CapNhatPhimRequest;
+use App\Http\Requests\TaoPhimRequest;
+use App\Http\Requests\ThayDoiTrangThaiPhimRequest;
 use App\Models\ChiTietTheLoai;
 use App\Models\HoaDon;
 use App\Models\LoaiPhim;
@@ -728,7 +731,7 @@ class PhimController extends Controller
         ]);
     }
 
-    public function taoPhim(Request $request)
+    public function taoPhim(TaoPhimRequest $request)
     {
         try {
             $id_chuc_nang = 5;
@@ -872,7 +875,7 @@ class PhimController extends Controller
         }
     }
 
-    public function capnhatPhim(Request $request)
+    public function capnhatPhim(CapNhatPhimRequest $request)
     {
         try {
             $id_chuc_nang = 5;
@@ -943,7 +946,7 @@ class PhimController extends Controller
         }
     }
 
-    public function thaydoiTrangThaiPhim(Request $request)
+    public function thaydoiTrangThaiPhim(ThayDoiTrangThaiPhimRequest  $request)
     {
 
         try {

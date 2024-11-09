@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CapNhatTheLoaiRequest;
+use App\Http\Requests\TaoTheLoaiRequest;
 use App\Models\DanhMucWeb;
 use App\Models\PhanQuyen;
 use App\Models\Phim;
@@ -239,7 +241,7 @@ class TheLoaiController extends Controller
 
 
 
-    public function taoTheLoai(Request $request)
+    public function taoTheLoai(TaoTheLoaiRequest $request)
     {
         try {
             $id_chuc_nang = 7;
@@ -302,7 +304,7 @@ class TheLoaiController extends Controller
             'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
-    public function capnhatTheLoai(Request $request)
+    public function capnhatTheLoai(CapNhatTheLoaiRequest $request)
     {
         try {
             $id_chuc_nang = 7;
