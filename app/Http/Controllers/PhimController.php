@@ -742,21 +742,35 @@ class PhimController extends Controller
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
-            // Handle file upload
-            $filePath = null;
-            if ($request->hasFile('hinh_anh')) {
-                $file = $request->file('hinh_anh');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/admin/phim'), $fileName);
-                $filePath = asset('uploads/admin/phim/' . $fileName);
+            if ($request->is_add_url && filter_var($request->hinh_anh, FILTER_VALIDATE_URL)) {
+                $filePath = $request->hinh_anh;
+            } else {
+                if ($request->hasFile('hinh_anh')) {
+                    $file = $request->file('hinh_anh');
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/admin/phim/thumbail'), $fileName);
+                    $filePath = asset('uploads/admin/phim/thumbail/' . $fileName);
+                }
             }
-            $theloais = $request->the_loais;
-            $theloaisArray = explode(',', $theloais);
-            // dd($theloais);
-            $phim  = Phim::create([
+
+            if ($request->is_add_url && filter_var($request->poster_img, FILTER_VALIDATE_URL)) {
+                $filePathPoster = $request->poster_img;
+            } else {
+                if ($request->hasFile('poster_img')) {
+                    $file = $request->file('poster_img');
+                    $fileNamePoster = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/admin/phim/poster'), $fileNamePoster);
+                    $filePathPoster = asset('uploads/admin/phim/poster/' . $fileNamePoster);
+                }
+            }
+
+            $theloaisArray = explode(',', $request->the_loais);
+
+            $phim = Phim::create([
                 'ten_phim'                  => $request->ten_phim,
                 'slug_phim'                 => $request->slug_phim,
                 'hinh_anh'                  => $filePath,
+                'poster_img'                => $filePathPoster,
                 'mo_ta'                     => $request->mo_ta,
                 'thoi_gian_chieu'           => $request->thoi_gian_chieu,
                 'nam_san_xuat'              => $request->nam_san_xuat,
@@ -766,7 +780,10 @@ class PhimController extends Controller
                 'so_tap_phim'               => $request->so_tap_phim,
                 'tinh_trang'                => $request->tinh_trang,
                 'cong_ty_san_xuat'          => $request->cong_ty_san_xuat,
+                'trailer_url'               => $request->trailer_url,
+                'chat_luong'                => $request->chat_luong,
             ]);
+
             if ($phim) {
                 foreach ($theloaisArray as $value) {
                     ChiTietTheLoai::create([
@@ -775,7 +792,6 @@ class PhimController extends Controller
                     ]);
                 }
             }
-
             return response()->json([
                 'status'   => true,
                 'message'  => 'Bạn thêm Phim thành công!',
@@ -861,6 +877,8 @@ class PhimController extends Controller
             if ($phim->hinh_anh && file_exists(public_path('uploads/admin/phim/' . basename($phim->hinh_anh)))) {
                 unlink(public_path('uploads/admin/phim/' . basename($phim->hinh_anh)));
             }
+            ChiTietTheLoai::where('id_phim', $id)->delete();
+            TapPhim::where('id_phim', $id)->delete();
             Phim::where('id', $id)->delete();
             return response()->json([
                 'status'     => true,
@@ -886,56 +904,82 @@ class PhimController extends Controller
                     'message' =>  'Bạn không có quyền chức năng này'
                 ]);
             }
-            $phim = Phim::where('id', $request->id)->first();
-
+            $phim = Phim::find($request->id);
             if (!$phim) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Không tìm thấy Phim',
                 ]);
             }
-            $filePath = $phim->hinh_anh; // Giữ nguyên đường dẫn ảnh cũ nếu không có file mới được gửi
-            if ($request->hasFile('hinh_anh')) {
-                $file = $request->file('hinh_anh');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/admin/phim'), $fileName);
-                $filePath = asset('uploads/admin/phim/' . $fileName);
 
-                // Xóa ảnh cũ nếu có
-                if ($phim->hinh_anh && file_exists(public_path('uploads/admin/phim/' . basename($phim->hinh_anh)))) {
-                    unlink(public_path('uploads/admin/phim/' . basename($phim->hinh_anh)));
+            if ($request->is_update_url && filter_var($request->hinh_anh, FILTER_VALIDATE_URL)) {
+                $filePath = $request->hinh_anh;
+            }  else {
+                $filePath = $phim->hinh_anh; // Giữ nguyên ảnh cũ nếu không có ảnh mới
+                if ($request->hasFile('hinh_anh')) {
+                    $file = $request->file('hinh_anh');
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/admin/phim/thumbnail'), $fileName);
+                    $filePath = asset('uploads/admin/phim/thumbnail/' . $fileName);
+
+                    // Xóa ảnh thumbnail cũ nếu tồn tại
+                    if ($phim->hinh_anh && file_exists(public_path('uploads/admin/phim/thumbnail/' . basename($phim->hinh_anh)))) {
+                        unlink(public_path('uploads/admin/phim/thumbnail/' . basename($phim->hinh_anh)));
+                    }
                 }
             }
-            $phimud = Phim::where('id', $request->id)
-                ->update([
-                    'ten_phim'                  => $request->ten_phim,
-                    'slug_phim'                 => $request->slug_phim,
-                    'hinh_anh'                  => $filePath,
-                    'mo_ta'                     => $request->mo_ta,
-                    'thoi_gian_chieu'           => $request->thoi_gian_chieu,
-                    'nam_san_xuat'              => $request->nam_san_xuat,
-                    'quoc_gia'                  => $request->quoc_gia,
-                    'id_loai_phim'              => $request->id_loai_phim,
-                    'dao_dien'                  => $request->dao_dien,
-                    'so_tap_phim'               => $request->so_tap_phim,
-                    'tinh_trang'                => $request->tinh_trang,
-                    'cong_ty_san_xuat'          => $request->cong_ty_san_xuat,
-                ]);
+            if ($request->is_update_url && filter_var($request->poster_img, FILTER_VALIDATE_URL)) {
+                $filePathPoster = $request->poster_img;
+            } else {
+                // Xử lý ảnh Poster
+                $filePathPoster = $phim->poster_img; // Giữ nguyên ảnh cũ nếu không có ảnh mới
+                if ($request->hasFile('poster_img')) {
+                    $filePoster = $request->file('poster_img');
+                    $fileNamePoster = time() . '_' . $filePoster->getClientOriginalName();
+                    $filePoster->move(public_path('uploads/admin/phim/poster'), $fileNamePoster);
+                    $filePathPoster = asset('uploads/admin/phim/poster/' . $fileNamePoster);
+
+                    // Xóa ảnh poster cũ nếu tồn tại
+                    if ($phim->poster_img && file_exists(public_path('uploads/admin/phim/poster/' . basename($phim->poster_img)))) {
+                        unlink(public_path('uploads/admin/phim/poster/' . basename($phim->poster_img)));
+                    }
+                }
+            }
+
+
+            // Cập nhật thông tin phim
+            $phim->update([
+                'ten_phim'           => $request->ten_phim,
+                'slug_phim'          => $request->slug_phim,
+                'hinh_anh'           => $filePath,
+                'poster_img'         => $filePathPoster,
+                'mo_ta'              => $request->mo_ta,
+                'thoi_gian_chieu'    => $request->thoi_gian_chieu,
+                'nam_san_xuat'       => $request->nam_san_xuat,
+                'quoc_gia'           => $request->quoc_gia,
+                'id_loai_phim'       => $request->id_loai_phim,
+                'dao_dien'           => $request->dao_dien,
+                'so_tap_phim'        => $request->so_tap_phim,
+                'tinh_trang'         => $request->tinh_trang,
+                'cong_ty_san_xuat'   => $request->cong_ty_san_xuat,
+                'trailer_url'        => $request->trailer_url,
+                'chat_luong'         => $request->chat_luong,
+            ]);
+
+            // Cập nhật thể loại
             ChiTietTheLoai::where('id_phim', $phim->id)->delete(); // Xóa các thể loại hiện tại
-            $theloais = $request->the_loais;
-            $theloaisArray = explode(',', $theloais);
-            if ($phimud) {
-                foreach ($theloaisArray as $value) {
-                    ChiTietTheLoai::create([
-                        'id_phim' => $phim->id,
-                        'id_the_loai' => (int) $value,
-                    ]);
-                }
+            $theloaisArray = explode(',', $request->the_loais);
+            foreach ($theloaisArray as $value) {
+                ChiTietTheLoai::create([
+                    'id_phim' => $phim->id,
+                    'id_the_loai' => (int) $value,
+                ]);
             }
+
 
             return response()->json([
                 'status'     => true,
-                'message'    => 'Đã Cập Nhật thành ' . $request->ten_phim,
+                'message'    => 'Đã Cập Nhật thành công ' . $request->ten_phim,
             ]);
         } catch (ExceptionEvent $e) {
             //throw $th;

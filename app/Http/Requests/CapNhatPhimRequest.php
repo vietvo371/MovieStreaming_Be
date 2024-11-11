@@ -15,18 +15,22 @@ class CapNhatPhimRequest extends FormRequest
     {
         return [
             'id'                => 'required|exists:phims,id',
-            'ten_phim'          => 'required|max:255',
-            'slug_phim'         => 'required|max:255|unique:phims,slug_phim,' . $this->id,
-            'mo_ta'             => 'nullable|max:1000',
-            'thoi_gian_chieu'   => 'nullable|integer|min:0',
-            'nam_san_xuat'      => 'nullable|integer|digits:4',
-            'quoc_gia'          => 'nullable|max:255',
-            'id_loai_phim'      => 'required|exists:loai_phims,id',
-            'dao_dien'          => 'nullable|max:255',
-            'so_tap_phim'       => 'nullable|integer|min:1',
-            'tinh_trang'        => 'required|boolean',
-            'cong_ty_san_xuat'  => 'nullable|max:255',
-            'the_loais'         => 'required|string', // Comma separated list of genre IDs
+            'ten_phim'         => 'required|string|max:255',
+            'slug_phim'        => 'required|string|max:255|unique:phims,slug_phim,' . $this->id, // Ensures unique slug except the current one
+            'hinh_anh'         => 'required',
+            'poster_img'       => 'required',
+            'mo_ta'            => 'required|string',
+            'thoi_gian_chieu'  => 'required|integer',
+            'nam_san_xuat'     => 'required|integer|min:1900|max:' . date('Y'),
+            'quoc_gia'         => 'required|string|max:255',
+            'id_loai_phim'     => 'required|integer|exists:loai_phims,id',
+            'dao_dien'         => 'required|string|max:255',
+            'so_tap_phim'      => 'required|integer|min:1',
+            'tinh_trang'       => 'required|in:0,1', // 0 là chưa hoàn thành, 1 là đã hoàn thành
+            'cong_ty_san_xuat' => 'required|string|max:255',
+            'trailer_url'      => 'nullable|url',
+            'chat_luong'       => 'required|string|max:50',
+            'the_loais'        => 'required|string', // Có thể xác thực thêm nếu cần
         ];
     }
 
@@ -38,32 +42,63 @@ class CapNhatPhimRequest extends FormRequest
     public function messages()
     {
         return [
-            'id.required'               => 'ID phim là bắt buộc.',
-            'id.exists'                 => 'Phim không tồn tại.',
-            'ten_phim.required'         => 'Tên phim là bắt buộc.',
+            'id.required'         => 'ID phim là bắt buộc.',
+            'id.exists'           => 'ID phim không tồn tại.',
+           'ten_phim.required'         => 'Tên phim là bắt buộc.',
+            'ten_phim.string'           => 'Tên phim phải là chuỗi ký tự.',
             'ten_phim.max'              => 'Tên phim không được vượt quá 255 ký tự.',
+
             'slug_phim.required'        => 'Slug phim là bắt buộc.',
+            'slug_phim.string'          => 'Slug phim phải là chuỗi ký tự.',
             'slug_phim.max'             => 'Slug phim không được vượt quá 255 ký tự.',
-            'slug_phim.unique'          => 'Slug phim đã tồn tại.',
-            'hinh_anh.image'            => 'Hình ảnh phải là file ảnh.',
-            'hinh_anh.mimes'            => 'Hình ảnh phải có định dạng jpeg, png, jpg, hoặc gif.',
-            'hinh_anh.max'              => 'Hình ảnh không được vượt quá 2MB.',
-            'mo_ta.max'                 => 'Mô tả không được vượt quá 1000 ký tự.',
-            'thoi_gian_chieu.integer'   => 'Thời gian chiếu phải là một số nguyên.',
-            'thoi_gian_chieu.min'       => 'Thời gian chiếu phải lớn hơn 0.',
-            'nam_san_xuat.integer'      => 'Năm sản xuất phải là một số nguyên.',
-            'nam_san_xuat.digits'       => 'Năm sản xuất phải có đúng 4 chữ số.',
+            'slug_phim.unique'          => 'Slug phim đã tồn tại, vui lòng chọn slug khác.',
+
+            'hinh_anh.required'         => 'Hình ảnh là bắt buộc.',
+
+            'poster_img.required'       => 'Ảnh poster là bắt buộc.',
+
+            'mo_ta.required'            => 'Mô tả phim là bắt buộc.',
+            'mo_ta.string'              => 'Mô tả phim phải là chuỗi ký tự.',
+
+            'thoi_gian_chieu.required'  => 'Thời gian chiếu là bắt buộc.',
+            'thoi_gian_chieu.integer'   => 'Thời gian chiếu phải là số nguyên.',
+
+            'nam_san_xuat.required'     => 'Năm sản xuất là bắt buộc.',
+            'nam_san_xuat.integer'      => 'Năm sản xuất phải là số nguyên.',
+            'nam_san_xuat.min'          => 'Năm sản xuất phải lớn hơn hoặc bằng 1900.',
+            'nam_san_xuat.max'          => 'Năm sản xuất không được lớn hơn năm hiện tại.',
+
+            'quoc_gia.required'         => 'Quốc gia là bắt buộc.',
+            'quoc_gia.string'           => 'Quốc gia phải là chuỗi ký tự.',
             'quoc_gia.max'              => 'Quốc gia không được vượt quá 255 ký tự.',
+
             'id_loai_phim.required'     => 'Loại phim là bắt buộc.',
-            'id_loai_phim.exists'       => 'Loại phim không hợp lệ.',
-            'dao_dien.max'              => 'Tên đạo diễn không được vượt quá 255 ký tự.',
-            'so_tap_phim.integer'       => 'Số tập phim phải là một số nguyên.',
-            'so_tap_phim.min'           => 'Số tập phim phải lớn hơn 0.',
+            'id_loai_phim.integer'      => 'Loại phim phải là số nguyên.',
+            'id_loai_phim.exists'       => 'Loại phim không tồn tại.',
+
+            'dao_dien.required'         => 'Đạo diễn là bắt buộc.',
+            'dao_dien.string'           => 'Đạo diễn phải là chuỗi ký tự.',
+            'dao_dien.max'              => 'Đạo diễn không được vượt quá 255 ký tự.',
+
+            'so_tap_phim.required'      => 'Số tập phim là bắt buộc.',
+            'so_tap_phim.integer'       => 'Số tập phim phải là số nguyên.',
+            'so_tap_phim.min'           => 'Số tập phim phải lớn hơn hoặc bằng 1.',
+
             'tinh_trang.required'       => 'Tình trạng là bắt buộc.',
-            'tinh_trang.boolean'        => 'Tình trạng phải là true hoặc false.',
-            'cong_ty_san_xuat.max'      => 'Tên công ty sản xuất không được vượt quá 255 ký tự.',
+            'tinh_trang.in'             => 'Tình trạng phải là 0 (chưa hoàn thành) hoặc 1 (đã hoàn thành).',
+
+            'cong_ty_san_xuat.required' => 'Công ty sản xuất phải là bắt buộc.',
+            'cong_ty_san_xuat.string'   => 'Công ty sản xuất phải là chuỗi ký tự.',
+            'cong_ty_san_xuat.max'      => 'Công ty sản xuất không được vượt quá 255 ký tự.',
+
+            'trailer_url.url'           => 'Trailer URL phải là một URL hợp lệ.',
+
+            'chat_luong.required'       => 'Chất lượng là bắt buộc.',
+            'chat_luong.string'         => 'Chất lượng phải là chuỗi ký tự.',
+            'chat_luong.max'            => 'Chất lượng không được vượt quá 50 ký tự.',
+
             'the_loais.required'        => 'Thể loại là bắt buộc.',
-            'the_loais.string'          => 'Thể loại phải là một chuỗi (danh sách các ID thể loại).',
+            'the_loais.string'          => 'Thể loại phải là chuỗi ký tự.',
         ];
     }
 }

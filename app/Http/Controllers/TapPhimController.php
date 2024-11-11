@@ -85,7 +85,6 @@ class TapPhimController extends Controller
                         'so_tap'                => $data['so_tap'],
                         'url'                   => $data['url'],
                         'id_phim'               => $data['id'],
-                        'tinh_trang'            => $data['tinh_trang'],
                     ]);
                 } else {
                     return response()->json([

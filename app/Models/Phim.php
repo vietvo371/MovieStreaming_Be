@@ -24,7 +24,9 @@ class Phim extends Model
         'so_tap_phim',
         'tong_luong_xem',
         'tinh_trang',
-        'cong_ty_san_xuat'
+        'cong_ty_san_xuat',
+        'poster_img',
+        'trailer_url',
+        'chat_luong'
     ];
-
 }

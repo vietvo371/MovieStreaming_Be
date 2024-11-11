@@ -20,7 +20,6 @@ class TaoTapPhimRequest extends FormRequest
             'id' => 'required|exists:phims,id',  // Validate the film exists in the database
             'so_tap' => 'required|integer|min:1',  // Ensure the episode number is an integer and greater than 0
             'url' => 'required|url',  // Validate that the URL is valid
-            'tinh_trang' => 'required|boolean',  // Validate status (active or inactive)
         ];
     }
 
@@ -39,8 +38,6 @@ class TaoTapPhimRequest extends FormRequest
             'so_tap.min' => 'Số tập phải lớn hơn 0.',
             'url.required' => 'URL là bắt buộc.',
             'url.url' => 'URL không hợp lệ.',
-            'tinh_trang.required' => 'Tình trạng là bắt buộc.',
-            'tinh_trang.boolean' => 'Tình trạng phải là 0 hoặc 1',
         ];
     }
 }
