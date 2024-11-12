@@ -45,6 +45,6 @@ class IncreaseViewCount implements ShouldQueue
         $luotXem->increment('so_luot_xem');
 
         // Tăng tổng lượt xem cho phim
-        Phim::where('id', $this->phimId)->increment('tong_luong_xem');
+        Phim::where('id', $this->phimId)->increment('tong_luot_xem');
     }
 }

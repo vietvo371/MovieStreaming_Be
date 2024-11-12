@@ -31,10 +31,8 @@ class LoaiPhimController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
-            ->select('danh_muc_webs.*')
-            ->get(); // get là ra 1  sách
-        $dataAdmin   = LoaiPhim::join('danh_muc_webs', 'loai_phims.id_danh_muc', 'danh_muc_webs.id')->select('loai_phims.*', 'danh_muc_webs.ten_danh_muc')
+
+        $dataAdmin   = LoaiPhim::select('loai_phims.*')
             ->paginate(9); // get là ra 1  sách
         $response = [
             'pagination' => [
@@ -49,25 +47,24 @@ class LoaiPhimController extends Controller
         ];
         return response()->json([
             'loai_phim_admin'  =>  $response,
-            'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
-    public function getDataHome()
+    public function getMenuHome()
     {
-        $data   = LoaiPhim::where('loai_phims.tinh_trang', 1)
-            ->select('loai_phims.*')
-            ->get(); // get là ra 1 danh sách
+        // $data   = LoaiPhim::where('loai_phims.tinh_trang', 1)
+        //     ->select('loai_phims.*')
+        //     ->get(); // get là ra 1 danh sách
 
-        $data_1   = TheLoai::where('the_loais.tinh_trang', 1)
-            ->select('the_loais.*')
-            ->get(); // get là ra 1 danh sách
+        // $data_1   = TheLoai::where('the_loais.tinh_trang', 1)
+        //     ->select('the_loais.*')
+        //     ->get(); // get là ra 1 danh sách
         $data_2   = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
             ->select('danh_muc_webs.*')
             ->get(); // get là ra 1 danh sách
 
         return response()->json([
-            'loai_phim'  =>  $data,
-            'the_loai'  =>  $data_1,
+            // 'loai_phim'  =>  $data,
+            // 'the_loai'  =>  $data_1,
             'danh_muc_webs'  =>  $data_2,
         ]);
     }
@@ -86,7 +83,7 @@ class LoaiPhimController extends Controller
                     phims.hinh_anh,
                     phims.slug_phim,
                     phims.mo_ta,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.so_tap_phim,
                     loai_phims.ten_loai_phim,
                     loai_phims.slug_loai_phim,
@@ -113,7 +110,7 @@ class LoaiPhimController extends Controller
                 AND
                  slug_loai_phim = :slug
                 GROUP BY
-                    phims.id,loai_phims.ten_loai_phim,loai_phims.slug_loai_phim,phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                    phims.id,loai_phims.ten_loai_phim,loai_phims.slug_loai_phim,phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
@@ -140,7 +137,7 @@ class LoaiPhimController extends Controller
                     loai_phims.ten_loai_phim,
                     phims.slug_phim,
                     phims.mo_ta,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.so_tap_phim,
                     GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                     (
@@ -163,7 +160,7 @@ class LoaiPhimController extends Controller
                 AND
                     the_loais.tinh_trang = 1
                 GROUP BY
-                    phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                    phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
@@ -185,7 +182,7 @@ class LoaiPhimController extends Controller
                 loai_phims.ten_loai_phim,
                 phims.hinh_anh,
                 phims.slug_phim,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.mo_ta,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -211,7 +208,7 @@ class LoaiPhimController extends Controller
             AND
                 loai_phims.slug_loai_phim = :slug_loai_phim
             GROUP BY
-                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery

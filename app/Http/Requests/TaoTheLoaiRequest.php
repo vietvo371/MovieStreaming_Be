@@ -26,7 +26,6 @@ class TaoTheLoaiRequest extends FormRequest
         return [
             'ten_the_loai' => 'required|string|max:255', // Validate the category name
             'slug_the_loai' => 'required|string|max:255|unique:the_loais,slug_the_loai', // Ensure unique slug
-            'id_danh_muc' => 'required|exists:danh_muc_webs,id', // Validate that category exists in danh_mucs table
             'tinh_trang' => 'required|in:0,1', // Validate that status is either 0 (inactive) or 1 (active)
         ];
     }
@@ -46,8 +45,6 @@ class TaoTheLoaiRequest extends FormRequest
             'slug_the_loai.string' => 'Slug thể loại phải là chuỗi ký tự.',
             'slug_the_loai.max' => 'Slug thể loại không được vượt quá 255 ký tự.',
             'slug_the_loai.unique' => 'Slug thể loại đã tồn tại.',
-            'id_danh_muc.required' => 'ID danh mục là bắt buộc.',
-            'id_danh_muc.exists' => 'Danh mục không tồn tại.',
             'tinh_trang.required' => 'Tình trạng là bắt buộc.',
             'tinh_trang.in' => 'Tình trạng phải là "0" (inactive) hoặc "1" (active).',
         ];

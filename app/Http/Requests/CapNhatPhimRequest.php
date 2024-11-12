@@ -27,7 +27,7 @@ class CapNhatPhimRequest extends FormRequest
             'dao_dien'         => 'required|string|max:255',
             'so_tap_phim'      => 'required|integer|min:1',
             'tinh_trang'       => 'required|in:0,1', // 0 là chưa hoàn thành, 1 là đã hoàn thành
-            'cong_ty_san_xuat' => 'required|string|max:255',
+            'ngon_ngu' => 'required|string|max:255',
             'trailer_url'      => 'nullable|url',
             'chat_luong'       => 'required|string|max:50',
             'the_loais'        => 'required|string', // Có thể xác thực thêm nếu cần
@@ -87,9 +87,9 @@ class CapNhatPhimRequest extends FormRequest
             'tinh_trang.required'       => 'Tình trạng là bắt buộc.',
             'tinh_trang.in'             => 'Tình trạng phải là 0 (chưa hoàn thành) hoặc 1 (đã hoàn thành).',
 
-            'cong_ty_san_xuat.required' => 'Công ty sản xuất phải là bắt buộc.',
-            'cong_ty_san_xuat.string'   => 'Công ty sản xuất phải là chuỗi ký tự.',
-            'cong_ty_san_xuat.max'      => 'Công ty sản xuất không được vượt quá 255 ký tự.',
+            'ngon_ngu.required' => 'Công ty sản xuất phải là bắt buộc.',
+            'ngon_ngu.string'   => 'Công ty sản xuất phải là chuỗi ký tự.',
+            'ngon_ngu.max'      => 'Công ty sản xuất không được vượt quá 255 ký tự.',
 
             'trailer_url.url'           => 'Trailer URL phải là một URL hợp lệ.',
 

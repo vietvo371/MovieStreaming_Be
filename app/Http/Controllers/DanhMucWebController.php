@@ -56,7 +56,7 @@ class DanhMucWebController extends Controller
                 'ten_danh_muc'          => $request->ten_danh_muc,
                 'slug_danh_muc'         => $request->slug_danh_muc,
                 'id_danh_muc_cha'       => $request->id_danh_muc_cha,
-                'tinh_trang'            => $request->tinh_trang,
+                'link'                  => $request->link,
             ]);
             return response()->json([
                 'status'   => true,
@@ -98,6 +98,7 @@ class DanhMucWebController extends Controller
             'danh_muc_admin'  =>  $response,
         ]);
     }
+
     public function capnhatDanhMuc(CapNhatDanhMucRequest $request)
     {
         try {

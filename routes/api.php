@@ -172,7 +172,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::post('/kiem-tra-slug', [LoaiPhimController::class, 'kiemTraSlugLoaiPhim']);
         Route::post('/kiem-tra-slug-update', [LoaiPhimController::class, 'kiemTraSlugLoaiPhimUpdate']);
     });
-    // Danh Mục
+    // Danh Mục Menu
     Route::group(['prefix'  =>  '/danh-muc'], function () {
         Route::get('/lay-du-lieu', [DanhMucWebController::class, 'getData']);
         Route::post('/thong-tin-tao', [DanhMucWebController::class, 'taoDanhMuc']);
@@ -311,7 +311,7 @@ Route::group(['prefix'  =>  '/the-loai'], function () {
 });
 Route::group(['prefix'  =>  '/loai-phim'], function () {
     // Loại Phim
-    Route::get('/lay-du-lieu-show', [LoaiPhimController::class, 'getDataHome']);
+    Route::get('/lay-du-lieu-show', [LoaiPhimController::class, 'getMenuHome']);
     Route::get('/lay-du-lieu-show-tat-ca/{slug}', [LoaiPhimController::class, 'getDataHomeLPhim']);
 });
 Route::group(['prefix'  =>  '/tac-gia'], function () {

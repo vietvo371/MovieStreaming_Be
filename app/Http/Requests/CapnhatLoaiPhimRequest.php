@@ -18,7 +18,6 @@ class CapnhatLoaiPhimRequest extends FormRequest
             'ten_loai_phim'   => 'required|string|max:255',
             'slug_loai_phim'  => 'required|string|max:255|unique:loai_phims,slug_loai_phim,' . $this->id,
             'tinh_trang'      => 'required|boolean',
-            'id_danh_muc'     => 'required|integer|exists:danh_muc_webs,id',
         ];
     }
 
@@ -35,9 +34,6 @@ class CapnhatLoaiPhimRequest extends FormRequest
             'slug_loai_phim.unique'    => 'Slug loại phim đã tồn tại.',
             'tinh_trang.required'      => 'Tình trạng là bắt buộc.',
             'tinh_trang.boolean'       => 'Tình trạng phải là kiểu boolean.',
-            'id_danh_muc.required'     => 'Danh mục là bắt buộc.',
-            'id_danh_muc.integer'      => 'Danh mục phải là số nguyên.',
-            'id_danh_muc.exists'       => 'Danh mục không tồn tại.',
         ];
     }
 }

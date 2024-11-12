@@ -29,13 +29,9 @@ class TheLoaiController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataAdmin       = TheLoai::join('danh_muc_webs', 'the_loais.id_danh_muc', 'danh_muc_webs.id')
-            ->select('the_loais.*', 'danh_muc_webs.ten_danh_muc')
+        $dataAdmin       = TheLoai::select('the_loais.*')
             ->paginate(6); // get là ra 1  sách
 
-        $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
-            ->select('danh_muc_webs.*')
-            ->get(); // get là ra 1  sách
 
         $response = [
             'pagination' => [
@@ -50,7 +46,6 @@ class TheLoaiController extends Controller
         ];
         return response()->json([
             'the_loai'  =>  $response,
-            'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
     public function getDataHomeTLPhim(Request $request)
@@ -67,7 +62,7 @@ class TheLoaiController extends Controller
                                             phims.hinh_anh,
                                             phims.slug_phim,
                                             phims.mo_ta,
-                                            phims.tong_luong_xem,
+                                            phims.tong_luot_xem,
                                             phims.so_tap_phim,
                                             loai_phims.ten_loai_phim,
                                             GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -93,7 +88,7 @@ class TheLoaiController extends Controller
                                         AND
                                             the_loais.slug_the_loai =  :slug_the_loai
                                         GROUP BY
-                                            phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim,loai_phims.ten_loai_phim
+                                            phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim,loai_phims.ten_loai_phim
                                         HAVING
                                             tong_tap > 0
                                     ) as subquery
@@ -120,7 +115,7 @@ class TheLoaiController extends Controller
                 phims.hinh_anh,
                 phims.slug_phim,
                 phims.mo_ta,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                 (
@@ -143,7 +138,7 @@ class TheLoaiController extends Controller
             AND
                 the_loais.tinh_trang = 1
             GROUP BY
-                phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery
@@ -166,7 +161,7 @@ class TheLoaiController extends Controller
                 loai_phims.ten_loai_phim,
                 phims.hinh_anh,
                 phims.slug_phim,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.mo_ta,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -192,7 +187,7 @@ class TheLoaiController extends Controller
             AND
                 the_loais.slug_the_loai = :slug_the_loai
             GROUP BY
-                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery
@@ -281,13 +276,10 @@ class TheLoaiController extends Controller
             ]);
         }
         $key    = '%' . $request->key . '%';
-        $dataAdmin       = TheLoai::join('danh_muc_webs', 'the_loais.id_danh_muc', 'danh_muc_webs.id')
-            ->select('the_loais.*', 'danh_muc_webs.ten_danh_muc')
+        $dataAdmin       = TheLoai::select('the_loais.*')
             ->where('ten_the_loai', 'like', $key)
             ->paginate(6); // get là ra 1  sách
-        $dataDanhMuc       = DanhMucWeb::where('danh_muc_webs.tinh_trang', 1)
-            ->select('danh_muc_webs.*')
-            ->get(); // get là ra 1  sách
+
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -301,7 +293,6 @@ class TheLoaiController extends Controller
         ];
         return response()->json([
             'the_loai'  =>  $response,
-            'list_danh_muc'  =>  $dataDanhMuc,
         ]);
     }
     public function capnhatTheLoai(CapNhatTheLoaiRequest $request)

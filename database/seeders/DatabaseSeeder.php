@@ -14,14 +14,17 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {   Schema::disableForeignKeyConstraints();
-        $this->call(PhimSeeder::class);
-        $this->call(TacGiaSeeder::class);
+    {
+        Schema::disableForeignKeyConstraints();
         $this->call(LoaiPhimSeeder::class);
         $this->call(TheLoaiSeeder::class);
-        $this->call(BlogSeeder::class);
-        $this->call(ChuyenMucSeeder::class);
-        $this->call(AdminSeeder::class);
+        $this->call(MenuSeeder::class);
+        // $this->call(PhimSeeder::class);
+        // $this->call(TacGiaSeeder::class);
+
+        // $this->call(BlogSeeder::class);
+        // $this->call(ChuyenMucSeeder::class);
+        // $this->call(AdminSeeder::class);
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

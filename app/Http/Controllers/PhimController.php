@@ -171,7 +171,7 @@ class PhimController extends Controller
                 loai_phims.ten_loai_phim,
                 phims.slug_phim,
                 phims.mo_ta,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                 (
@@ -194,7 +194,7 @@ class PhimController extends Controller
             AND
                 the_loais.tinh_trang = 1
             GROUP BY
-                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery
@@ -210,7 +210,7 @@ class PhimController extends Controller
                 loai_phims.ten_loai_phim,
                 phims.slug_phim,
                 phims.mo_ta,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                 (
@@ -233,7 +233,7 @@ class PhimController extends Controller
             AND
                 the_loais.tinh_trang = 1
             GROUP BY
-                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery
@@ -264,7 +264,7 @@ class PhimController extends Controller
                 phims.hinh_anh,
                 phims.slug_phim,
                 phims.mo_ta,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.so_tap_phim,
                 loai_phims.ten_loai_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") AS ten_the_loais,  -- Lấy thể loại phim
@@ -289,7 +289,7 @@ class PhimController extends Controller
                 the_loais.tinh_trang = 1 AND
                 loai_phims.tinh_trang = 1
             GROUP BY
-                phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim, loai_phims.ten_loai_phim, thang
+                phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim, loai_phims.ten_loai_phim, thang
         ) AS ranked_movies
     '))
             ->where('rank', 1)  // Chỉ lấy phim đứng đầu mỗi tháng
@@ -298,7 +298,7 @@ class PhimController extends Controller
                 'hinh_anh',
                 'slug_phim',
                 'mo_ta',
-                'tong_luong_xem',
+                'tong_luot_xem',
                 'so_tap_phim',
                 'ten_loai_phim',
                 'thang'
@@ -314,7 +314,7 @@ class PhimController extends Controller
                     loai_phims.ten_loai_phim,
                     phims.hinh_anh,
                     phims.slug_phim,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.mo_ta,
                     phims.so_tap_phim,
                     MAX(tap_phims.updated_at) as tap_moi_nhat,  -- Lấy thời gian cập nhật mới nhất của tập phim
@@ -341,7 +341,7 @@ class PhimController extends Controller
                 AND
                     loai_phims.tinh_trang = 1
                 GROUP BY
-                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
@@ -360,7 +360,7 @@ class PhimController extends Controller
                     loai_phims.ten_loai_phim,
                     phims.slug_phim,
                     phims.mo_ta,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.so_tap_phim,
                     GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                     (
@@ -383,7 +383,7 @@ class PhimController extends Controller
                 AND
                     the_loais.tinh_trang = 1
                 GROUP BY
-                    phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                    phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
@@ -402,7 +402,7 @@ class PhimController extends Controller
             loai_phims.ten_loai_phim,
             phims.slug_phim,
             phims.mo_ta,
-            phims.tong_luong_xem,
+            phims.tong_luot_xem,
             phims.so_tap_phim,
             GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
             (
@@ -425,7 +425,7 @@ class PhimController extends Controller
         AND
             the_loais.tinh_trang = 1
         GROUP BY
-            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
         HAVING
             tong_tap > 0 AND phims.so_tap_phim = tong_tap
     ) as subquery
@@ -440,8 +440,9 @@ class PhimController extends Controller
                     phims.ten_phim,
                     loai_phims.ten_loai_phim,
                     phims.hinh_anh,
+                    phims.poster_img,
                     phims.slug_phim,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.mo_ta,
                     phims.so_tap_phim,
                     GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -465,12 +466,12 @@ class PhimController extends Controller
                 AND
                     the_loais.tinh_trang = 1
                 GROUP BY
-                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim,phims.poster_img
                 HAVING
                     tong_tap > 0
             ) as subquery
         '))
-            ->orderBy('tong_luong_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
+            ->orderBy('tong_luot_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
             ->take(3) // Lấy 6 phim có lượt xem cao nhất
             ->get();
         $phim_hot = DB::table(DB::raw('
@@ -481,7 +482,7 @@ class PhimController extends Controller
                     loai_phims.ten_loai_phim,
                     phims.hinh_anh,
                     phims.slug_phim,
-                    phims.tong_luong_xem,
+                    phims.tong_luot_xem,
                     phims.mo_ta,
                     phims.so_tap_phim,
                     GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -505,12 +506,12 @@ class PhimController extends Controller
                 AND
                     the_loais.tinh_trang = 1
                 GROUP BY
-                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                    phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
                 HAVING
                     tong_tap > 0
             ) as subquery
         '))
-            ->orderBy('tong_luong_xem', 'DESC')
+            ->orderBy('tong_luot_xem', 'DESC')
             ->inRandomOrder() // Sắp xếp theo tổng lượt xem giảm dần
             ->take(6) // Lấy 6 phim có lượt xem cao nhất
             ->get();
@@ -541,9 +542,11 @@ class PhimController extends Controller
                         phims.id_the_loai,
                         phims.dao_dien,
                         phims.so_tap_phim,
-                        phims.tong_luong_xem,
+                        phims.tong_luot_xem,
                         phims.tinh_trang,
-                        phims.cong_ty_san_xuat,
+                        phims.chat_luong,
+                        phims.ngon_ngu,
+                        phims.trailer_url,
                         loai_phims.ten_loai_phim,
                         GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                         COUNT(tap_phims.id) as tong_tap
@@ -567,9 +570,11 @@ class PhimController extends Controller
                         phims.id_the_loai,
                         phims.dao_dien,
                         phims.so_tap_phim,
-                        phims.tong_luong_xem,
+                        phims.tong_luot_xem,
                         phims.tinh_trang,
-                        phims.cong_ty_san_xuat,
+                        phims.chat_luong,
+                        phims.ngon_ngu,
+                        phims.trailer_url,
                         loai_phims.ten_loai_phim
                     HAVING tong_tap > 0
                     LIMIT 1
@@ -597,7 +602,7 @@ class PhimController extends Controller
                         phims.hinh_anh,
                         phims.slug_phim,
                         phims.mo_ta,
-                        phims.tong_luong_xem,
+                        phims.tong_luot_xem,
                         phims.so_tap_phim,
                         GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
                         (
@@ -622,7 +627,7 @@ class PhimController extends Controller
                     AND
                     phims.slug_phim != :slug_phim
                     GROUP BY
-                        phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+                        phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
                     HAVING
                         tong_tap > 0
                 ) as subquery
@@ -667,7 +672,7 @@ class PhimController extends Controller
                 loai_phims.ten_loai_phim,
                 phims.hinh_anh,
                 phims.slug_phim,
-                phims.tong_luong_xem,
+                phims.tong_luot_xem,
                 phims.mo_ta,
                 phims.so_tap_phim,
                 GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
@@ -691,7 +696,7 @@ class PhimController extends Controller
             AND
                 the_loais.tinh_trang = 1
             GROUP BY
-                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luong_xem, phims.mo_ta, phims.so_tap_phim
+                phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
             HAVING
                 tong_tap > 0
         ) as subquery
@@ -779,7 +784,7 @@ class PhimController extends Controller
                 'dao_dien'                  => $request->dao_dien,
                 'so_tap_phim'               => $request->so_tap_phim,
                 'tinh_trang'                => $request->tinh_trang,
-                'cong_ty_san_xuat'          => $request->cong_ty_san_xuat,
+                'ngon_ngu'          => $request->ngon_ngu,
                 'trailer_url'               => $request->trailer_url,
                 'chat_luong'                => $request->chat_luong,
             ]);
@@ -961,7 +966,7 @@ class PhimController extends Controller
                 'dao_dien'           => $request->dao_dien,
                 'so_tap_phim'        => $request->so_tap_phim,
                 'tinh_trang'         => $request->tinh_trang,
-                'cong_ty_san_xuat'   => $request->cong_ty_san_xuat,
+                'ngon_ngu'   => $request->ngon_ngu,
                 'trailer_url'        => $request->trailer_url,
                 'chat_luong'         => $request->chat_luong,
             ]);
@@ -1036,7 +1041,7 @@ class PhimController extends Controller
             loai_phims.ten_loai_phim,
             phims.slug_phim,
             phims.mo_ta,
-            phims.tong_luong_xem,
+            phims.tong_luot_xem,
             phims.so_tap_phim,
             GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
             (
@@ -1061,7 +1066,7 @@ class PhimController extends Controller
         AND
             phims.ten_phim LIKE ?
         GROUP BY
-            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
         HAVING
             tong_tap > 0
     ) as subquery
@@ -1088,7 +1093,7 @@ class PhimController extends Controller
             loai_phims.ten_loai_phim,
             phims.slug_phim,
             phims.mo_ta,
-            phims.tong_luong_xem,
+            phims.tong_luot_xem,
             phims.so_tap_phim,
             GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
             (
@@ -1113,7 +1118,7 @@ class PhimController extends Controller
         AND
             phims.ten_phim LIKE ?
         GROUP BY
-            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luong_xem, phims.so_tap_phim
+            phims.id, loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
         HAVING
             tong_tap > 0
     ) as subquery

@@ -13,19 +13,19 @@ class AdminHomepageController extends Controller
 {
     public function getDashboard()
     {
-        $viewCount = Phim::sum('tong_luong_xem');
-        $viewCountThangs = Phim::select(DB::raw("SUM(tong_luong_xem) as total_views"), DB::raw("MONTH(updated_at) as month"))
+        $viewCount = Phim::sum('tong_luot_xem');
+        $viewCountThangs = Phim::select(DB::raw("SUM(tong_luot_xem) as total_views"), DB::raw("MONTH(updated_at) as month"))
             ->groupBy('month')
             ->orderBy('month', 'asc')
             ->get();
         $activeFilms = Phim::where('tinh_trang', 1)->count();
         $inactiveFilms = Phim::where('tinh_trang', 0)->count();
         $topphim = Phim::join('luot_xems', 'luot_xems.id_phim', '=', 'phims.id')
-            ->select('phims.id', 'phims.ten_phim', DB::raw('SUM(luot_xems.so_luot_xem) as tong_luong_xem'))
+            ->select('phims.id', 'phims.ten_phim', DB::raw('SUM(luot_xems.so_luot_xem) as tong_luot_xem'))
             ->whereMonth('luot_xems.created_at', date('m'))
             ->whereYear('luot_xems.created_at', date('Y'))
             ->groupBy('phims.id', 'phims.ten_phim')
-            ->orderBy('tong_luong_xem', 'DESC')
+            ->orderBy('tong_luot_xem', 'DESC')
             ->limit(5)->get();
 
         $activeCustomers = KhachHang::where('is_active', 1)->count();
