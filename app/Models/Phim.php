@@ -27,6 +27,7 @@ class Phim extends Model
         'ngon_ngu',
         'poster_img',
         'trailer_url',
+        'is_slide',
         'chat_luong'
     ];
 }

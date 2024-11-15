@@ -8,6 +8,7 @@ use App\Http\Controllers\BinhLuanPhimController;
 use App\Http\Controllers\BinhLuanTapPhimControllerr;
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\ChuyenMucController;
+use App\Http\Controllers\ConfigSlideController;
 use App\Http\Controllers\DanhMucWebController;
 use App\Http\Controllers\DienVienController;
 use App\Http\Controllers\GoiVipController;
@@ -182,7 +183,21 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::post('/thong-tin-tim', [DanhMucWebController::class, 'timDanhMuc']);
         Route::post('/kiem-tra-slug', [DanhMucWebController::class, 'kiemTraSlugDanhMuc']);
         Route::post('/kiem-tra-slug-update', [DanhMucWebController::class, 'kiemTraSlugDanhMucUpdate']);
+        Route::get('/auto-config-menu', [DanhMucWebController::class, 'autoConfigMenu']);
+        Route::post('/sap-xep-menu', [DanhMucWebController::class, 'sapXepMenu']);
     });
+    //SLIDE
+    Route::group(['prefix'  =>  '/config-slide'], function () {
+        Route::get('/lay-du-lieu', [ConfigSlideController::class, 'getData']);
+        Route::get('/lay-du-lieu-open', [ConfigSlideController::class, 'getDataOpen']);
+        Route::post('/thong-tin-tim-open', [ConfigSlideController::class, 'timPhim']);
+        Route::post('/thong-tin-tao', [ConfigSlideController::class, 'taoSlide']);
+        Route::delete('/thong-tin-xoa/{id}', [ConfigSlideController::class, 'xoaSlide']);
+        Route::post('/thong-tin-tim', [ConfigSlideController::class, 'timSlide']);
+
+    });
+
+
     //quản lý Tác giả
     Route::group(['prefix'  =>  '/tac-gia'], function () {
 
@@ -335,8 +350,10 @@ Route::get('/binh-luan-phim/lay-du-lieu-show', [BinhLuanPhimController::class, '
 Route::get('/binh-luan-tap-phim/lay-du-lieu', [BinhLuanTapPhimControllerr::class, 'getDataBinhLuanPhim']);
 // Bình luận Blog
 Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
-
+// Gói Vip open
 Route::get('/lay-data-goi-vip-open', [GoiVipController::class, 'goiVipOpen']);
+// Slide home page
+Route::get('/lay-data-slide-homepage', [ConfigSlideController::class, 'getSlideHomepage']);
 
 Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
 Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);

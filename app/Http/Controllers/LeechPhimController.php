@@ -49,8 +49,8 @@ class LeechPhimController extends Controller
             $movieData = $request['movie'];
             $typeMapping = [
                 'single' => 1,  // Phim lẻ
-                'hoathinh' => 2,  // Phim Hoatinh
-                'series' => 3   // Phim bộ
+                'series' => 2,  // Phim bộ
+                'hoathinh' => 3  // Phim Hoatinh
             ];
 
             // Determine movie type ID based on the JSON type
@@ -74,17 +74,17 @@ class LeechPhimController extends Controller
                 'slug_phim'         => $movieData['slug'],
                 'chat_luong'        => $movieData['quality'],
                 'poster_img'        => $movieData['poster_url'],
-                'trailer_url'       => $movieData['trailer_url'],
+                'trailer_url'       => empty($movieData['trailer_url']) ? 'https://youtu.be/ox8zEHQBN84' : $movieData['trailer_url'],
                 'hinh_anh'          => $movieData['thumb_url'],
                 'mo_ta'             => $movieData['content'],
                 'thoi_gian_chieu'   => (int)preg_replace('/\D/', '', $movieData['time'] ?? '1') ?: 20,
                 'nam_san_xuat'      => $movieData['year'],
                 'quoc_gia'          => $movieData['country'][0]['name'] ?? 'Đang cập nhật', // Or map country slug if needed
                 'id_loai_phim'      => $id_loai_phim,
-                'so_tap_phim'       => (int)preg_replace('/\D/', '', $movieData['episode_total'] ?? '1'),
-                'dao_dien'          => $movieData['director'][0] ??  'Đang cập nhật',
+                'so_tap_phim'       => (int)preg_replace('/\D/', '', $movieData['episode_total'] ?? '1') ?: 1,
+                'dao_dien'          => !empty($movieData['director'][0]) ? $movieData['director'][0] : 'Đang cập nhật',
                 'tinh_trang'        => 1,
-                'ngon_ngu'  => $movieData['lang']
+                'ngon_ngu'          => $movieData['lang']
             ]);
 
             // Map categories based on slug
