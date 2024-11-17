@@ -13,7 +13,7 @@ class ConfigSlideController extends Controller
 {
     public function getSlideHomepage(Request $request)
     {
-        $data = Phim::where("tinh_trang", 1)->get();
+        $data = Phim::where("tinh_trang", 1)->where('is_slide',1)->get();
         return response()->json([
             'data' => $data
         ]);

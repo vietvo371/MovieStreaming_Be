@@ -15,6 +15,7 @@ use App\Http\Controllers\GoiVipController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LeechPhimController;
 use App\Http\Controllers\LoaiPhimController;
+use App\Http\Controllers\LoginGoogleController;
 use App\Http\Controllers\PhanQuyenController;
 use App\Http\Controllers\PhimController;
 use App\Http\Controllers\TacGiaController;
@@ -30,6 +31,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
+//LOGIN GOGGLE
+// Route::controller(LoginGoogleController::class)->group(function () {
+//     Route::get('auth/google', 'redirectToGoogle');
+//     Route::get('auth/google/callback', 'handleGoogleCallback');
+// });
+Route::get('/auth/google', [LoginGoogleController::class, 'getGoogleSignInUrl'])->middleware('web');
+Route::get('/auth/google/callback', [LoginGoogleController::class, 'loginCallback'])->middleware('web');
+Route::get('/kiem-tra-login-google', [LoginGoogleController::class, 'checkGoogleLogin']);
 
 
 ///      ADMIN
@@ -194,7 +203,6 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::post('/thong-tin-tao', [ConfigSlideController::class, 'taoSlide']);
         Route::delete('/thong-tin-xoa/{id}', [ConfigSlideController::class, 'xoaSlide']);
         Route::post('/thong-tin-tim', [ConfigSlideController::class, 'timSlide']);
-
     });
 
 

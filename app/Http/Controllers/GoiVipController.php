@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CapNhatGoiVipRequest;
+use App\Http\Requests\TaoGoiVipRequest;
+use App\Http\Requests\thaydoiTrangThaiGoiVip;
 use App\Models\GoiVip;
 use App\Models\PhanQuyen;
 use Exception;
@@ -47,7 +50,7 @@ class GoiVipController extends Controller
             'goi_vips'  =>  $response,
         ]);
     }
-    public function taoGoiVip(Request $request)
+    public function taoGoiVip(TaoGoiVipRequest $request)
     {
         try {
             $id_chuc_nang = 13;
@@ -103,7 +106,7 @@ class GoiVipController extends Controller
         }
     }
 
-    public function capnhatGoiVip(Request $request)
+    public function capnhatGoiVip(CapNhatGoiVipRequest $request)
     {
         try {
             $id_chuc_nang = 13;
@@ -137,7 +140,7 @@ class GoiVipController extends Controller
         }
     }
 
-    public function thaydoiTrangThaiGoiVip(Request $request)
+    public function thaydoiTrangThaiGoiVip(thaydoiTrangThaiGoiVip $request)
     {
 
         try {
@@ -170,9 +173,9 @@ class GoiVipController extends Controller
     }
     public function kiemTraSlugGoiVip(Request $request)
     {
-        $tac_gia = GoiVip::where('slug_goi_vip', $request->slug)->first();
+        $goi_vip = GoiVip::where('slug_goi_vip', $request->slug)->first();
 
-        if (!$tac_gia) {
+        if (!$goi_vip) {
             return response()->json([
                 'status'            =>   true,
                 'message'           =>   'Tên Gói Vip phù hợp!',

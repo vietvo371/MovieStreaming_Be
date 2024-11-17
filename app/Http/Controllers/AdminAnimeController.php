@@ -320,7 +320,6 @@ class AdminAnimeController extends Controller
 
             AdminAnime::where('id', $request->id)
                 ->update([
-                    'email'                 => $request->email,
                     'ho_va_ten'             => $request->ho_va_ten,
                     'hinh_anh'              => $filePath,
                     'id_chuc_vu'            => $request->id_chuc_vu,

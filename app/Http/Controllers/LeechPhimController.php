@@ -76,7 +76,7 @@ class LeechPhimController extends Controller
                 'poster_img'        => $movieData['poster_url'],
                 'trailer_url'       => empty($movieData['trailer_url']) ? 'https://youtu.be/ox8zEHQBN84' : $movieData['trailer_url'],
                 'hinh_anh'          => $movieData['thumb_url'],
-                'mo_ta'             => $movieData['content'],
+                'mo_ta'             => strip_tags($movieData['content']),
                 'thoi_gian_chieu'   => (int)preg_replace('/\D/', '', $movieData['time'] ?? '1') ?: 20,
                 'nam_san_xuat'      => $movieData['year'],
                 'quoc_gia'          => $movieData['country'][0]['name'] ?? 'Đang cập nhật', // Or map country slug if needed

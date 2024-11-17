@@ -23,7 +23,8 @@ class UpdateKhachHangRequest extends FormRequest
     {
         return [
             'ho_va_ten' => 'required|string|max:255',
-            'email'     => 'required|email|unique:khach_hangs,email,' . $this->id,
+            'so_dien_thoai' => 'required|numeric|digits_between:10,15',
+            // 'email'     => 'required|email|unique:khach_hangs,email,' . $this->id,
             // 'avatar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
@@ -31,12 +32,9 @@ class UpdateKhachHangRequest extends FormRequest
     {
         return [
             'ho_va_ten.required' => 'Vui lòng nhập họ và tên.',
-            'email.required'     => 'Vui lòng nhập email.',
-            'email.email'        => 'Email không hợp lệ.',
-            'email.unique'       => 'Email đã tồn tại.',
-            'avatar.image'       => 'File tải lên phải là hình ảnh.',
-            'avatar.mimes'       => 'Ảnh phải có định dạng JPG, JPEG, hoặc PNG.',
-            'avatar.max'         => 'Ảnh tối đa 2MB.',
+            'so_dien_thoai.required' => 'Vui lòng nhập số đien thoai.',
+            'so_dien_thoai.numeric' => 'só điện thoại phải được chúa số.',
+            'so_dien_thoai.digits_between' => 'só điện thoại phải có tu 10 đến 15 chữ số.',
         ];
     }
 }

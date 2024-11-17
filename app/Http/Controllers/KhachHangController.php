@@ -104,7 +104,6 @@ class KhachHangController extends Controller
 
             KhachHang::where('id', $request->id)
                 ->update([
-                    'email'         => $request->email,
                     'ho_va_ten'     => $request->ho_va_ten,
                     'avatar'        => $request->avatar,
                     'so_dien_thoai' => $request->so_dien_thoai,
@@ -129,7 +128,6 @@ class KhachHangController extends Controller
 
             KhachHang::where('id', $request->id)
                 ->update([
-                    'email'         => $request->email,
                     'ho_va_ten'     => $request->ho_va_ten,
                     'avatar'        => $request->avatar,
                     'so_dien_thoai' => $request->so_dien_thoai,
@@ -449,9 +447,8 @@ class KhachHangController extends Controller
             }
             KhachHang::where('id', $request->id)
                 ->update([
-                    'ho_va_ten'         => $request->ho_va_ten,
-                    'avatar'            => $request->avatar,
-                    'email'             => $request->email,
+                    'ho_va_ten'          => $request->ho_va_ten,
+                    'so_dien_thoai'      => $request->so_dien_thoai,
                     'avatar'             => $filePath,
                 ]);
 
@@ -699,6 +696,5 @@ class KhachHangController extends Controller
             'status'  => 1,
             'message' => 'Hợp lệ!',
         ]);
-
     }
 }
