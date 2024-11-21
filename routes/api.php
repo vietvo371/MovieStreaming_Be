@@ -12,6 +12,7 @@ use App\Http\Controllers\ConfigSlideController;
 use App\Http\Controllers\DanhMucWebController;
 use App\Http\Controllers\DienVienController;
 use App\Http\Controllers\GoiVipController;
+use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LeechPhimController;
 use App\Http\Controllers\LoaiPhimController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\TacGiaController;
 use App\Http\Controllers\TapPhimController;
 use App\Http\Controllers\TheLoaiController;
 use App\Http\Controllers\ThongKeController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\YeuThichController;
 use App\Models\AdminAnime;
 use App\Models\BinhLuanPhim;
@@ -30,6 +32,7 @@ use App\Models\Phim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/transation', [TransactionController::class, 'index']);
 
 //LOGIN GOGGLE
 // Route::controller(LoginGoogleController::class)->group(function () {
@@ -274,6 +277,13 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     Route::post('/doi-avatar', [KhachHangController::class, 'doiAvatarUser']);
     Route::get('/lay-du-lieu-profile', [KhachHangController::class, 'getDataProfileUser']);
 
+    Route::group(['prefix'  =>  '/check-out'], function () {
+        Route::post('/process', [HoaDonController::class, 'getDataCheckOut']);
+        Route::post('/qr-payment', [HoaDonController::class, 'getQrPayMent']);
+        // Route::post('/transation', [TransactionController::class, 'index1']);
+
+
+    });
     //xem phim
     // Route::post('/{slugMovie}/{slugEpisode}', [PhimController::class, 'watchingFilm']);
 

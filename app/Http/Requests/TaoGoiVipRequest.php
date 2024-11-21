@@ -26,7 +26,7 @@ class TaoGoiVipRequest extends FormRequest
             'slug_goi_vip'  => 'required|string|max:255|unique:goi_vips,slug_goi_vip',
             'thoi_han'      => 'required|integer|min:1',
             'tien_goc'      => 'required|numeric|min:0',
-            'tien_sale'     => 'required|numeric|min:0|lte:tien_goc',
+            'tien_sale'     => 'nullable|numeric|min:0|lte:tien_goc',
             'tinh_trang'    => 'required|boolean',
         ];
     }
@@ -43,7 +43,6 @@ class TaoGoiVipRequest extends FormRequest
             'thoi_han.required'      => 'Thời hạn là bắt buộc.',
             'thoi_han.integer'       => 'Thời hạn phải là số nguyên.',
             'tien_goc.required'      => 'Tiền gốc là bắt buộc.',
-            'tien_sale.required'     => 'Tiền giảm là bắt buộc.',
             'tien_goc.numeric'       => 'Tiền gốc phải là số.',
             'tien_sale.numeric'      => 'Tiền giảm giá phải là số.',
             'tien_sale.lte'          => 'Tiền giảm giá không được lớn hơn tiền gốc.',
