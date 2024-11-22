@@ -207,7 +207,10 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::delete('/thong-tin-xoa/{id}', [ConfigSlideController::class, 'xoaSlide']);
         Route::post('/thong-tin-tim', [ConfigSlideController::class, 'timSlide']);
     });
-
+    // Hoá Đơn
+    Route::group(['prefix'  =>  '/hoa-don'], function () {
+        Route::get('/lay-du-lieu', [HoaDonController::class, 'getDataHoaDon']);
+    });
 
     //quản lý Tác giả
     Route::group(['prefix'  =>  '/tac-gia'], function () {
@@ -281,9 +284,9 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
         Route::post('/process', [HoaDonController::class, 'getDataCheckOut']);
         Route::post('/qr-payment', [HoaDonController::class, 'getQrPayMent']);
         // Route::post('/transation', [TransactionController::class, 'index1']);
-
-
     });
+
+
     //xem phim
     // Route::post('/{slugMovie}/{slugEpisode}', [PhimController::class, 'watchingFilm']);
 
@@ -370,6 +373,8 @@ Route::get('/binh-luan-tap-phim/lay-du-lieu', [BinhLuanTapPhimControllerr::class
 Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
 // Gói Vip open
 Route::get('/lay-data-goi-vip-open', [GoiVipController::class, 'goiVipOpen']);
+Route::get('/get-data-transaction-open', [HoaDonController::class, 'getTrensactionOpen']);
+
 // Slide home page
 Route::get('/lay-data-slide-homepage', [ConfigSlideController::class, 'getSlideHomepage']);
 

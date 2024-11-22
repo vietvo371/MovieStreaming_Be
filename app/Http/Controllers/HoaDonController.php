@@ -10,6 +10,58 @@ use Illuminate\Support\Facades\Auth;
 
 class HoaDonController extends Controller
 {
+
+    public function getDataHoaDon()
+    {
+        $id_chuc_nang = 17;
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
+        $dataAdmin = HoaDon::join('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+            ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
+            ->select('hoa_dons.*', 'goi_vips.ten_goi', 'khach_hangs.ho_va_ten')
+            ->paginate(8);
+        $response = [
+            'pagination' => [
+                'total' => $dataAdmin->total(),
+                'per_page' => $dataAdmin->perPage(),
+                'current_page' => $dataAdmin->currentPage(),
+                'last_page' => $dataAdmin->lastPage(),
+                'from' => $dataAdmin->firstItem(),
+                'to' => $dataAdmin->lastItem()
+            ],
+            'dataAdmin' => $dataAdmin
+        ];
+        return response()->json([
+            'data' => $response
+        ]);
+    }
+    public function getTrensactionOpen(Request $request)
+    {
+        $user = $this->isUser();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin người dùng.'
+            ]);
+        }
+
+        $data = HoaDon::leftjoin('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+            ->where('hoa_dons.id_khach_hang', $user->id)
+            ->where('hoa_dons.tinh_trang', 1)
+            ->select('hoa_dons.*', 'goi_vips.ten_goi')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $data
+        ]);
+    }
     public function getDataCheckOut(Request $request)
     {
         $goi = GoiVip::where('tinh_trang', 1)->find($request->id_goi);

@@ -23,6 +23,7 @@ class GoiVipController extends Controller
             'data'  =>  $dataOpen,
         ]);
     }
+    
     public function getData()
     {
         $id_chuc_nang = 13;
