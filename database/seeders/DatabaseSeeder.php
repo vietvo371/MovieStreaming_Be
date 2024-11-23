@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         $this->call(MenuSeeder::class);
         $this->call(GoiVipsTableSeeder::class);
         $this->call(AdminSeeder::class);
+        $this->call(ChuyenMucSeeder::class);
+        $this->call(BaiVietSeeder::class);
+
 
         // $this->call(PhimSeeder::class);
         // $this->call(TacGiaSeeder::class);

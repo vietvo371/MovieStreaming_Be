@@ -666,7 +666,7 @@ class KhachHangController extends Controller
         }
     }
 
-    public function checkUserTerm(Request $request)
+    public function checkUserTerm()
     {
         $userId = Auth::guard('sanctum')->user()->id;
 

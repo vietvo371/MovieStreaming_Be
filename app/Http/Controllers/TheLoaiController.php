@@ -50,6 +50,13 @@ class TheLoaiController extends Controller
     }
     public function getDataHomeTLPhim(Request $request)
     {
+        $checkSlug = TheLoai::where('slug_the_loai', $request->slug)->exists();
+        if (!$checkSlug) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Slug không tồn tại'
+            ]);
+        }
         $the_loai               = TheLoai::where('the_loais.tinh_trang', 1)
             ->where('the_loais.slug_the_loai', $request->slug)
             ->select('the_loais.*')

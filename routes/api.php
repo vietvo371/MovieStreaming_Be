@@ -324,7 +324,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
 });
 
 Route::middleware('khach_hang')->group(function () {
-    Route::post('/check-user-term', [KhachHangController::class, 'checkUserTerm']);
+    Route::get('/check-user-term', [KhachHangController::class, 'checkUserTerm']);
     // Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
     Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim'])->middleware(['autoIncreViews', 'checkUserTerm']);
 });

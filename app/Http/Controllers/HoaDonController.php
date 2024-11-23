@@ -50,12 +50,19 @@ class HoaDonController extends Controller
             ]);
         }
 
-        $data = HoaDon::leftjoin('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+        $data = HoaDon::leftJoin('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
             ->where('hoa_dons.id_khach_hang', $user->id)
             ->where('hoa_dons.tinh_trang', 1)
             ->select('hoa_dons.*', 'goi_vips.ten_goi')
             ->orderBy('created_at', 'DESC')
             ->get();
+
+        if ($data->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không có dữ liệu.'
+            ]);
+        }
 
         return response()->json([
             'status' => true,
