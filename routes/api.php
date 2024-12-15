@@ -24,6 +24,7 @@ use App\Http\Controllers\TapPhimController;
 use App\Http\Controllers\TheLoaiController;
 use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\YeuThichController;
 use App\Models\AdminAnime;
 use App\Models\BinhLuanPhim;
@@ -33,6 +34,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/transation', [TransactionController::class, 'index']);
+
+
+// ChatBot
+Route::post('/chat', [ChatbotController::class, 'handleChat']);
 
 //LOGIN GOGGLE
 // Route::controller(LoginGoogleController::class)->group(function () {
@@ -303,7 +308,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     //quản lý Bình luận phim
     Route::group(['prefix'  =>  '/binh-luan-phim'], function () {
         // Route::get('/lay-du-lieu', [BinhLuanPhimController::class, 'getData']);
-        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim'])->middleware(['checkUserTerm']);
+        Route::post('/thong-tin-tao', [BinhLuanPhimController::class, 'taoBinhLuanPhim'])->middleware(['checkUserTerm', 'checkUserWatchedMovie']);
         Route::post('/thong-tin-xoa', [BinhLuanPhimController::class, 'xoaBinhLuanPhim']);
         Route::put('/thong-tin-sua', [BinhLuanPhimController::class, 'capNhatBinhLuanPhim']);
     });
@@ -326,7 +331,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
 Route::middleware('khach_hang')->group(function () {
     Route::get('/check-user-term', [KhachHangController::class, 'checkUserTerm']);
     // Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim']);
-    Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim'])->middleware(['autoIncreViews', 'checkUserTerm']);
+    Route::post('/lay-data-watch', [PhimController::class, 'getDataXemPhim'])->middleware(['checkUserTerm', 'autoIncreViews']);
 });
 
 

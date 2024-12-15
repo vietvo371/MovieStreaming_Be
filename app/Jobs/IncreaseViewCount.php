@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class IncreaseViewCount implements ShouldQueue
 {
@@ -17,10 +19,12 @@ class IncreaseViewCount implements ShouldQueue
 
     protected $phimId;
     protected $tapPhimId;
-    public function __construct($phimId, $tapPhimId)
+    protected $userId;
+    public function __construct($phimId, $tapPhimId, $userId)
     {
         $this->phimId = $phimId;
         $this->tapPhimId = $tapPhimId;
+        $this->userId = $userId;
     }
 
     /**
@@ -28,14 +32,12 @@ class IncreaseViewCount implements ShouldQueue
      */
     public function handle(): void
     {
-        $currDate = date('Y-m-d');
-
-        // Tăng lượt xem cho tập phim
         $luotXem = LuotPhim::firstOrCreate(
             [
                 'id_phim' => $this->phimId,
                 'id_tap_phim' => $this->tapPhimId,
-                'ngay_xem' => $currDate,
+                'ngay_xem' => date('Y-m-d'),
+                'id_khach_hang' => $this->userId, // Liên kết khách hàng (nếu có).
             ],
             [
                 'so_luot_xem' => 0,
@@ -46,5 +48,7 @@ class IncreaseViewCount implements ShouldQueue
 
         // Tăng tổng lượt xem cho phim
         Phim::where('id', $this->phimId)->increment('tong_luot_xem');
+        // Tăng lượt xem cho tập phim
+
     }
 }
