@@ -76,7 +76,7 @@ class KhachHangController extends Controller
                 ]);
             }
             // Handle file upload
-            $filePath = asset('uploads/avatars/users/default_avatar.png');
+            $filePath = 'https://lh3.googleusercontent.com/a/ACg8ocLquh3rkU8ZbqJlyVij28Ss12yYGqYhzP4MJ29ulErlW-_9lg=s96-c';
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
                 $fileName = time() . '_' . $file->getClientOriginalName();
@@ -505,9 +505,11 @@ class KhachHangController extends Controller
 
     public function register(DangKyRequest $request)
     {
+        $filePath = 'https://lh3.googleusercontent.com/a/ACg8ocLquh3rkU8ZbqJlyVij28Ss12yYGqYhzP4MJ29ulErlW-_9lg=s96-c';
         KhachHang::create([
             'ho_va_ten'   => $request->ho_va_ten,
             'email'       => $request->email,
+            'avatar'       => $filePath,
             'password'    => bcrypt($request->password),
         ]);
         return response()->json([

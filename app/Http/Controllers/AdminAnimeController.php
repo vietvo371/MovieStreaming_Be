@@ -192,7 +192,7 @@ class AdminAnimeController extends Controller
                 ]);
             }
             // Handle file upload
-            $filePath = asset('uploads/avatars/admins/default_avatar.png');
+            $filePath = 'https://lh3.googleusercontent.com/a/ACg8ocLquh3rkU8ZbqJlyVij28Ss12yYGqYhzP4MJ29ulErlW-_9lg=s96-c';
             if ($request->hasFile('hinh_anh')) {
                 $file = $request->file('hinh_anh');
                 $fileName = time() . '_' . $file->getClientOriginalName();
