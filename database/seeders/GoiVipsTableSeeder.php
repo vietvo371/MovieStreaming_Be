@@ -39,14 +39,6 @@ class GoiVipsTableSeeder extends Seeder
                 'tien_sale' => 120000, // Discounted price
                 'tinh_trang' => 1, // Active status
             ],
-            // [
-            //     'ten_goi' => 'Gói 12 Tháng',
-            //     'slug_goi_vip' => 'goi-12-thang',
-            //     'thoi_han' => 12, // Duration in months
-            //     'tien_goc' => 1800000, // Original price
-            //     'tien_sale' => 1500000, // Discounted price
-            //     'tinh_trang' => 1, // Active status
-            // ],
         ];
 
         DB::table('goi_vips')->insert($goiVips);
