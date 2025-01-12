@@ -129,4 +129,22 @@ class TransactionController extends Controller
         preg_match('/(Hd[a-zA-Z0-9]+)-/i', $description, $matches);
         return $matches[1] ?? null;
     }
+    public function setStatus(Request $request)
+    {
+        $hoaDon = HoaDon::where('id', $request->id)->first();
+
+        if ($hoaDon) {
+            $hoaDon->tinh_trang = 1;
+            $hoaDon->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Cập nhật tình trạng thành công.'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Không tìm thấy hóa đơn.'
+        ], 404);
+    }
 }
