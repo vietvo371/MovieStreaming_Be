@@ -264,6 +264,10 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
     Route::group(['prefix'  =>  '/thong-ke'], function () {
         Route::post('/data-thong-ke-1', [ThongKeController::class, 'getDataThongke1']);
         Route::post('/data-thong-ke-danh-thu', [ThongKeController::class, 'getDataThongkeDoanhThu']);
+        Route::post('/luot-xem', [ThongKeController::class, 'getDataThongKeLuotXem']);
+        Route::get('/thong-ke-chung', [ThongKeController::class, 'getThongKeChung']);
+        Route::post('/binh-luan', [ThongKeController::class, 'getThongKeBinhLuan']);
+        Route::post('/yeu-thich', [ThongKeController::class, 'getThongKeYeuThich']);
     });
     // Quản lý Gói Vip
     Route::group(['prefix'  =>  '/goi-vip'], function () {

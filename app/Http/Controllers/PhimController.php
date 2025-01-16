@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PhimController extends Controller
 {
@@ -531,6 +532,11 @@ class PhimController extends Controller
     }
     public function getDataDelist(Request $request)
     {
+        $isUserTermed = false;
+
+        $user = Auth::guard('sanctum')->user();
+        $id_khach_hang = $user ? $user->id : null;
+
         $phim = DB::table(DB::raw('
                     (
                      SELECT
@@ -585,9 +591,14 @@ class PhimController extends Controller
                 )
                     as phim
                 '))->setBindings(['slug_phim' => $request->slug])->first();
-        $isUserTurmed = false;
-        $user = Auth::guard('sanctum')->user();
-        $id_khach_hang = $user ? $user->id : null;
+
+        if (!$phim) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy phim'
+            ], 404);
+        }
+
         if ($user instanceof \App\Models\KhachHang) {
             $goihientai = HoaDon::where('id_khach_hang', $id_khach_hang)
                 ->where('tinh_trang', 1)
@@ -596,8 +607,18 @@ class PhimController extends Controller
                 ->latest()
                 ->first();
 
-            $isUserTurmed = (bool) $goihientai; // Gán true nếu có gói hợp lệ
+            $isUserTermed = (bool) $goihientai;
         }
+
+        try {
+            $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy tập phim'
+            ], 404);
+        }
+
         $select5film = DB::table(DB::raw('
                 (
                     SELECT
@@ -637,13 +658,12 @@ class PhimController extends Controller
                 ) as subquery
 '))->setBindings(['slug_phim' => $request->slug])
             ->take(5)->get();
-        $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
 
         return response()->json([
-            'phim'          =>  $phim,
-            'phim_5_obj'    =>  $select5film,
-            'tap'           =>  $tap,
-            'isUserTurmed'  =>  $isUserTurmed,
+            'phim'          => $phim,
+            'phim_5_obj'    => $select5film,
+            'tap'           => $tap,
+            'isUserTermed'  => $isUserTermed,
         ]);
     }
     public function sapxepHome(Request $request)
