@@ -25,6 +25,7 @@ use App\Http\Controllers\TheLoaiController;
 use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\TraiAI;
 use App\Http\Controllers\YeuThichController;
 use App\Models\AdminAnime;
 use App\Models\BinhLuanPhim;
@@ -37,6 +38,10 @@ Route::get('/transation', [TransactionController::class, 'index']);
 Route::post('/transation/set-status', [TransactionController::class, 'setStatus']);
 Route::get('/du-lieu-train-ai', [PhimController::class, 'getdataAI']);
 Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']);
+
+Route::post('/recommend/movie/{movie_id}', [TraiAI::class, 'recommendByMovie']);
+Route::post('/recommend/user/{user_id}', [TraiAI::class, 'recommendByUser']);
+
 
 
 
@@ -336,6 +341,9 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
         Route::post('/thong-tin-xoa', [BinhLuanBaiVietController::class, 'xoaBinhLuanBlog']);
         Route::put('/thong-tin-sua', [BinhLuanBaiVietController::class, 'capNhatBlog']);
     });
+
+    // Thêm route mới cho lịch sử xem
+    Route::get('/lich-su-xem/{id}', [PhimController::class, 'getLichSuXem']);
 });
 
 Route::middleware('khach_hang')->group(function () {
