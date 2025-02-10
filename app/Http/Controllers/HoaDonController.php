@@ -24,6 +24,7 @@ class HoaDonController extends Controller
         $dataAdmin = HoaDon::join('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
             ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
             ->select('hoa_dons.*', 'goi_vips.ten_goi', 'khach_hangs.ho_va_ten')
+            ->orderBy('hoa_dons.created_at', 'DESC')
             ->paginate(8);
         $response = [
             'pagination' => [

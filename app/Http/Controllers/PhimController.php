@@ -18,10 +18,58 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Http;
 
 class PhimController extends Controller
 {
 
+    private $baseUrl = 'http://127.0.0.1:5000';
+
+    private function getRecommendations($params)
+    {
+        try {
+            $response = Http::post("{$this->baseUrl}/recommend", $params);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['recommendations'])) {
+                    $recommendations = $data['recommendations'];
+                    $movie_ids = array_map(function ($item) {
+                        return $item['id'];
+                    }, $recommendations);
+
+                    return implode(', ', $movie_ids);
+                }
+                return null;
+            }
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+    private function getRecommendationsUser($params)
+    {
+        try {
+            $response = Http::post("{$this->baseUrl}/recommend/history", $params);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['recommendations'])) {
+                    $recommendations = $data['recommendations'];
+                    $movie_ids = array_map(function ($item) {
+                        return $item['id'];
+                    }, $recommendations);
+
+                    return implode(', ', $movie_ids);
+                }
+                return null;
+            }
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
     public function getData()
     {
         $id_chuc_nang = 5;
@@ -475,48 +523,60 @@ class PhimController extends Controller
                 ->orderBy('tong_luot_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
                 ->take(3) // Lấy 6 phim có lượt xem cao nhất
                 ->get();
-            $phim_hot = DB::table(DB::raw('
-                (
-                    SELECT
-                        phims.id,
-                        phims.ten_phim,
-                        loai_phims.ten_loai_phim,
-                        phims.hinh_anh,
-                        phims.slug_phim,
-                        phims.tong_luot_xem,
-                        phims.mo_ta,
-                        phims.so_tap_phim,
-                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
-                        (
-                            SELECT COUNT(tap_phims.id)
-                            FROM tap_phims
-                            WHERE tap_phims.id_phim = phims.id
-                        ) as tong_tap
-                    FROM
-                        phims
-                    JOIN
-                        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
-                    JOIN
-                        loai_phims ON loai_phims.id = phims.id_loai_phim
-                    JOIN
-                        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
-                    WHERE
-                        phims.tinh_trang = 1
-                    AND
-                        loai_phims.tinh_trang = 1
-                    AND
-                        the_loais.tinh_trang = 1
-                    GROUP BY
-                        phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
-                    HAVING
-                        tong_tap > 0
-                ) as subquery
-            '))
-                ->orderBy('tong_luot_xem', 'DESC')
-                ->inRandomOrder() // Sắp xếp theo tổng lượt xem giảm dần
-                ->take(6) // Lấy 6 phim có lượt xem cao nhất
-                ->get();
 
+            $user = Auth::guard('sanctum')->user();
+            if ($user) {
+                $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
+            } else {
+                $recommendations = $this->getRecommendationsUser(['user_id' => 1]);
+            }
+            // Lấy danh sách ID từ $recommendations
+            $list_id = collect($recommendations)->toArray();
+            if (empty($list_id)) {
+                $list_id = [1, 2, 3, 4, 5];
+            }
+            $phim_hot = DB::table(DB::raw("
+                    (
+                        SELECT
+                            phims.id,
+                            phims.ten_phim,
+                            loai_phims.ten_loai_phim,
+                            phims.hinh_anh,
+                            phims.slug_phim,
+                            phims.tong_luot_xem,
+                            phims.mo_ta,
+                            phims.so_tap_phim,
+                            GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ', ') as ten_the_loais,
+                            (
+                                SELECT COUNT(tap_phims.id)
+                                FROM tap_phims
+                                WHERE tap_phims.id_phim = phims.id
+                            ) as tong_tap
+                        FROM
+                            phims
+                        JOIN
+                            chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                        JOIN
+                            loai_phims ON loai_phims.id = phims.id_loai_phim
+                        JOIN
+                            the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                        WHERE
+                            phims.tinh_trang = 1
+                        AND
+                            loai_phims.tinh_trang = 1
+                        AND
+                            the_loais.tinh_trang = 1
+                        AND
+                            phims.id IN (" . implode(',', $list_id) . ") -- Chèn danh sách ID phim
+                        GROUP BY
+                            phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
+                        HAVING
+                            tong_tap > 0
+                    ) as subquery
+                "))
+                ->get();
+            // ->setBindings(['slug_phim' => $request->slug])->first();
+            // :slug_phim
             return response()->json([
                 'phim_hot'                   =>  $phim_hot,
                 'phim_moi_cap_nhats'         =>  $phim_moi_cap_nhat,
@@ -531,6 +591,11 @@ class PhimController extends Controller
     }
     public function getDataDelist(Request $request)
     {
+        $isUserTermed = false;
+
+        $user = Auth::guard('sanctum')->user();
+        $id_khach_hang = $user ? $user->id : null;
+
         $phim = DB::table(DB::raw('
                     (
                      SELECT
@@ -585,9 +650,14 @@ class PhimController extends Controller
                 )
                     as phim
                 '))->setBindings(['slug_phim' => $request->slug])->first();
-        $isUserTurmed = false;
-        $user = Auth::guard('sanctum')->user();
-        $id_khach_hang = $user ? $user->id : null;
+
+        if (!$phim) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy phim'
+            ], 404);
+        }
+
         if ($user instanceof \App\Models\KhachHang) {
             $goihientai = HoaDon::where('id_khach_hang', $id_khach_hang)
                 ->where('tinh_trang', 1)
@@ -596,19 +666,34 @@ class PhimController extends Controller
                 ->latest()
                 ->first();
 
-            $isUserTurmed = (bool) $goihientai; // Gán true nếu có gói hợp lệ
+            $isUserTermed = (bool) $goihientai;
         }
-        $select5film = DB::table(DB::raw('
+
+        try {
+            $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy tập phim'
+            ], 404);
+        }
+        $recommendations = $this->getRecommendations(['movie_id' => $phim->id]);
+        $list_id = collect($recommendations)->toArray();
+        if (empty($list_id)) {
+            $list_id = [1, 2, 3, 4, 5];
+        }
+        $select5film = DB::table(DB::raw("
                 (
                     SELECT
                         phims.id,
                         phims.ten_phim,
+                        loai_phims.ten_loai_phim,
                         phims.hinh_anh,
                         phims.slug_phim,
-                        phims.mo_ta,
                         phims.tong_luot_xem,
+                        phims.mo_ta,
                         phims.so_tap_phim,
-                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ', ') as ten_the_loais,
                         (
                             SELECT COUNT(tap_phims.id)
                             FROM tap_phims
@@ -629,21 +714,20 @@ class PhimController extends Controller
                     AND
                         the_loais.tinh_trang = 1
                     AND
-                    phims.slug_phim != :slug_phim
+                        phims.id IN (" . implode(',', $list_id) . ") -- Chèn danh sách ID phim
                     GROUP BY
-                        phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
+                        phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
                     HAVING
                         tong_tap > 0
                 ) as subquery
-'))->setBindings(['slug_phim' => $request->slug])
-            ->take(5)->get();
-        $tap = TapPhim::where('id_phim', $phim->id)->firstOrFail();
+            "))
+            ->get();
 
         return response()->json([
-            'phim'          =>  $phim,
-            'phim_5_obj'    =>  $select5film,
-            'tap'           =>  $tap,
-            'isUserTurmed'  =>  $isUserTurmed,
+            'phim'          => $phim,
+            'phim_5_obj'    => $select5film,
+            'tap'           => $tap,
+            'isUserTermed'  => $isUserTermed,
         ]);
     }
     public function sapxepHome(Request $request)
@@ -923,7 +1007,7 @@ class PhimController extends Controller
 
             if ($request->is_update_url && filter_var($request->hinh_anh, FILTER_VALIDATE_URL)) {
                 $filePath = $request->hinh_anh;
-            }  else {
+            } else {
                 $filePath = $phim->hinh_anh; // Giữ nguyên ảnh cũ nếu không có ảnh mới
                 if ($request->hasFile('hinh_anh')) {
                     $file = $request->file('hinh_anh');
@@ -1193,6 +1277,241 @@ class PhimController extends Controller
                 'status'            =>   false,
                 'message'           =>   'Tên Phim Đã Tồn Tại!',
             ]);
+        }
+    }
+    public function getdataAI()
+    {
+        try {
+            $top_view_thang = DB::table(DB::raw('
+            (
+                SELECT
+                    phims.ten_phim,
+                    phims.hinh_anh,
+                    phims.slug_phim,
+                    phims.mo_ta,
+                    phims.tong_luot_xem,
+                    phims.so_tap_phim,
+                    loai_phims.ten_loai_phim,
+                    GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") AS ten_the_loais,  -- Lấy thể loại phim
+                    COUNT(DISTINCT tap_phims.id) AS tong_tap,  -- Đếm số tập phim
+                    SUM(luot_xems.so_luot_xem) AS tong_luot_xem_thang,  -- Tổng lượt xem trong tháng
+                    DATE_FORMAT(luot_xems.ngay_xem, "%Y-%m") AS thang,
+                    RANK() OVER (PARTITION BY DATE_FORMAT(luot_xems.ngay_xem, "%Y-%m") ORDER BY SUM(luot_xems.so_luot_xem) DESC) AS `rank`
+                FROM
+                    phims
+                INNER JOIN
+                    luot_xems ON luot_xems.id_phim = phims.id
+                INNER JOIN
+                    chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id  -- Kết nối bảng chi tiết thể loại
+                INNER JOIN
+                    the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id  -- Kết nối bảng thể loại
+                LEFT JOIN
+                    tap_phims ON tap_phims.id_phim = phims.id  -- Kết nối với bảng tập phim
+                LEFT JOIN
+                    loai_phims ON loai_phims.id = phims.id_loai_phim  -- Kết nối với loại phim
+                WHERE
+                    phims.tinh_trang = 1 AND
+                    the_loais.tinh_trang = 1 AND
+                    loai_phims.tinh_trang = 1
+                GROUP BY
+                    phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim, loai_phims.ten_loai_phim, thang
+            ) AS ranked_movies
+        '))
+                ->where('rank', 1)  // Chỉ lấy phim đứng đầu mỗi tháng
+                ->groupBy(
+                    'ten_phim',
+                    'hinh_anh',
+                    'slug_phim',
+                    'mo_ta',
+                    'tong_luot_xem',
+                    'so_tap_phim',
+                    'ten_loai_phim',
+                    'thang'
+                )  // Nhóm theo các thông tin cần thiết
+                ->orderBy('tong_luot_xem_thang', 'desc')  // Sắp xếp theo tổng lượt xem trong tháng giảm dần
+                ->take(1)  // Giới hạn kết quả trả về là 6 phim
+                ->get();
+            $phim_moi_cap_nhat = DB::table(DB::raw('
+                (
+                    SELECT
+                        phims.id,
+                        phims.ten_phim,
+                        loai_phims.ten_loai_phim,
+                        phims.hinh_anh,
+                        phims.slug_phim,
+                        phims.tong_luot_xem,
+                        phims.mo_ta,
+                        phims.so_tap_phim,
+                        MAX(tap_phims.updated_at) as tap_moi_nhat,  -- Lấy thời gian cập nhật mới nhất của tập phim
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        (
+                            SELECT COUNT(tap_phims.id)
+                            FROM tap_phims
+                            WHERE tap_phims.id_phim = phims.id
+                        ) as tong_tap
+                    FROM
+                        phims
+                    JOIN
+                        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                    JOIN
+                        loai_phims ON loai_phims.id = phims.id_loai_phim
+                    JOIN
+                        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                    LEFT JOIN
+                        tap_phims ON tap_phims.id_phim = phims.id
+                    WHERE
+                        phims.tinh_trang = 1
+                    AND
+                        the_loais.tinh_trang = 1
+                    AND
+                        loai_phims.tinh_trang = 1
+                    GROUP BY
+                        phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
+                    HAVING
+                        tong_tap > 0
+                ) as subquery
+            '))
+                ->orderBy('tap_moi_nhat', 'DESC') // Sắp xếp theo tập mới cập nhật
+                ->take(2)
+                ->get();
+
+
+            $tat_ca_phim = DB::table(DB::raw('
+                (
+                    SELECT
+                        phims.id,
+                        phims.ten_phim,
+                        phims.hinh_anh,
+                        loai_phims.ten_loai_phim,
+                        phims.slug_phim,
+                        phims.mo_ta,
+                        phims.tong_luot_xem,
+                        phims.so_tap_phim,
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        (
+                            SELECT COUNT(tap_phims.id)
+                            FROM tap_phims
+                            WHERE tap_phims.id_phim = phims.id
+                        ) as tong_tap
+                    FROM
+                        phims
+                    JOIN
+                        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                    JOIN
+                        loai_phims ON loai_phims.id = phims.id_loai_phim
+                    JOIN
+                        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                    WHERE
+                        phims.tinh_trang = 1
+                    AND
+                        loai_phims.tinh_trang = 1
+                    AND
+                        the_loais.tinh_trang = 1
+                    GROUP BY
+                        phims.id,loai_phims.ten_loai_phim, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim
+                    HAVING
+                        tong_tap > 0
+                ) as subquery
+            '))
+                ->get();
+            $phim_hot = DB::table(DB::raw('
+                (
+                    SELECT
+                        phims.id,
+                        phims.ten_phim,
+                        loai_phims.ten_loai_phim,
+                        phims.hinh_anh,
+                        phims.slug_phim,
+                        phims.tong_luot_xem,
+                        phims.mo_ta,
+                        phims.so_tap_phim,
+                        GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais,
+                        (
+                            SELECT COUNT(tap_phims.id)
+                            FROM tap_phims
+                            WHERE tap_phims.id_phim = phims.id
+                        ) as tong_tap
+                    FROM
+                        phims
+                    JOIN
+                        chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id
+                    JOIN
+                        loai_phims ON loai_phims.id = phims.id_loai_phim
+                    JOIN
+                        the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id
+                    WHERE
+                        phims.tinh_trang = 1
+                    AND
+                        loai_phims.tinh_trang = 1
+                    AND
+                        the_loais.tinh_trang = 1
+                    GROUP BY
+                        phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
+                    HAVING
+                        tong_tap > 0
+                ) as subquery
+            '))
+                ->orderBy('tong_luot_xem', 'DESC')
+                ->inRandomOrder() // Sắp xếp theo tổng lượt xem giảm dần
+                ->take(3) // Lấy 6 phim có lượt xem cao nhất
+                ->get();
+
+            return response()->json([
+                'phim_hot'                   =>  $phim_hot,
+                'phim_moi_cap_nhats'         =>  $phim_moi_cap_nhat,
+                'top_view_thang'             =>  $top_view_thang,
+                'tat_ca_phim'                =>  $tat_ca_phim,
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function  getdataUserAI()
+    {
+        $result = DB::table('yeu_thichs as yt')
+            ->join('khach_hangs as kh', 'yt.id_khach_hang', '=', 'kh.id')
+            ->join('phims as p', 'yt.id_phim', '=', 'p.id')
+            ->join('chi_tiet_the_loais as ctl', 'p.id', '=', 'ctl.id_phim')
+            ->join('the_loais as tl', 'ctl.id_the_loai', '=', 'tl.id')
+            ->where('kh.id', 11)
+            ->select(
+                'kh.id as id_khach_hang',
+                'kh.ho_va_ten as ten_khach_hang',
+                'p.ten_phim',
+                'tl.ten_the_loai'
+            )
+            ->get();
+
+        return response()->json([
+            'result' => $result
+        ]);
+    }
+    public function getLichSuXem($id)
+    {
+        try {
+            $lichSuXem = DB::table('luot_xems')
+                ->join('phims', 'luot_xems.id_phim', '=', 'phims.id')
+                ->where('luot_xems.id_khach_hang', $id)
+                ->select(
+                    'phims.id',
+                    'phims.ten_phim as tenPhim',
+                    'phims.slug_phim as slug',
+                    'phims.hinh_anh as poster',
+                    'luot_xems.so_luot_xem as thoiLuongXem',
+                    'luot_xems.created_at as ngayXem'
+                )
+                ->orderBy('luot_xems.created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'status'    => true,
+                'data'      => $lichSuXem
+            ]);
+        } catch(Exception $e) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Không thể lấy lịch sử xem: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
