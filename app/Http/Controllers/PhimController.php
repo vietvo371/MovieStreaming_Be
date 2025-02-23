@@ -525,11 +525,11 @@ class PhimController extends Controller
                 ->get();
 
             $user = Auth::guard('sanctum')->user();
-            if ($user) {
+            // if ($user) {
                 $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
-            } else {
-                $recommendations = $this->getRecommendationsUser(['user_id' => 1]);
-            }
+            // } else {
+            //     $recommendations = $this->getRecommendationsUser(['user_id' => 1]);
+            // }
             // Lấy danh sách ID từ $recommendations
             $list_id = collect($recommendations)->toArray();
             if (empty($list_id)) {
@@ -1486,12 +1486,21 @@ class PhimController extends Controller
             'result' => $result
         ]);
     }
-    public function getLichSuXem($id)
+    public function getLichSuXem()
     {
         try {
+            $user = $this->isUser();
+            if (!$user) {
+                return response()->json([
+                    'status'    => false,
+                    'message'   => 'Bạn cần đăng nhập để xem lịch sử xem phim'
+                ], 401);
+            }
+
+            // Sử dụng subquery để lấy lần xem gần nhất của mỗi phim
             $lichSuXem = DB::table('luot_xems')
                 ->join('phims', 'luot_xems.id_phim', '=', 'phims.id')
-                ->where('luot_xems.id_khach_hang', $id)
+                ->where('luot_xems.id_khach_hang', $user->id)
                 ->select(
                     'phims.id',
                     'phims.ten_phim as tenPhim',
@@ -1500,6 +1509,12 @@ class PhimController extends Controller
                     'luot_xems.so_luot_xem as thoiLuongXem',
                     'luot_xems.created_at as ngayXem'
                 )
+                ->whereIn('luot_xems.created_at', function($query) use ($user) {
+                    $query->select(DB::raw('MAX(created_at)'))
+                        ->from('luot_xems')
+                        ->where('id_khach_hang', $user->id)
+                        ->groupBy('id_phim');
+                })
                 ->orderBy('luot_xems.created_at', 'desc')
                 ->get();
 

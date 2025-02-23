@@ -343,7 +343,7 @@ Route::group(['prefix'  =>  '/khach-hang', 'middleware' => 'khach_hang'], functi
     });
 
     // Thêm route mới cho lịch sử xem
-    Route::get('/lich-su-xem/{id}', [PhimController::class, 'getLichSuXem']);
+    Route::get('/lich-su-xem', [PhimController::class, 'getLichSuXem']);
 });
 
 Route::middleware('khach_hang')->group(function () {
