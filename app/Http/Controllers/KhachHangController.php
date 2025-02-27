@@ -640,6 +640,7 @@ class KhachHangController extends Controller
                 'id_user'              => $user->id,
                 'ho_ten_user'          => $user->ho_va_ten,
                 'hinh_anh_user'        => $user->avatar,
+                'status'               => true,
 
             ], 200);
         } else {

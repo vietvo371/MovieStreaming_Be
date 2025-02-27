@@ -25,7 +25,9 @@ use App\Http\Controllers\TheLoaiController;
 use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\MomoController;
 use App\Http\Controllers\TraiAI;
+use App\Http\Controllers\VNPayController;
 use App\Http\Controllers\YeuThichController;
 use App\Models\AdminAnime;
 use App\Models\BinhLuanPhim;
@@ -42,8 +44,17 @@ Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']);
 Route::post('/recommend/movie/{movie_id}', [TraiAI::class, 'recommendByMovie']);
 Route::post('/recommend/user/{user_id}', [TraiAI::class, 'recommendByUser']);
 
+Route::group(['prefix'  =>  '/khach-hang/thanh-toan/momo', 'middleware' => 'khach_hang'], function () {
 
+    Route::post('create', [MomoController::class, 'createPayment']);
+    // Route::get('process', [MomoController::class, 'processPayment']);
+    // Route::post('ipn', [MomoController::class, 'ipnCallback']); // Webhook từ MoMo
+});
 
+Route::prefix('khach-hang/thanh-toan/vnpay')->group(function () {
+    Route::post('create', [VNPayController::class, 'createVnpayPayment']);
+    Route::get('return', [VNPayController::class, 'handleReturn']);
+});
 
 
 // ChatBot
@@ -409,3 +420,6 @@ Route::get('/loai-phim/sap-xep/{slug_loai_phim}/{catagory}', [LoaiPhimController
 Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
 Route::get('/lay-tat-ca-phim', [PhimController::class, 'getAllPhim']);
 Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'sapxepAllPhim']);
+
+// Route::post('/khach-hang/thanh-toan/momo/create', [MomoController::class, 'createPayment']);
+
