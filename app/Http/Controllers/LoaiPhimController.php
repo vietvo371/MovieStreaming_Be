@@ -49,6 +49,15 @@ class LoaiPhimController extends Controller
             'loai_phim_admin'  =>  $response,
         ]);
     }
+    public function getLoaiPhimHome()
+    {
+        $data = LoaiPhim::where('loai_phims.tinh_trang', 1)
+            ->select('loai_phims.*')
+            ->get();
+        return response()->json([
+            'loai_phim_home'  =>  $data,
+        ]);
+    }
     public function getMenuHome()
     {
         // $data   = LoaiPhim::where('loai_phims.tinh_trang', 1)

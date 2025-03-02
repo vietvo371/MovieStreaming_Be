@@ -46,8 +46,9 @@ class YeuThichController extends Controller
     public function xoaYeuThich(Request $request)
     {
         try {
+            $user = $this->isUser();
             YeuThich::where('id_phim', $request->id_phim)
-                ->where('id_khach_hang', $request->id_khach_hang)
+                ->where('id_khach_hang', $user->id)
                 ->delete();
             return response()->json([
                 'status'     => true,

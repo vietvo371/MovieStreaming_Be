@@ -19,6 +19,15 @@ class TheLoaiController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function getTheLoaiHome()
+    {
+        $data = TheLoai::where('tinh_trang', 1)
+            ->select('the_loais.*')
+            ->get();
+        return response()->json([
+            'the_loai' => $data
+        ]);
+    }
     public function getData()
     {
         $id_chuc_nang = 7;

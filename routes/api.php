@@ -409,6 +409,11 @@ Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class
 Route::get('/lay-data-goi-vip-open', [GoiVipController::class, 'goiVipOpen']);
 Route::get('/get-data-transaction-open', [HoaDonController::class, 'getTrensactionOpen']);
 
+Route::get('/lay-data-loai-phim-home', [LoaiPhimController::class, 'getLoaiPhimHome']);
+
+Route::get('/lay-data-the-loai-home', [TheLoaiController::class, 'getTheLoaiHome']);
+
+
 // Slide home page
 Route::get('/lay-data-slide-homepage', [ConfigSlideController::class, 'getSlideHomepage']);
 
