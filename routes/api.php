@@ -407,7 +407,7 @@ Route::get('/binh-luan-tap-phim/lay-du-lieu', [BinhLuanTapPhimControllerr::class
 Route::get('/binh-luan-blog/lay-du-lieu-show', [BinhLuanBaiVietController::class, 'getData']);
 // Gói Vip open
 Route::get('/lay-data-goi-vip-open', [GoiVipController::class, 'goiVipOpen']);
-Route::get('/get-data-transaction-open', [HoaDonController::class, 'getTrensactionOpen']);
+Route::get('/get-data-transaction-open', [HoaDonController::class, 'getTrensactionOpen'])->middleware('khach_hang');
 
 Route::get('/lay-data-loai-phim-home', [LoaiPhimController::class, 'getLoaiPhimHome']);
 
@@ -427,4 +427,3 @@ Route::get('/lay-tat-ca-phim', [PhimController::class, 'getAllPhim']);
 Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'sapxepAllPhim']);
 
 // Route::post('/khach-hang/thanh-toan/momo/create', [MomoController::class, 'createPayment']);
-

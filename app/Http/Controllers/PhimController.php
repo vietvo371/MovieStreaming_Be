@@ -186,9 +186,9 @@ class PhimController extends Controller
             ->where('tinh_trang', 1)
             ->get();
 
-        $phim = Phim::where('slug_phim', $request->slugMovie)->firstOrFail();
+        $phim = Phim::where('slug_phim', $request->slugMovie)->first();
         $tap_phims = TapPhim::where('id_phim', $phim->id)->orderBy('so_tap', 'ASC')->get();
-        $tap = TapPhim::where('slug_tap_phim', $request->slugEpisode)->firstOrFail();
+        $tap = TapPhim::where('slug_tap_phim', $request->slugEpisode)->first();
         return response()->json([
             'the_loai'  =>  $the_loai,
             'phim'      =>  $phim,

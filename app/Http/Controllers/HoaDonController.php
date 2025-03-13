@@ -43,6 +43,7 @@ class HoaDonController extends Controller
     }
     public function getTrensactionOpen(Request $request)
     {
+        
         $user = $this->isUser();
         if (!$user) {
             return response()->json([
