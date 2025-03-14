@@ -6,11 +6,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\MomoTransaction;
 use App\Models\GoiVip;
+use App\Models\HoaDon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class MomoController extends Controller
 {
+
+    private function createHoaDon($goi, $user)
+    {
+        $hoaDon = HoaDon::create([
+            'id_goi'        => $goi->id,
+            'id_khach_hang' => $user->id,
+            'tong_tien'     => $goi->tien_sale > 0 ? $goi->tien_sale : $goi->tien_goc,
+            'ngay_bat_dau'  => Carbon::now('Asia/Ho_Chi_Minh'),
+            'ngay_ket_thuc' => Carbon::now('Asia/Ho_Chi_Minh')->addMonths($goi->thoi_han),
+            'tinh_trang'    => 0, // Mặc định là chưa thanh toán
+        ]);
+
+        $hoaDon->ma_hoa_don = 'HD0' . substr(md5($hoaDon->id . time()), 0, 5);
+        $hoaDon->save();
+
+        return $hoaDon;
+    }
     public function createPayment(Request $request)
     {
         try {
@@ -33,16 +52,16 @@ class MomoController extends Controller
                     'message' => 'Không tìm thấy gói VIP'
                 ], 404);
             }
-
+            $hoaDon = $this->createHoaDon($goiVip, $user);
             $partnerCode = env('MOMO_PARTNER_CODE');
             $accessKey = env('MOMO_ACCESS_KEY');
             $secretKey = env('MOMO_SECRET_KEY');
-            $redirectUrl = env('MOMO_REDIRECT_URL') . $user->email;
+            $redirectUrl = env('MOMO_REDIRECT_URL') . "?type=momo";
             $ipnUrl = env('MOMO_IPN_URL') . $user->email;
 
             $orderInfo = "Thanh toán gói VIP: " . $goiVip->ten_goi;
             $amount = $goiVip->tien_sale;
-            $orderId = time();
+            $orderId = $hoaDon->ma_hoa_don;
             $requestId = time();
             $requestType = "captureWallet";
             $extraData = base64_encode(json_encode([

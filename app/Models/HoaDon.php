@@ -17,5 +17,7 @@ class HoaDon extends Model
         'tinh_trang',
         'ngay_bat_dau',
         'ngay_ket_thuc',
+        'so_tien_da_thanh_toan',
+        'loai_thanh_toan'
     ];
 }

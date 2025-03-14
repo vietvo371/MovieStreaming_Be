@@ -3,13 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\GoiVip;
+use App\Models\HoaDon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class VNPayController extends Controller
 {
 
+    private function createHoaDon($goi, $user)
+    {
+        $hoaDon = HoaDon::create([
+            'id_goi'        => $goi->id,
+            'id_khach_hang' => $user->id,
+            'tong_tien'     => $goi->tien_sale > 0 ? $goi->tien_sale : $goi->tien_goc,
+            'ngay_bat_dau'  => Carbon::now('Asia/Ho_Chi_Minh'),
+            'ngay_ket_thuc' => Carbon::now('Asia/Ho_Chi_Minh')->addMonths($goi->thoi_han),
+            'tinh_trang'    => 0, // Mặc định là chưa thanh toán
+        ]);
+
+        $hoaDon->ma_hoa_don = 'HD0' . substr(md5($hoaDon->id . time()), 0, 5);
+        $hoaDon->save();
+
+        return $hoaDon;
+    }
     public function createVnpayPayment(Request $request)
     {
         try {
@@ -33,16 +51,17 @@ class VNPayController extends Controller
                     'message' => 'Không tìm thấy gói VIP'
                 ], 404);
             }
+            $hoaDon = $this->createHoaDon($goiVip, $user);
 
             date_default_timezone_set('Asia/Ho_Chi_Minh');
 
             $vnp_TmnCode = env('VNPAY_TMN_CODE', 'NJJ0R8FS');
             $vnp_HashSecret = env('VNPAY_HASH_SECRET', 'BYKJBHPPZKQMKBIBGGXIYKWYFAYSJXCW');
             $vnp_Url = env('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
-            $vnp_ReturnUrl = env('VNPAY_RETURN_URL') . $user->email;
+            $vnp_ReturnUrl = env('VNPAY_RETURN_URL');
 
             // Create payment data
-            $vnp_TxnRef = time(); // Mã đơn hàng
+            $vnp_TxnRef = $hoaDon->ma_hoa_don; // Mã đơn hàng
             $vnp_OrderInfo = "Thanh toán gói VIP: " . $goiVip->ten_goi;
             $vnp_OrderType = 'billpayment';
             $vnp_Amount = $goiVip->tien_sale * 100;
@@ -98,7 +117,6 @@ class VNPayController extends Controller
                 'status' => true,
                 'payUrl' => $vnp_Url
             ]);
-
         } catch (\Exception $e) {
             Log::error('VNPAY payment error: ' . $e->getMessage());
             return response()->json([
@@ -108,9 +126,44 @@ class VNPayController extends Controller
         }
     }
 
+    public function checkPayment(Request $request)
+    {
+        $hoaDon = HoaDon::where('ma_hoa_don', $request->orderInfo)->first();
+
+        if (!$hoaDon) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy hóa đơn'
+            ], 404);
+        }
+
+        // Check if payment is successful (00 is success code from VNPAY)
+        if ($request->responseCode === "00" || $request->responseCode === "0") {
+            $hoaDon->update([
+                'tinh_trang' => 1,
+                'so_tien_da_thanh_toan' => $request->amount,
+                // 'ma_giao_dich' => $request->vnp_TransactionNo,
+                // 'ngay_thanh_toan' => Carbon::createFromFormat('YmdHis', $request->vnp_PayDate)->format('Y-m-d H:i:s'),
+                // 'loai_thanh_toan' => 'VNPAY - ' . $request->vnp_BankCode
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Thanh toán thành công',
+                'hoaDon' => $hoaDon
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Thanh toán không thành công',
+            'hoaDon' => $hoaDon
+        ]);
+    }
+
     public function vnpayCallback(Request $request)
     {
-        if($request->vnp_ResponseCode == "00") {
+        if ($request->vnp_ResponseCode == "00") {
             $customer_id = auth()->user()->id ?? null;
 
             // Lưu vào database

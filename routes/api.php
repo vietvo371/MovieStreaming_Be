@@ -51,11 +51,11 @@ Route::group(['prefix'  =>  '/khach-hang/thanh-toan/momo', 'middleware' => 'khac
     // Route::post('ipn', [MomoController::class, 'ipnCallback']); // Webhook từ MoMo
 });
 
-Route::prefix('khach-hang/thanh-toan/vnpay')->group(function () {
+Route::group(['prefix'  =>  '/khach-hang/thanh-toan/vnpay', 'middleware' => 'khach_hang'], function () {
     Route::post('create', [VNPayController::class, 'createVnpayPayment']);
     Route::get('return', [VNPayController::class, 'handleReturn']);
+    Route::post('check-payment', [VNPayController::class, 'checkPayment']);
 });
-
 
 // ChatBot
 Route::post('/chat', [ChatbotController::class, 'handleChat']);

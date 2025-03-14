@@ -147,49 +147,4 @@ class TransactionController extends Controller
             'message' => 'Không tìm thấy hóa đơn.'
         ], 404);
     }
-    private $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-    private $partnerCode = "MOMO";
-    private $accessKey = "your_access_key";
-    private $secretKey = "your_secret_key";
-
-    public function initPayment(Request $request)
-    {
-        $orderId = time() . "";
-        $amount = "10000";
-        $orderInfo = "Thanh toán gói VIP";
-        $redirectUrl = "your_redirect_url";
-        $ipnUrl = "your_ipn_url";
-        $extraData = "";
-
-        $rawHash = "accessKey=" . $this->accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $this->partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $orderId . "&requestType=captureWallet";
-        $signature = hash_hmac('sha256', $rawHash, $this->secretKey);
-
-        $data = [
-            'partnerCode' => $this->partnerCode,
-            'partnerName' => "Test",
-            'storeId' => "MomoTestStore",
-            'requestId' => $orderId,
-            'amount' => $amount,
-            'orderId' => $orderId,
-            'orderInfo' => $orderInfo,
-            'redirectUrl' => $redirectUrl,
-            'ipnUrl' => $ipnUrl,
-            'lang' => 'vi',
-            'extraData' => $extraData,
-            'requestType' => 'captureWallet',
-            'signature' => $signature
-        ];
-
-        $result = $this->execPostRequest($this->endpoint, json_encode($data));
-        $jsonResult = json_decode($result, true);
-
-        return response()->json([
-            'status' => true,
-            'paymentData' => [
-                'orderId' => $orderId,
-                'amount' => $amount
-            ],
-            'qrCode' => $jsonResult['qrCodeUrl'] ?? null
-        ]);
-    }
 }
