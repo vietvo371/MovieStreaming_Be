@@ -58,7 +58,7 @@ class VNPayController extends Controller
             $vnp_TmnCode = env('VNPAY_TMN_CODE', 'NJJ0R8FS');
             $vnp_HashSecret = env('VNPAY_HASH_SECRET', 'BYKJBHPPZKQMKBIBGGXIYKWYFAYSJXCW');
             $vnp_Url = env('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
-            $vnp_ReturnUrl = env('VNPAY_RETURN_URL');
+            $vnp_ReturnUrl = env('VNPAY_RETURN_URL') . "?type=vnpay";
 
             // Create payment data
             $vnp_TxnRef = $hoaDon->ma_hoa_don; // Mã đơn hàng
@@ -142,6 +142,7 @@ class VNPayController extends Controller
             $hoaDon->update([
                 'tinh_trang' => 1,
                 'so_tien_da_thanh_toan' => $request->amount,
+                'loai_thanh_toan' => $request->paymentType,
                 // 'ma_giao_dich' => $request->vnp_TransactionNo,
                 // 'ngay_thanh_toan' => Carbon::createFromFormat('YmdHis', $request->vnp_PayDate)->format('Y-m-d H:i:s'),
                 // 'loai_thanh_toan' => 'VNPAY - ' . $request->vnp_BankCode

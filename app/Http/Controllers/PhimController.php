@@ -524,12 +524,10 @@ class PhimController extends Controller
                 ->take(3) // Lấy 6 phim có lượt xem cao nhất
                 ->get();
 
-            $user = Auth::guard('sanctum')->user();
-            // if ($user) {
+            $user = $this->isUser();
+            if ($user) {
                 $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
-            // } else {
-            //     $recommendations = $this->getRecommendationsUser(['user_id' => 1]);
-            // }
+            }
             // Lấy danh sách ID từ $recommendations
             $list_id = collect($recommendations)->toArray();
             if (empty($list_id)) {
