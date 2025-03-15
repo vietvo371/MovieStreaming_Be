@@ -103,10 +103,68 @@ class LeechPhimController extends Controller
                     }
                 }
             }
+            $phim = Phim::where('slug_phim', $movieData['slug'])->first();
+            $res = Http::get("https://ophim1.com/phim/" . $movieData['slug'])->json();
+
+            if ($res['status'] == false) {
+                return response()->json([
+                    'status'  =>  false,
+                    'message' =>  'Phim không tồn tại',
+                ]);
+            }
+
+            $episodes = $res['episodes'];
+            $createdEpisodes = [];
+
+            foreach ($episodes as $episode) {
+                // Kiểm tra và lặp qua server_data trong mỗi episode
+                foreach ($episode['server_data'] as $data) {
+                    // Xác định số tập an toàn
+                    if ($res['movie']['type'] == 'single') {
+                        $so_tap = 1;
+                    } else {
+                        // Kiểm tra xem explode có đủ phần tử không
+                        $so_tap = (int)preg_replace('/\D/', '', $data['name'] ?? '1') ?: 1;
+                    }
+
+                    // Lấy URL, ưu tiên link_embed, nếu không có thì dùng link_m3u8
+                    $url = $data['link_embed'] ?? $data['link_m3u8'] ?? null;
+
+                    // Kiểm tra URL có hợp lệ không
+                    if (!$url) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Không tìm thấy URL hợp lệ cho tập $so_tap"
+                        ]);
+                    }
+
+                    // Kiểm tra số tập không vượt quá tổng số tập của phim
+                    if ($so_tap <= $phim->so_tap_phim) {
+                        $slug_tap_phim = 'tap-' . $so_tap . '-' . uniqid();
+                        TapPhim::updateOrCreate(
+                            [
+                                'id_phim' => $phim->id,
+                                'url' => $url
+                            ],
+                            [
+                                'slug_tap_phim' => $slug_tap_phim,
+                                'so_tap' => $so_tap,
+                                'tinh_trang' => 1 // trạng thái phù hợp
+                            ]
+                        );
+                    } else {
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Số tập $so_tap vượt quá số lượng tập của phim"
+                        ]);
+                    }
+                }
+            }
+
 
             return response()->json([
                 'status'  =>  true,
-                'message' =>  'Thêm Phim Thành Công',
+                'message' =>  'Thêm Phim và Tập Phim Thành Công',
             ]);
         } else {
             return response()->json([
