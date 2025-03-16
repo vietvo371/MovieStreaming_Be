@@ -543,6 +543,7 @@ class PhimController extends Controller
                             phims.slug_phim,
                             phims.tong_luot_xem,
                             phims.mo_ta,
+                            phims.poster_img,
                             phims.so_tap_phim,
                             GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ', ') as ten_the_loais,
                             (
@@ -567,7 +568,7 @@ class PhimController extends Controller
                         AND
                             phims.id IN (" . implode(',', $list_id) . ") -- Chèn danh sách ID phim
                         GROUP BY
-                            phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
+                            phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim,phims.poster_img
                         HAVING
                             tong_tap > 0
                     ) as subquery

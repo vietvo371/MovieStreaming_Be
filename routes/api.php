@@ -39,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/transation', [TransactionController::class, 'index']);
 Route::post('/transation/set-status', [TransactionController::class, 'setStatus']);
 Route::get('/du-lieu-train-ai', [PhimController::class, 'getdataAI']);
-Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']);
+Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']); 
 
 Route::post('/recommend/movie/{movie_id}', [TraiAI::class, 'recommendByMovie']);
 Route::post('/recommend/user/{user_id}', [TraiAI::class, 'recommendByUser']);

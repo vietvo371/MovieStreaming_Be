@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Http;
 
 class MomoController extends Controller
 {
+    public function viewMomoPayment()
+    {
+        return view('payment-success');
+    }
 
     private function createHoaDon($goi, $user)
     {
@@ -56,7 +60,7 @@ class MomoController extends Controller
             $partnerCode = env('MOMO_PARTNER_CODE');
             $accessKey = env('MOMO_ACCESS_KEY');
             $secretKey = env('MOMO_SECRET_KEY');
-            $redirectUrl = env('MOMO_REDIRECT_URL') . "?type=momo";
+            $redirectUrl = route('vnpay.payment.callback') . "?type=momo";
             $ipnUrl = env('MOMO_IPN_URL') . $user->email;
 
             $orderInfo = "Thanh toán gói VIP: " . $goiVip->ten_goi;
@@ -66,7 +70,7 @@ class MomoController extends Controller
             $requestType = "captureWallet";
             $extraData = base64_encode(json_encode([
                 'package_id' => $goiVip->id,
-                'user_id' => auth()->id()
+                'user_id' => $user->id
             ]));
 
             // Tạo chữ ký SHA256

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GiaoDich;
 use App\Models\GoiVip;
 use App\Models\HoaDon;
 use Illuminate\Http\Request;
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 class VNPayController extends Controller
 {
 
+    public function viewVNPayPayment()
+    {
+        return view('payment-success');
+    }
     private function createHoaDon($goi, $user)
     {
         $hoaDon = HoaDon::create([
@@ -58,7 +63,7 @@ class VNPayController extends Controller
             $vnp_TmnCode = env('VNPAY_TMN_CODE', 'NJJ0R8FS');
             $vnp_HashSecret = env('VNPAY_HASH_SECRET', 'BYKJBHPPZKQMKBIBGGXIYKWYFAYSJXCW');
             $vnp_Url = env('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
-            $vnp_ReturnUrl = env('VNPAY_RETURN_URL') . "?type=vnpay";
+            $vnp_ReturnUrl = route('vnpay.payment.callback') . "?type=vnpay";
 
             // Create payment data
             $vnp_TxnRef = $hoaDon->ma_hoa_don; // Mã đơn hàng
@@ -126,9 +131,9 @@ class VNPayController extends Controller
         }
     }
 
-    public function checkPayment(Request $request)
+    public function checkPayment($request)
     {
-        $hoaDon = HoaDon::where('ma_hoa_don', $request->orderInfo)->first();
+        $hoaDon = HoaDon::where('ma_hoa_don', $request['orderInfo'])->first();
 
         if (!$hoaDon) {
             return response()->json([
@@ -137,15 +142,11 @@ class VNPayController extends Controller
             ], 404);
         }
 
-        // Check if payment is successful (00 is success code from VNPAY)
-        if ($request->responseCode === "00" || $request->responseCode === "0") {
+        if ($request['responseCode'] === "00" || $request['responseCode'] === "0") {
             $hoaDon->update([
                 'tinh_trang' => 1,
-                'so_tien_da_thanh_toan' => $request->amount,
-                'loai_thanh_toan' => $request->paymentType,
-                // 'ma_giao_dich' => $request->vnp_TransactionNo,
-                // 'ngay_thanh_toan' => Carbon::createFromFormat('YmdHis', $request->vnp_PayDate)->format('Y-m-d H:i:s'),
-                // 'loai_thanh_toan' => 'VNPAY - ' . $request->vnp_BankCode
+                'so_tien_da_thanh_toan' => $request['amount'],
+                'loai_thanh_toan' => $request['paymentType'],
             ]);
 
             return response()->json([
@@ -187,4 +188,79 @@ class VNPayController extends Controller
 
         return redirect()->route('home')->with('error', 'Lỗi trong quá trình thanh toán VNPAY.');
     }
+
+
+    protected $errorMessages = [
+        // Mã lỗi VNPAY
+        "00" => "Giao dịch thành công",
+        // Mã lỗi MOMO
+        "0" => "Giao dịch thành công",
+        // Thêm các mã lỗi khác từ tài liệu VNPAY
+    ];
+
+    public function showPaymentResult(Request $request)
+    {
+        $paymentInfo = [
+            'amount' => 0,
+            'orderInfo' => '',
+            'transactionNo' => '',
+            'paymentType' => '',
+            'responseCode' => '',
+            'transactionStatus' => ''
+        ];
+
+
+
+        // Kiểm tra xem là thanh toán MOMO hay VNPAY
+        if ($request->query('type') === 'momo') {
+            // Xử lý response MOMO
+            $paymentInfo = [
+                'amount' => (int)$request->query('amount'),
+                'orderInfo' => $request->query('orderId'),
+                'transactionNo' => $request->query('transId'),
+                'paymentType' => 'momo',
+                'responseCode' => $request->query('resultCode'),
+                'orderId' => $request->query('orderId')
+            ];
+        } elseif ($request->query('type') === 'vnpay') {
+            // Xử lý response VNPAY
+            $paymentInfo = [
+                'amount' => (int)$request->query('vnp_Amount') / 100,
+                'orderInfo' => $request->query('vnp_TxnRef'),
+                'transactionNo' => $request->query('vnp_TransactionNo'),
+                'paymentType' => 'vnpay',
+                'responseCode' => $request->query('vnp_ResponseCode'),
+                'bankCode' => $request->query('vnp_BankCode')
+            ];
+        }
+        // Kiểm tra trạng thái thanh toán
+        $isPaymentSuccess = $paymentInfo['paymentType'] === 'momo'
+            ? $paymentInfo['responseCode'] === "0"
+            : $paymentInfo['responseCode'] === "00";
+        $hoaDon = HoaDon::where('ma_hoa_don', $paymentInfo['orderInfo'])->first();
+        // Gọi API kiểm tra thanh toán
+        $giaoDich = GiaoDich::create([
+            'id_Khach_hang' => $hoaDon->id_khach_hang,
+            'ma_giao_dich' => $paymentInfo['orderInfo'],
+            'orderInfo' => $paymentInfo['orderInfo'],
+            'transactionNo' => $paymentInfo['transactionNo'],
+            'paymentType' => $paymentInfo['paymentType'],
+            'responseCode' => $paymentInfo['responseCode'],
+            'tinh_trang' => $isPaymentSuccess ? "đã thanh toán" : "chưa thanh toán"
+        ]);
+        $this->checkPayment($paymentInfo);
+
+        return view('payment_success', [
+            'paymentInfo' => $paymentInfo,
+            'isPaymentSuccess' => $isPaymentSuccess,
+            'errorMessage' => $this->getErrorMessage($paymentInfo['responseCode'])
+        ]);
+    }
+
+    private function getErrorMessage($code)
+    {
+        return $this->errorMessages[$code] ?? "Lỗi không xác định (Mã: {$code})";
+    }
+
+
 }

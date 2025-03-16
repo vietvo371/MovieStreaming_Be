@@ -41,7 +41,7 @@ class LoginGoogleController extends Controller
 
             // Ensure the user exists and has an email
             if (!$googleUser || !$googleUser->email) {
-                return redirect('http://localhost:5173/fasfasf/adadada');
+                return redirect( env('URL_FE') . '/fasfasf/adadada');
             }
 
             // Check if the user already exists in the database
@@ -56,7 +56,7 @@ class LoginGoogleController extends Controller
 
 
                 // Redirect to frontend with success status and user ID
-                return redirect('http://localhost:5173/home/auth-google/statute/' .  $token);
+                return redirect( env('URL_FE') . '/home/auth-google/statute/' .  $token);
             } else {
                 // Create a new user if not found
                 $newUser = KhachHang::updateOrCreate(
@@ -77,11 +77,11 @@ class LoginGoogleController extends Controller
                 $token = $newUser->createToken('token_admin')->plainTextToken;
 
                 // Redirect to frontend with registration success status and user ID
-                return redirect('http://localhost:5173/home/auth-google/statute/' .  $token);
+                return redirect( env('URL_FE') . '/home/auth-google/statute/' .  $token);
             }
         } catch (\Exception $e) {
             // Handle errors and redirect to the login page with the error message
-            return redirect('http://localhost:5173/login?error=' . urlencode($e->getMessage()));
+            return redirect( env('URL_FE') . '/login?error=' . urlencode($e->getMessage()));
         }
     }
     public function checkGoogleLogin(Request $request)
