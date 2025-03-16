@@ -523,7 +523,7 @@ class PhimController extends Controller
                 ->orderBy('tong_luot_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
                 ->take(3) // Lấy 6 phim có lượt xem cao nhất
                 ->get();
-
+            $recommendations = [];
             $user = $this->isUser();
             if ($user) {
                 $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
