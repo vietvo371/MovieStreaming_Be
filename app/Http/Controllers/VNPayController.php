@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\MailThanhToanLoiQueue;
+use App\Jobs\MailThanhToanQueue;
 use App\Models\GiaoDich;
 use App\Models\GoiVip;
 use App\Models\HoaDon;
+use App\Models\KhachHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -141,13 +144,44 @@ class VNPayController extends Controller
                 'message' => 'Không tìm thấy hóa đơn'
             ], 404);
         }
-
+        $khachHang = KhachHang::find($hoaDon->id_khach_hang);
+        $ma_hoa_don = $hoaDon->ma_hoa_don;
         if ($request['responseCode'] === "00" || $request['responseCode'] === "0") {
             $hoaDon->update([
                 'tinh_trang' => 1,
                 'so_tien_da_thanh_toan' => $request['amount'],
                 'loai_thanh_toan' => $request['paymentType'],
             ]);
+            $hoaDon->save();
+            $khachHang->update([
+                'id_goi_vip' => $hoaDon->id_goi
+            ]);
+            $khachHang->save();
+            $data = [
+                'ho_ten'                => $khachHang->ho_va_ten,
+                'ma_hoa_don'            => $ma_hoa_don,
+                'so_tien_chuyen_khoan'  => $request['amount'],
+                'so_tien_da_thanh_toan' => $hoaDon->so_tien_da_thanh_toan,
+                'email'                 => $khachHang->email,
+            ];
+
+            // Kiểm tra trạng thái thanh toán
+            if ($hoaDon->so_tien_da_thanh_toan >= $hoaDon->tong_tien) {
+                // Đã thanh toán đủ
+                $hoaDon->update(['tinh_trang' => true]);
+                $data['so_tien_du'] = $hoaDon->so_tien_da_thanh_toan - $hoaDon->tong_tien; // Tiền thừa (nếu có)
+                MailThanhToanQueue::dispatch($data);
+            } else {
+                // Chưa thanh toán đủ
+                $soTienThieu = $hoaDon->tong_tien - $hoaDon->so_tien_da_thanh_toan;
+                $data['so_tien_can_thanh_toan'] = $hoaDon->tong_tien;
+                $data['tien_thieu'] = $soTienThieu;
+                $data['qr_url'] = 'https://img.vietqr.io/image/mb-0708585120-compact2.jpg?amount='
+                    . $soTienThieu
+                    . '&addInfo=' . $hoaDon->ma_hoa_don
+                    . '&accountName=VO_VAN_VIET';
+                MailThanhToanLoiQueue::dispatch($data);
+            }
 
             return response()->json([
                 'status' => true,

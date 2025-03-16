@@ -67,7 +67,7 @@ class LoginGoogleController extends Controller
                         'google_id' => $googleUser->id,
                         'so_dien_thoai' => '', // Assuming phone number is optional
                         'is_active' => 1,
-                        'password' => bcrypt('123456vietdz'), // You may want to generate a random password or handle this better
+                        'password' => bcrypt('password123'), // You may want to generate a random password or handle this better
                     ]
                 );
 

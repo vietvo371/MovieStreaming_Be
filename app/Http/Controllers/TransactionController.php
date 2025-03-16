@@ -102,6 +102,10 @@ class TransactionController extends Controller
             if ($hoaDon->so_tien_da_thanh_toan >= $hoaDon->tong_tien) {
                 // Đã thanh toán đủ
                 $hoaDon->update(['tinh_trang' => true]);
+                $khachHang->update([
+                    'id_goi_vip' => $hoaDon->id_goi
+                ]);
+                $khachHang->save();
                 $data['so_tien_du'] = $hoaDon->so_tien_da_thanh_toan - $hoaDon->tong_tien; // Tiền thừa (nếu có)
                 MailThanhToanQueue::dispatch($data);
             } else {
@@ -132,10 +136,15 @@ class TransactionController extends Controller
     public function setStatus(Request $request)
     {
         $hoaDon = HoaDon::where('id', $request->id)->first();
+        $khachHang = KhachHang::find($hoaDon->id_khach_hang);
 
         if ($hoaDon) {
             $hoaDon->tinh_trang = 1;
             $hoaDon->save();
+            $khachHang->update([
+                'id_goi_vip' => $hoaDon->id_goi
+            ]);
+            $khachHang->save();
             return response()->json([
                 'status' => true,
                 'message' => 'Cập nhật tình trạng thành công.'
