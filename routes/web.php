@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LoginGoogleController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\MomoController;
@@ -26,3 +27,11 @@ Route::get('/anime',[TestController::class, 'test']);
 
 
 Route::get('payment-status', [VNPayController::class, 'showPaymentResult'])->name('vnpay.payment.callback');
+
+
+
+Route::get('kich-hoat-email/{hash}', [KhachHangController::class, 'kichHoatEmail'])->name('kich-hoat-email');
+Route::get('quen-mat-khau/{hash}', [KhachHangController::class, 'quenMatKhau'])->name('quen-mat-khau');
+
+
+

@@ -27,6 +27,18 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class KhachHangController extends Controller
 {
+    public function kichHoatEmail($hash)
+    {
+
+        return view('page.kich_hoat', compact('hash'));
+    }
+    public function quenMatKhau($hash)
+    {
+        return view('page.doi_mat_khau', compact('hash'));
+    }
+
+
+
     public function getData()
     {
         $id_chuc_nang = 2;
@@ -564,7 +576,7 @@ class KhachHangController extends Controller
             // Gửi Email
             $data['email']  =    $request->email;
             $data['name']  =    $khach_hang->ho_va_ten;
-            $data['link']  =    env('URL_FE') . '/home/kich-hoat-email/' . $hash_active;
+            $data['link']  =    route('kich-hoat-email', $hash_active);
             MailQueue::dispatch($data);
 
             return response()->json([
@@ -611,7 +623,7 @@ class KhachHangController extends Controller
             // Gửi Email
             $data['email']  =    $request->email;
             $data['name']   =    $khach_hang->ho_va_ten;
-            $data['link']   =    env('URL_FE') . '/home/reset-password/' . $hash_pass;
+            $data['link']   =    route('quen-mat-khau', $hash_pass);
             JobsMailQuenMatKhau::dispatch($data);
             return response()->json([
                 'status'            =>   true,
