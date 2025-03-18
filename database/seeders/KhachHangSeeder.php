@@ -19,7 +19,7 @@ class KhachHangSeeder extends Seeder
         DB::table('khach_hangs')->insert([
             [
                 'ho_va_ten' => 'Nguyen Van A',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'nguyenvana@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0123456789',
@@ -32,7 +32,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Tran Thi B',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'tranthib@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0987654321',
@@ -45,7 +45,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Le Thi C',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'lethic@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0912345678',
@@ -58,7 +58,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Pham Van D',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'phamvand@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0908765432',
@@ -71,7 +71,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Vo Thi E',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'vothie@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0709876543',
@@ -84,7 +84,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Nguyen Van F',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'nguyenvanf@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0398765432',
@@ -97,7 +97,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Bui Thi G',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'buithig@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0901234567',
@@ -110,7 +110,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Tran Van H',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'tranvanh@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0123987654',
@@ -123,7 +123,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Nguyen Thi I',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'nguyenthi@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0901122334',
@@ -136,7 +136,7 @@ class KhachHangSeeder extends Seeder
             ],
             [
                 'ho_va_ten' => 'Pham Van J',
-                'avatar' => 'http://127.0.0.1:8000/uploads/avatars/admins/default_avatar.png',
+                'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                 'email' => 'phamvanj@example.com',
                 'password' => bcrypt('password123'),
                 'so_dien_thoai' => '0387654321',

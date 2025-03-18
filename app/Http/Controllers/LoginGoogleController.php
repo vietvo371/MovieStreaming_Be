@@ -3,105 +3,127 @@
 namespace App\Http\Controllers;
 
 use App\Models\KhachHang;
+use Carbon\Factory;
 use Exception;
+use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginGoogleController extends Controller
 {
-    // public function getGoogleSignInUrl()
-    // {
-    //     try {
-    //         $url = Socialite::driver('google')
-    //             ->redirect()->getTargetUrl();
-    //         return response()->json([
-    //             'url' => $url,
-    //         ]);
-    //     } catch (\Exception $exception) {
-    //         return $exception;
-    //     }
-    // }
-    public function getGoogleSignInUrl()
-    {
-        // dd(config('services.google'));
-        return Socialite::driver('google')->redirect();
-    }
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function loginCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
-            // Get the Google user information from Socialite
-            $googleUser = Socialite::driver('google')->user();
+            // Tìm user theo email
+            $user = KhachHang::where('email', $request->email)->first();
 
-            // Ensure the user exists and has an email
-            if (!$googleUser || !$googleUser->email) {
-                return redirect( env('URL_FE') . '/fasfasf/adadada');
+            // Nếu chưa có user thì tạo mới
+            if (!$user) {
+                $user = KhachHang::create([
+                    'email' => $request->email,
+                    'ho_ten' => $request->name,
+                    'hinh_anh' => $request->avatar,
+                    'google_id' => $request->google_id,
+                    'password' => Hash::make(Str::random(16)), // Tạo password ngẫu nhiên
+                    'is_block' => 0,
+                ]);
             }
 
-            // Check if the user already exists in the database
-            $existingUser = KhachHang::where('google_id', $googleUser->id)->first();
+            // Tạo token cho user
+            $token = $user->createToken('khach_hang_token')->plainTextToken;
 
-            if ($existingUser) {
-                // Log in the existing user
-                Auth::guard('khach_hang')->login($existingUser);
+            return response()->json([
+                'status' => true,
+                'message' => 'Đăng nhập thành công',
+                'token' => $token,
+                'user' => $user
+            ]);
 
-                // Generate a token for the logged-in user
-                $token = $existingUser->createToken('token_admin')->plainTextToken;
-
-
-                // Redirect to frontend with success status and user ID
-                return redirect( env('URL_FE') . '/home/auth-google/statute/' .  $token);
-            } else {
-                // Create a new user if not found
-                $newUser = KhachHang::updateOrCreate(
-                    ['email' => $googleUser->email],
-                    [
-                        'ho_va_ten' => $googleUser->name,
-                        'avatar' => $googleUser->avatar,
-                        'google_id' => $googleUser->id,
-                        'so_dien_thoai' => '', // Assuming phone number is optional
-                        'is_active' => 1,
-                        'password' => bcrypt('password123'), // You may want to generate a random password or handle this better
-                    ]
-                );
-
-                // Log in the newly created user
-                Auth::guard('khach_hang')->login($newUser);
-
-                $token = $newUser->createToken('token_admin')->plainTextToken;
-
-                // Redirect to frontend with registration success status and user ID
-                return redirect( env('URL_FE') . '/home/auth-google/statute/' .  $token);
-            }
         } catch (\Exception $e) {
-            // Handle errors and redirect to the login page with the error message
-            return redirect( env('URL_FE') . '/login?error=' . urlencode($e->getMessage()));
+            return response()->json([
+                'status' => false,
+                'message' => 'Đăng nhập thất bại: ' . $e->getMessage()
+            ], 500);
         }
     }
-    public function checkGoogleLogin(Request $request)
+    public function loginGoogleApp(Request $request)
     {
-        $user = $this->isUser();
-        if ($user) {
-            return response()->json([
-                'status'    => true,
-                'message'      => "Đăng nhập thành công",
-                'email'                => $user->email,
-                'id_user'              => $user->id,
-                'ho_ten_user'          => $user->ho_va_ten,
-                'hinh_anh_user'        => $user->avatar,
-                'token'                =>   $user->createToken('token_khach_hang')->plainTextToken,
+        try {
+            // Kiểm tra và xác thực yêu cầu
+            // $request->validate([
+            //     'id_token' => 'required|string',
+            // ]);
 
+            // Khởi tạo Google Client
+            $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID_APP')]);
+
+            // Xác minh ID token
+            $payload = $client->verifyIdToken($request->id_token);
+
+            if (!$payload) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'ID token không hợp lệ'
+                ], 401);
+            }
+
+            // Lấy thông tin từ payload
+            $googleId = $payload['sub'];
+            $email = $payload['email'];
+            $name = $payload['name'];
+            $picture = $payload['picture'] ?? null;
+
+            // Tìm người dùng theo google_id
+            $user = KhachHang::where('google_id', $googleId)->first();
+
+            if (!$user) {
+                // Tìm người dùng theo email
+                $user = KhachHang::where('email', $email)->first();
+
+                if ($user) {
+                    // Cập nhật google_id nếu tìm thấy người dùng qua email
+                    $user->google_id = $googleId;
+                    $user->avatar = $picture;
+                    $user->save();
+                } else {
+                    // Tạo người dùng mới nếu không tìm thấy
+                    $user = KhachHang::create([
+                        'ho_va_ten' => $name,
+                        'email' => $email,
+                        'google_id' => $googleId,
+                        'avatar' => $picture,
+                        'so_dien_thoai' => '', // Có thể để trống hoặc cho giá trị mặc định
+                        'is_active' => 1,
+                        'password' => Hash::make("password123"), // Tạo mật khẩu ngẫu nhiên
+                    ]);
+                }
+            }
+
+            // Đăng nhập người dùng
+            Auth::guard('khach_hang')->login($user);
+
+            // Tạo token
+            $token = $user->createToken('token_khach_hang')->plainTextToken;
+
+            // Trả về thông tin người dùng và token
+            return response()->json([
+                'status' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->ho_va_ten,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar,
+                ],
+                'token' => $token
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-        return response()->json([
-            'status'    => false,
-            'message'      => "Xảy ra lỗi"
-        ]);
     }
 }

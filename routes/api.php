@@ -39,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/transation', [TransactionController::class, 'index']);
 Route::post('/transation/set-status', [TransactionController::class, 'setStatus']);
 Route::get('/du-lieu-train-ai', [PhimController::class, 'getdataAI']);
-Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']); 
+Route::get('/du-lieu-user-train-ai', [PhimController::class, 'getdataUserAI']);
 
 Route::post('/recommend/movie/{movie_id}', [TraiAI::class, 'recommendByMovie']);
 Route::post('/recommend/user/{user_id}', [TraiAI::class, 'recommendByUser']);
@@ -47,8 +47,6 @@ Route::post('/recommend/user/{user_id}', [TraiAI::class, 'recommendByUser']);
 Route::group(['prefix'  =>  '/khach-hang/thanh-toan/momo', 'middleware' => 'khach_hang'], function () {
 
     Route::post('create', [MomoController::class, 'createPayment']);
-    // Route::get('process', [MomoController::class, 'processPayment']);
-    // Route::post('ipn', [MomoController::class, 'ipnCallback']); // Webhook từ MoMo
 });
 
 Route::group(['prefix'  =>  '/khach-hang/thanh-toan/vnpay', 'middleware' => 'khach_hang'], function () {
@@ -56,18 +54,16 @@ Route::group(['prefix'  =>  '/khach-hang/thanh-toan/vnpay', 'middleware' => 'kha
     Route::get('return', [VNPayController::class, 'handleReturn']);
     Route::post('check-payment', [VNPayController::class, 'checkPayment']);
 });
-
 // ChatBot
 Route::post('/chat', [ChatbotController::class, 'handleChat']);
 
-//LOGIN GOGGLE
-// Route::controller(LoginGoogleController::class)->group(function () {
-//     Route::get('auth/google', 'redirectToGoogle');
-//     Route::get('auth/google/callback', 'handleGoogleCallback');
-// });
-Route::get('/auth/google', [LoginGoogleController::class, 'getGoogleSignInUrl'])->middleware('web');
-Route::get('/auth/google/callback', [LoginGoogleController::class, 'loginCallback'])->middleware('web');
-Route::get('/kiem-tra-login-google', [LoginGoogleController::class, 'checkGoogleLogin']);
+// Route::get('/auth/google', [LoginGoogleController::class, 'getGoogleSignInUrl'])->middleware('web');
+// Route::get('/auth/google/callback', [LoginGoogleController::class, 'loginCallback'])->middleware('web');
+// Route::get('/kiem-tra-login-google', [LoginGoogleController::class, 'checkGoogleLogin']);
+
+Route::post('google/callback', [LoginGoogleController::class, 'handleGoogleCallback']);
+Route::post('/khach-hang/login-google', [LoginGoogleController::class, 'loginGoogleApp']);
+
 
 
 ///      ADMIN
