@@ -28,6 +28,12 @@ class Phim extends Model
         'poster_img',
         'trailer_url',
         'is_slide',
-        'chat_luong'
+        'chat_luong',
+        'is_hoan_thanh'
     ];
+
+    CONST TINH_TRANG_HOAT_DONG = 1;
+    CONST TINH_TRANG_KHOA = 0;
+
 }
+

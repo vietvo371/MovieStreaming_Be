@@ -86,6 +86,8 @@ class TapPhimController extends Controller
                         'url'                   => $data['url'],
                         'id_phim'               => $data['id'],
                     ]);
+                    $phim->is_hoan_thanh = $phim->so_tap_phim == $data['so_tap'] ? 1 : 0;
+                    $phim->save();
                 } else {
                     return response()->json([
                         'status'   => false,

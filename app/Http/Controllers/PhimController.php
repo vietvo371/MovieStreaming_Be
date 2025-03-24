@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PhimController extends Controller
@@ -871,7 +872,7 @@ class PhimController extends Controller
                 'dao_dien'                  => $request->dao_dien,
                 'so_tap_phim'               => $request->so_tap_phim,
                 'tinh_trang'                => $request->tinh_trang,
-                'ngon_ngu'          => $request->ngon_ngu,
+                'ngon_ngu'                  => $request->ngon_ngu,
                 'trailer_url'               => $request->trailer_url,
                 'chat_luong'                => $request->chat_luong,
             ]);
@@ -1508,7 +1509,7 @@ class PhimController extends Controller
                     'luot_xems.so_luot_xem as thoiLuongXem',
                     'luot_xems.created_at as ngayXem'
                 )
-                ->whereIn('luot_xems.created_at', function($query) use ($user) {
+                ->whereIn('luot_xems.created_at', function ($query) use ($user) {
                     $query->select(DB::raw('MAX(created_at)'))
                         ->from('luot_xems')
                         ->where('id_khach_hang', $user->id)
@@ -1521,10 +1522,110 @@ class PhimController extends Controller
                 'status'    => true,
                 'data'      => $lichSuXem
             ]);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status'    => false,
                 'message'   => 'Không thể lấy lịch sử xem: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function locPhimHomePage(Request $request)
+    {
+        try {
+            $query = DB::table('phims')
+                ->select(
+                    'phims.id',
+                    'phims.ten_phim',
+                    'phims.hinh_anh',
+                    'phims.slug_phim',
+                    'phims.mo_ta',
+                    'phims.tong_luot_xem',
+                    'phims.so_tap_phim',
+                    'loai_phims.ten_loai_phim',
+                    DB::raw('GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") as ten_the_loais'),
+                    DB::raw('COUNT(DISTINCT tap_phims.id) as tong_tap')
+                )
+                ->join('loai_phims', 'phims.id_loai_phim', '=', 'loai_phims.id')
+                ->join('chi_tiet_the_loais', 'phims.id', '=', 'chi_tiet_the_loais.id_phim')
+                ->join('the_loais', 'chi_tiet_the_loais.id_the_loai', '=', 'the_loais.id')
+                ->leftJoin('tap_phims', 'phims.id', '=', 'tap_phims.id_phim')
+                ->where('phims.tinh_trang', 1)
+                ->where('loai_phims.tinh_trang', 1)
+                ->where('the_loais.tinh_trang', 1);
+
+            // Tìm kiếm
+            if ($request->search && $request->search !== 'null') {
+                $query->where(function ($q) use ($request) {
+                    $q->where('phims.ten_phim', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('phims.mo_ta', 'LIKE', '%' . $request->search . '%');
+                });
+            }
+
+            // Lọc theo thể loại
+            if ($request->the_loai && !in_array('null', $request->the_loai)) {
+                $query->whereIn('the_loais.id', $request->the_loai);
+            }
+
+            // Lọc theo loại phim
+            if ($request->loai_phim && $request->loai_phim !== 'null') {
+                $query->where('phims.id_loai_phim', $request->loai_phim);
+            }
+
+            // Lọc theo trạng thái
+            if ($request->has('tinh_trang') && $request->tinh_trang !== 'null') {
+                $request->tinh_trang == 2 ? $query->where('phims.is_hoan_thanh', 1) : $query->where('phims.is_hoan_thanh', 0);
+            }
+
+            // Group by
+            $query->groupBy(
+                'phims.id',
+                'phims.ten_phim',
+                'phims.hinh_anh',
+                'phims.slug_phim',
+                'phims.mo_ta',
+                'phims.tong_luot_xem',
+                'phims.so_tap_phim',
+                'loai_phims.ten_loai_phim'
+            );
+
+            // Thêm having để lọc tong_tap > 0
+            $query->having('tong_tap', '>', 0);
+
+            // Sắp xếp
+            switch ($request->sap_xep) {
+                case 'moi-nhat':
+                    $query->orderBy('phims.created_at', 'desc');
+                    break;
+                case 'cu-nhat':
+                    $query->orderBy('phims.created_at', 'asc');
+                    break;
+                case 'luot-xem':
+                    $query->orderBy('phims.tong_luot_xem', 'desc');
+                    break;
+                default:
+                    $query->orderBy('phims.created_at', 'desc');
+            }
+
+            // Phân trang
+            $phims = $query->paginate(env('PAGINATION_LIMIT'));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Lấy danh sách phim thành công',
+                'data' => $phims->items(),
+                'meta' => [
+                    'current_page' => $phims->currentPage(),
+                    'from' => $phims->firstItem(),
+                    'last_page' => $phims->lastPage(),
+                    'per_page' => $phims->perPage(),
+                    'to' => $phims->lastItem(),
+                    'total' => $phims->total(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
             ], 500);
         }
     }

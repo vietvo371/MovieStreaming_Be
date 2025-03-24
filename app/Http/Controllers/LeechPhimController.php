@@ -84,7 +84,8 @@ class LeechPhimController extends Controller
                 'so_tap_phim'       => (int)preg_replace('/\D/', '', $movieData['episode_total'] ?? '1') ?: 1,
                 'dao_dien'          => !empty($movieData['director'][0]) ? $movieData['director'][0] : 'Đang cập nhật',
                 'tinh_trang'        => 1,
-                'ngon_ngu'          => $movieData['lang']
+                'ngon_ngu'          => $movieData['lang'],
+                'is_hoan_thanh'     => $movieData['status'] == 'completed' ? 1 : 0
             ]);
 
             // Map categories based on slug

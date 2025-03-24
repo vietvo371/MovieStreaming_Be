@@ -416,6 +416,7 @@ Route::get('/lay-data-slide-homepage', [ConfigSlideController::class, 'getSlideH
 Route::post('/lay-data-theo-the-loai', [PhimController::class, 'dataTheoTL']);
 Route::post('/phim/thong-tin-tim', [PhimController::class, 'timPhimHome']);
 Route::post('/phim/load-thong-tin-tim', [PhimController::class, 'loadTimPhimHome']);
+Route::get('/phim/loc-phim', [PhimController::class, 'locPhimHomePage']);
 Route::get('/the-loai/sap-xep/{slug_the_loai}/{catagory}', [TheLoaiController::class, 'sapxepHome']);
 Route::get('/loai-phim/sap-xep/{slug_loai_phim}/{catagory}', [LoaiPhimController::class, 'sapxepHome']);
 Route::get('/list-phim/sap-xep', [PhimController::class, 'sapxepHome']);
