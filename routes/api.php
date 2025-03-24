@@ -232,6 +232,8 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
     // Hoá Đơn
     Route::group(['prefix'  =>  '/hoa-don'], function () {
         Route::get('/lay-du-lieu', [HoaDonController::class, 'getDataHoaDon']);
+        Route::get('/thong-tin-tim-kiem', [HoaDonController::class, 'thongTinTimKiem']);
+        Route::get('/thong-tin-chi-tiet/{id}', [HoaDonController::class, 'chiTietHoaDon']);
     });
 
     //quản lý Tác giả

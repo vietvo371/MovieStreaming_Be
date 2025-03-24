@@ -25,7 +25,7 @@ class HoaDonController extends Controller
             ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
             ->select('hoa_dons.*', 'goi_vips.ten_goi', 'khach_hangs.ho_va_ten')
             ->orderBy('hoa_dons.created_at', 'DESC')
-            ->paginate(8);
+            ->paginate(12);
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -41,9 +41,137 @@ class HoaDonController extends Controller
             'data' => $response
         ]);
     }
+    public function thongTinTimKiem(Request $request)
+    {
+        $id_chuc_nang = 17;
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
+
+        try {
+            $query = HoaDon::query()
+                ->join('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+                ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
+                ->select(
+                    'hoa_dons.*',
+                    'goi_vips.ten_goi',
+                    'khach_hangs.ho_va_ten'
+                );
+
+            // Tìm kiếm theo mã HD hoặc tên KH
+            if ($request->search && $request->search != 'undefined') {
+                $query->where(function($q) use ($request) {
+                    $q->where('hoa_dons.ma_hoa_don', 'like', '%' . $request->search . '%')
+                      ->orWhere('khach_hangs.ho_va_ten', 'like', '%' . $request->search . '%');
+                });
+            }
+
+            // Lọc theo loại thanh toán
+            if ($request->loai_thanh_toan && $request->loai_thanh_toan != 'undefined') {
+                if ($request->loai_thanh_toan === 'mbbank') {
+                    $query->whereNull('hoa_dons.loai_thanh_toan');
+                } else {
+                    $query->where('hoa_dons.loai_thanh_toan', $request->loai_thanh_toan);
+                }
+            }
+
+            // Lọc theo trạng thái thanh toán
+            if ($request->has('tinh_trang') && $request->tinh_trang != 'undefined') {
+                $query->where('hoa_dons.tinh_trang', $request->tinh_trang);
+            }
+
+            // Lọc theo gói VIP
+            if ($request->id_goi && $request->id_goi != 'undefined') {
+                $query->where('hoa_dons.id_goi', $request->id_goi);
+            }
+
+            // Lọc theo thời gian
+            if ($request->time_range && $request->time_range != 'undefined') {
+                switch ($request->time_range) {
+                    case 'today':
+                        $query->whereDate('hoa_dons.created_at', Carbon::today());
+                        break;
+                    case 'week':
+                        $query->whereBetween('hoa_dons.created_at', [
+                            Carbon::now()->startOfWeek(),
+                            Carbon::now()->endOfWeek()
+                        ]);
+                        break;
+                    case 'month':
+                        $query->whereMonth('hoa_dons.created_at', Carbon::now()->month)
+                              ->whereYear('hoa_dons.created_at', Carbon::now()->year);
+                        break;
+                    case 'custom':
+                        if ($request->start_date && $request->end_date) {
+                            $query->whereBetween('hoa_dons.created_at', [
+                                Carbon::parse($request->start_date)->startOfDay(),
+                                Carbon::parse($request->end_date)->endOfDay()
+                            ]);
+                        }
+                        break;
+                }
+            }
+
+            // Sắp xếp
+            $query->orderBy('hoa_dons.created_at', 'DESC');
+
+            // Phân trang
+            $dataAdmin = $query->paginate(12);
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'pagination' => [
+                        'total' => $dataAdmin->total(),
+                        'per_page' => $dataAdmin->perPage(),
+                        'current_page' => $dataAdmin->currentPage(),
+                        'last_page' => $dataAdmin->lastPage(),
+                        'from' => $dataAdmin->firstItem(),
+                        'to' => $dataAdmin->lastItem()
+                    ],
+                    'dataAdmin' => $dataAdmin
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function chiTietHoaDon($id)
+    {
+        $id_chuc_nang = 17;
+        $check = $this->checkQuyen($id_chuc_nang);
+        if ($check == false) {
+            return response()->json([
+                'status'  =>  false,
+                'message' =>  'Bạn không có quyền chức năng này'
+            ]);
+        }
+        $data = HoaDon::join('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+            ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
+            ->join('giao_diches', 'hoa_dons.ma_hoa_don', 'giao_diches.ma_giao_dich')
+            ->select('hoa_dons.*', 'goi_vips.ten_goi', 'khach_hangs.ho_va_ten', 'giao_diches.orderInfo', 'giao_diches.transactionNo', 'giao_diches.paymentType', 'giao_diches.responseCode', 'giao_diches.transactionStatus')
+            ->find($id);
+        if (!$data) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy dữ liệu.'
+            ]);
+        }
+        return response()->json([
+            'data' => $data
+        ]);
+    }
     public function getTrensactionOpen(Request $request)
     {
-        
+
         $user = $this->isUser();
         if (!$user) {
             return response()->json([
