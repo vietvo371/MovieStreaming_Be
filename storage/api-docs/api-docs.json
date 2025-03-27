@@ -1,0 +1,253 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Quản Lý Danh Mục API Documentation",
+        "description": "API documentation cho quản lý danh mục web",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/danh-muc/getData": {
+            "get": {
+                "tags": [
+                    "Danh Mục"
+                ],
+                "summary": "Lấy danh sách danh mục",
+                "operationId": "cacb3fc5b97643ea72c6131e942f3114",
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "danh_muc_admin": {
+                                            "properties": {
+                                                "pagination": {
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer"
+                                                        },
+                                                        "per_page": {
+                                                            "type": "integer"
+                                                        },
+                                                        "current_page": {
+                                                            "type": "integer"
+                                                        },
+                                                        "last_page": {
+                                                            "type": "integer"
+                                                        },
+                                                        "from": {
+                                                            "type": "integer"
+                                                        },
+                                                        "to": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "dataAdmin": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Không có quyền truy cập"
+                    }
+                }
+            }
+        },
+        "/api/danh-muc/tao-danh-muc": {
+            "post": {
+                "tags": [
+                    "Danh Mục"
+                ],
+                "summary": "Tạo danh mục mới",
+                "operationId": "4053238feeb96c7e30d3a7f028548d7d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ten_danh_muc",
+                                    "slug_danh_muc"
+                                ],
+                                "properties": {
+                                    "ten_danh_muc": {
+                                        "type": "string",
+                                        "example": "Danh mục mới"
+                                    },
+                                    "slug_danh_muc": {
+                                        "type": "string",
+                                        "example": "danh-muc-moi"
+                                    },
+                                    "id_danh_muc_cha": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "link": {
+                                        "type": "string",
+                                        "example": "/danh-muc-moi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bạn thêm Danh Mục thành công!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Không có quyền truy cập"
+                    },
+                    "422": {
+                        "description": "Dữ liệu không hợp lệ"
+                    }
+                }
+            }
+        },
+        "/api/danh-muc/cap-nhat": {
+            "put": {
+                "tags": [
+                    "Danh Mục"
+                ],
+                "summary": "Cập nhật danh mục",
+                "operationId": "b03333bd6e977875cf3340f5c4e09982",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "ten_danh_muc",
+                                    "slug_danh_muc"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "ten_danh_muc": {
+                                        "type": "string"
+                                    },
+                                    "slug_danh_muc": {
+                                        "type": "string"
+                                    },
+                                    "id_danh_muc_cha": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "tinh_trang": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/danh-muc/xoa/{id}": {
+            "delete": {
+                "tags": [
+                    "Danh Mục"
+                ],
+                "summary": "Xóa danh mục",
+                "operationId": "c6429301a47ff4fb5391015d72e03f34",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID của danh mục cần xóa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Danh Mục",
+            "description": "Danh Mục"
+        }
+    ]
+}

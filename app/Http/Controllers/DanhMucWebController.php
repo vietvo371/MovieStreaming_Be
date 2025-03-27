@@ -15,8 +15,48 @@ use Illuminate\Support\Str;
 
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="Quản Lý Danh Mục API Documentation",
+ *     description="API documentation cho quản lý danh mục web"
+ * )
+ */
 class DanhMucWebController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/du-lieu-train-ai",
+     *     summary="Lấy danh sách danh mục",
+     *     tags={"Danh Mục"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="danh_muc_admin", type="object",
+     *                 @OA\Property(property="pagination", type="object",
+     *                     @OA\Property(property="total", type="integer"),
+     *                     @OA\Property(property="per_page", type="integer"),
+     *                     @OA\Property(property="current_page", type="integer"),
+     *                     @OA\Property(property="last_page", type="integer"),
+     *                     @OA\Property(property="from", type="integer"),
+     *                     @OA\Property(property="to", type="integer")
+     *                 ),
+     *                 @OA\Property(property="dataAdmin", type="array",
+     *                     @OA\Items(type="object")
+     *                 )
+     *             ),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Không có quyền truy cập"
+     *     )
+     * )
+     */
     public function getData()
     {
         $id_chuc_nang = 14;
@@ -47,6 +87,39 @@ class DanhMucWebController extends Controller
             'data'      => $data
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/danh-muc/tao-danh-muc",
+     *     summary="Tạo danh mục mới",
+     *     tags={"Danh Mục"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ten_danh_muc","slug_danh_muc"},
+     *             @OA\Property(property="ten_danh_muc", type="string", example="Danh mục mới"),
+     *             @OA\Property(property="slug_danh_muc", type="string", example="danh-muc-moi"),
+     *             @OA\Property(property="id_danh_muc_cha", type="integer", nullable=true),
+     *             @OA\Property(property="link", type="string", example="/danh-muc-moi")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Bạn thêm Danh Mục thành công!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Không có quyền truy cập"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dữ liệu không hợp lệ"
+     *     )
+     * )
+     */
     public function taoDanhMuc(TaoDanhMucRequest $request)
     {
         try {
@@ -105,6 +178,32 @@ class DanhMucWebController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/danh-muc/cap-nhat",
+     *     summary="Cập nhật danh mục",
+     *     tags={"Danh Mục"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"id","ten_danh_muc","slug_danh_muc"},
+     *             @OA\Property(property="id", type="integer"),
+     *             @OA\Property(property="ten_danh_muc", type="string"),
+     *             @OA\Property(property="slug_danh_muc", type="string"),
+     *             @OA\Property(property="id_danh_muc_cha", type="integer", nullable=true),
+     *             @OA\Property(property="tinh_trang", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function capnhatDanhMuc(CapNhatDanhMucRequest $request)
     {
         try {
@@ -136,6 +235,28 @@ class DanhMucWebController extends Controller
             ]);
         }
     }
+    /**
+     * @OA\Delete(
+     *     path="/api/danh-muc/xoa/{id}",
+     *     summary="Xóa danh mục",
+     *     tags={"Danh Mục"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID của danh mục cần xóa",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function xoaDanhMuc($id)
     {
         try {
