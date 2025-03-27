@@ -90,30 +90,11 @@ class HoaDonController extends Controller
             }
 
             // Lọc theo thời gian
-            if ($request->time_range && $request->time_range != 'undefined') {
-                switch ($request->time_range) {
-                    case 'today':
-                        $query->whereDate('hoa_dons.created_at', Carbon::today());
-                        break;
-                    case 'week':
-                        $query->whereBetween('hoa_dons.created_at', [
-                            Carbon::now()->startOfWeek(),
-                            Carbon::now()->endOfWeek()
-                        ]);
-                        break;
-                    case 'month':
-                        $query->whereMonth('hoa_dons.created_at', Carbon::now()->month)
-                              ->whereYear('hoa_dons.created_at', Carbon::now()->year);
-                        break;
-                    case 'custom':
-                        if ($request->start_date && $request->end_date) {
-                            $query->whereBetween('hoa_dons.created_at', [
-                                Carbon::parse($request->start_date)->startOfDay(),
-                                Carbon::parse($request->end_date)->endOfDay()
-                            ]);
-                        }
-                        break;
-                }
+            if ($request->date_from && $request->date_from != 'undefined') {
+                $query->whereBetween('hoa_dons.created_at', [
+                    Carbon::parse($request->date_from)->startOfDay(),
+                    Carbon::parse($request->date_to)->endOfDay()
+                ]);
             }
 
             // Sắp xếp

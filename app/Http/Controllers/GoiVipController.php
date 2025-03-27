@@ -23,7 +23,7 @@ class GoiVipController extends Controller
             'data'  =>  $dataOpen,
         ]);
     }
-    
+
     public function getData()
     {
         $id_chuc_nang = 13;
@@ -35,7 +35,7 @@ class GoiVipController extends Controller
             ]);
         }
         $dataAdmin   = GoiVip::select('goi_vips.*')
-            ->paginate(6); // get là ra 1  sách
+            ->paginate(env('PAGINATION_LIMIT')); // get là ra 1  sách
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -219,7 +219,7 @@ class GoiVipController extends Controller
         $key    = '%' . $request->key . '%';
         $dataAdmin   = GoiVip::select('goi_vips.*')
             ->where('ten_goi', 'like', $key)
-            ->paginate(6); // get là ra 1  sách
+            ->paginate(env('PAGINATION_LIMIT')); // get là ra 1  sách
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),

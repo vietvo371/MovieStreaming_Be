@@ -6,6 +6,7 @@ use App\Models\ConfigSlide;
 use App\Models\Phim;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Illuminate\Support\Facades\DB;
 
 use function Laravel\Prompts\select;
 
@@ -13,7 +14,8 @@ class ConfigSlideController extends Controller
 {
     public function getSlideHomepage(Request $request)
     {
-        $data = Phim::where("tinh_trang", 1)->where('is_slide',1)->get();
+        $data = Phim::where("tinh_trang", 1)->where('is_slide', 1)->get();
+
         return response()->json([
             'data' => $data
         ]);
@@ -29,8 +31,20 @@ class ConfigSlideController extends Controller
             ]);
         }
 
-
-        $dataAdmin = Phim::where("is_slide", 1)->where("tinh_trang", 1)->select("phims.id", "phims.ten_phim", "phims.poster_img", "phims.updated_at")->orderByDesc("updated_at")->paginate(6);
+        $dataAdmin = Phim::join("tap_phims", "tap_phims.id_phim", "phims.id")
+            ->where("phims.is_slide", 1)
+            ->where("phims.tinh_trang", 1)
+            ->select(
+                "phims.id",
+                "phims.ten_phim",
+                "phims.poster_img",
+                "phims.updated_at",
+                DB::raw("sum(tap_phims.so_tap) as so_tap")
+            )
+            ->groupBy("phims.id", "phims.ten_phim", "phims.poster_img", "phims.updated_at")
+            ->having("so_tap", ">", 0)
+            ->orderByDesc("phims.updated_at")
+            ->paginate(6);
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
@@ -57,7 +71,20 @@ class ConfigSlideController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
-        $dataAdmin = Phim::where("is_slide", 0)->where("tinh_trang", 1)->select("phims.id", "phims.ten_phim", "phims.poster_img")->paginate(6);
+        $dataAdmin = Phim::join("tap_phims", "tap_phims.id_phim", "phims.id")
+            ->where("phims.is_slide", 0)
+            ->where("phims.tinh_trang", 1)
+            ->select(
+                "phims.id",
+                "phims.ten_phim",
+                "phims.poster_img",
+                "phims.updated_at",
+                DB::raw("sum(tap_phims.so_tap) as so_tap")
+            )
+            ->groupBy("phims.id", "phims.ten_phim", "phims.poster_img", "phims.updated_at")
+            ->having("so_tap", ">", 0)
+            ->orderByDesc("phims.updated_at")
+            ->paginate(6);
         $response = [
             'pagination' => [
                 'total' => $dataAdmin->total(),
