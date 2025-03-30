@@ -309,52 +309,34 @@ class PhimController extends Controller
         try {
             $top_view_thang = DB::table(DB::raw('
             (
-                SELECT
-                    phims.ten_phim,
-                    phims.hinh_anh,
-                    phims.slug_phim,
-                    phims.mo_ta,
-                    phims.tong_luot_xem,
-                    phims.so_tap_phim,
-                    loai_phims.ten_loai_phim,
-                    GROUP_CONCAT(DISTINCT the_loais.ten_the_loai SEPARATOR ", ") AS ten_the_loais,  -- Lấy thể loại phim
-                    COUNT(DISTINCT tap_phims.id) AS tong_tap,  -- Đếm số tập phim
-                    SUM(luot_xems.so_luot_xem) AS tong_luot_xem_thang,  -- Tổng lượt xem trong tháng
-                    DATE_FORMAT(luot_xems.ngay_xem, "%Y-%m") AS thang,
-                    RANK() OVER (PARTITION BY DATE_FORMAT(luot_xems.ngay_xem, "%Y-%m") ORDER BY SUM(luot_xems.so_luot_xem) DESC) AS `rank`
-                FROM
-                    phims
-                INNER JOIN
-                    luot_xems ON luot_xems.id_phim = phims.id
-                INNER JOIN
-                    chi_tiet_the_loais ON chi_tiet_the_loais.id_phim = phims.id  -- Kết nối bảng chi tiết thể loại
-                INNER JOIN
-                    the_loais ON chi_tiet_the_loais.id_the_loai = the_loais.id  -- Kết nối bảng thể loại
-                LEFT JOIN
-                    tap_phims ON tap_phims.id_phim = phims.id  -- Kết nối với bảng tập phim
-                LEFT JOIN
-                    loai_phims ON loai_phims.id = phims.id_loai_phim  -- Kết nối với loại phim
-                WHERE
-                    phims.tinh_trang = 1 AND
-                    the_loais.tinh_trang = 1 AND
-                    loai_phims.tinh_trang = 1
-                GROUP BY
-                    phims.id, phims.ten_phim, phims.hinh_anh, phims.slug_phim, phims.mo_ta, phims.tong_luot_xem, phims.so_tap_phim, loai_phims.ten_loai_phim, thang
-            ) AS ranked_movies
-        '))
-                ->where('rank', 1)  // Chỉ lấy phim đứng đầu mỗi tháng
-                ->groupBy(
-                    'ten_phim',
-                    'hinh_anh',
-                    'slug_phim',
-                    'mo_ta',
-                    'tong_luot_xem',
-                    'so_tap_phim',
-                    'ten_loai_phim',
-                    'thang'
-                )  // Nhóm theo các thông tin cần thiết
-                ->orderBy('tong_luot_xem_thang', 'desc')  // Sắp xếp theo tổng lượt xem trong tháng giảm dần
-                ->take(6)  // Giới hạn kết quả trả về là 6 phim
+              SELECT
+            p.id,
+            p.ten_phim,
+            p.hinh_anh,
+            p.slug_phim,
+            p.mo_ta,
+            p.tong_luot_xem,
+            p.so_tap_phim,
+            lp.ten_loai_phim,
+            (
+                SELECT GROUP_CONCAT(DISTINCT tl.ten_the_loai SEPARATOR ", ")
+                FROM chi_tiet_the_loais ctdl
+                JOIN the_loais tl ON tl.id = ctdl.id_the_loai
+                WHERE ctdl.id_phim = p.id
+            ) AS ten_the_loais,
+            (
+                SELECT SUM(lx.so_luot_xem)
+                FROM luot_xems lx
+                WHERE lx.id_phim = p.id
+                AND DATE_FORMAT(lx.ngay_xem, "%Y-%m") = DATE_FORMAT(CURRENT_DATE, "%Y-%m")
+            ) AS tong_luot_xem_thang
+        FROM phims p
+        JOIN loai_phims lp ON lp.id = p.id_loai_phim
+        WHERE p.tinh_trang = 1
+    ) AS ranked_movies'))
+                ->select('*')
+                ->orderBy('tong_luot_xem_thang', 'desc')
+                ->limit(6)
                 ->get();
             $phim_moi_cap_nhat = DB::table(DB::raw('
                 (

@@ -26,7 +26,7 @@ class LoginGoogleController extends Controller
             if (!$user) {
                 $user = KhachHang::create([
                     'email' => $request->email,
-                    'ho_ten' => $request->name,
+                    'ho_va_ten' => $request->name,
                     'hinh_anh' => asset('uploads/avatars/admins/default_avatar.png'),
                     'google_id' => $request->google_id,
                     'password' => Hash::make(Str::random(16)), // Tạo password ngẫu nhiên
