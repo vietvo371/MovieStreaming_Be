@@ -506,16 +506,16 @@ class PhimController extends Controller
                 ->orderBy('tong_luot_xem', 'DESC') // Sắp xếp theo tổng lượt xem giảm dần
                 ->take(3) // Lấy 6 phim có lượt xem cao nhất
                 ->get();
-            $recommendations = [];
-            $user = $this->isUser();
-            if ($user) {
-                $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
-            }
-            // Lấy danh sách ID từ $recommendations
-            $list_id = collect($recommendations)->toArray();
-            if (empty($list_id)) {
-                $list_id = [1, 2, 3, 4, 5];
-            }
+            // $recommendations = [];
+            // $user = $this->isUser();
+            // if ($user) {
+            //     $recommendations = $this->getRecommendationsUser(['user_id' => $user->id]);
+            // }
+            // // Lấy danh sách ID từ $recommendations
+            // $list_id = collect($recommendations)->toArray();
+            // if (empty($list_id)) {
+            //     $list_id = [1, 2, 3, 4, 5];
+            // }
             $phim_hot = DB::table(DB::raw("
                     (
                         SELECT
@@ -548,8 +548,6 @@ class PhimController extends Controller
                             loai_phims.tinh_trang = 1
                         AND
                             the_loais.tinh_trang = 1
-                        AND
-                            phims.id IN (" . implode(',', $list_id) . ") -- Chèn danh sách ID phim
                         GROUP BY
                             phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim,phims.poster_img
                         HAVING
@@ -659,11 +657,11 @@ class PhimController extends Controller
                 'message' => 'Không tìm thấy tập phim'
             ], 404);
         }
-        $recommendations = $this->getRecommendations(['movie_id' => $phim->id]);
-        $list_id = collect($recommendations)->toArray();
-        if (empty($list_id)) {
-            $list_id = [1, 2, 3, 4, 5];
-        }
+            // $recommendations = $this->getRecommendations(['movie_id' => $phim->id]);
+            // $list_id = collect($recommendations)->toArray();
+            // if (empty($list_id)) {
+            //     $list_id = [1, 2, 3, 4, 5];
+            // }
         $select5film = DB::table(DB::raw("
                 (
                     SELECT
@@ -695,8 +693,6 @@ class PhimController extends Controller
                         loai_phims.tinh_trang = 1
                     AND
                         the_loais.tinh_trang = 1
-                    AND
-                        phims.id IN (" . implode(',', $list_id) . ") -- Chèn danh sách ID phim
                     GROUP BY
                         phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
                     HAVING
