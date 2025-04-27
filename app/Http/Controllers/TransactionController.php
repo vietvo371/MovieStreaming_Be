@@ -22,7 +22,7 @@ class TransactionController extends Controller
     {
         $payload = [
             "USERNAME"   => "0708585120",
-            "PASSWORD"   => "01200120Vietvo371@",
+            "PASSWORD"   => env('PASSWORD_MB'),
             "DAY_BEGIN" => Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y'),
             "DAY_END"   => Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y'),
             "NUMBER_MB"  => "0708585120"
@@ -31,9 +31,10 @@ class TransactionController extends Controller
         try {
             // Gửi yêu cầu đến API
             $client = new Client();
-            $response = $client->post("https://api-mb.dzmid.io.vn/mb", ['json' => $payload]);
-            $data = json_decode($response->getBody(), true)['data'] ?? [];
-            // dd($data);
+            $response = $client->post("https://api-mb.dzmid.io.vn/api/transactions", ['json' => $payload]);
+            $responseData = json_decode($response->getBody(), true);
+            $data = $responseData['data']['transactionHistoryList'] ?? [];
+            // dd($data['transactionHistoryList']);
             foreach ($data as $value) {
                 // Bỏ qua nếu `creditAmount` <= 0 hoặc thiếu key cần thiết
                 if (empty($value['creditAmount']) || $value['creditAmount'] <= 0) {
@@ -53,6 +54,7 @@ class TransactionController extends Controller
             }
             return response()->json([
                 'status' => true,
+                'message' => 'Cập nhật giao dịch thành công.'
             ], 200);
         } catch (\Exception $e) {
             Log::error('Lỗi khi gọi API: ' . $e->getMessage(), [
