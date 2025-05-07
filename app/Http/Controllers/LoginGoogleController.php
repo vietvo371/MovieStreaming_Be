@@ -19,19 +19,21 @@ class LoginGoogleController extends Controller
         try {
             // Tìm user theo email
             $user = KhachHang::where('email', $request->email)->first();
-            $user->avatar = asset('uploads/avatars/admins/default_avatar.png');
-            $user->save();
 
             // Nếu chưa có user thì tạo mới
             if (!$user) {
                 $user = KhachHang::create([
                     'email' => $request->email,
                     'ho_va_ten' => $request->name,
-                    'hinh_anh' => asset('uploads/avatars/admins/default_avatar.png'),
+                    'avatar' => asset('uploads/avatars/admins/default_avatar.png'),
                     'google_id' => $request->google_id,
                     'password' => Hash::make(Str::random(16)), // Tạo password ngẫu nhiên
                     'is_block' => 0,
                 ]);
+            } else {
+                // Cập nhật avatar nếu user đã tồn tại
+                $user->avatar = asset('uploads/avatars/admins/default_avatar.png');
+                $user->save();
             }
 
             // Tạo token cho user
