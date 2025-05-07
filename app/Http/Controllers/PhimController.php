@@ -657,11 +657,11 @@ class PhimController extends Controller
                 'message' => 'Không tìm thấy tập phim'
             ], 404);
         }
-            // $recommendations = $this->getRecommendations(['movie_id' => $phim->id]);
-            // $list_id = collect($recommendations)->toArray();
-            // if (empty($list_id)) {
-            //     $list_id = [1, 2, 3, 4, 5];
-            // }
+            $recommendations = $this->getRecommendations(['movie_id' => $phim->id]);
+            $list_id = collect($recommendations)->toArray();
+            if (empty($list_id)) {
+                $list_id = [1, 2, 3, 4, 5];
+            }
         $select5film = DB::table(DB::raw("
                 (
                     SELECT
@@ -693,12 +693,15 @@ class PhimController extends Controller
                         loai_phims.tinh_trang = 1
                     AND
                         the_loais.tinh_trang = 1
+                    AND
+                        phims.id IN (" . implode(',', $list_id) . ")
                     GROUP BY
                         phims.id, phims.ten_phim, loai_phims.ten_loai_phim, phims.hinh_anh, phims.slug_phim, phims.tong_luot_xem, phims.mo_ta, phims.so_tap_phim
                     HAVING
                         tong_tap > 0
                 ) as subquery
             "))
+            ->take(5)
             ->get();
 
         return response()->json([
