@@ -140,7 +140,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
 
     Route::group(['prefix'  =>  '/phan-quyen'], function () {
         Route::get('/lay-du-lieu', [PhanQuyenController::class, 'getDataPhanQuyen']);
-        Route::post('/create', [PhanQuyenController::class, 'createPhanQuyen']);
+        Route::post('/save', [PhanQuyenController::class, 'createPhanQuyen']);
         Route::post('/get-chuc-nang', [PhanQuyenController::class, 'getChucNang']);
         Route::delete('/xoa-phan-quyen/{id}', [PhanQuyenController::class, 'xoaPhanQuyen']);
     });

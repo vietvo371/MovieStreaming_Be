@@ -34,6 +34,17 @@ class AdminSeeder extends Seeder
                 'id_chuc_vu'    => 2,
                 'is_master'     => 0,
             ],
+            [
+                'email'         => "admin@gmail.com",
+                'ho_va_ten'     => "Admin",
+                'password'      => bcrypt(123456),
+                'so_dien_thoai' => '0987154321',
+                'hinh_anh'      => asset('uploads/avatars/admins/default_avatar.png'),
+                'tinh_trang'    => 1,
+                'id_chuc_vu'    => 3,
+                'is_master'     => 0,
+            ],
+
         ];
         DB::table('admin_animes')->delete();
         DB::table('admin_animes')->truncate();

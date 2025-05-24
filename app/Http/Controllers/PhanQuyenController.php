@@ -30,7 +30,7 @@ class PhanQuyenController extends Controller
             'listChucNang'  =>  $listChucNang,
         ]);
     }
-    public function createPhanQuyen(CreatePhanQuyenRequest $request)
+    public function createPhanQuyen(Request $request)
     {
         $id_chuc_nang = 4;
         $check = $this->checkQuyen($id_chuc_nang);
@@ -40,27 +40,34 @@ class PhanQuyenController extends Controller
                 'message' =>  'Bạn không có quyền chức năng này'
             ]);
         }
+        $idChucVu = $request->id_chuc_vu;
+        $danhSachQuyenMoi = $request->danh_sach_quyen;
 
-        // Check if the `PhanQuyen` already exists
-        if (PhanQuyen::where('id_chuc_nang', $request->id_chuc_nang)
-            ->where('id_chuc_vu', $request->id_chuc_vu)
-            ->exists()
-        ) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Chức vụ đã có chức năng này!',
+        // Lấy danh sách quyền cũ
+        $quyenCu = PhanQuyen::where('id_chuc_vu', $idChucVu)->pluck('id_chuc_nang')->toArray();
+
+        // Xác định quyền cần xóa (có trong cũ nhưng không có trong mới)
+        $quyenCanXoa = array_diff($quyenCu, $danhSachQuyenMoi);
+        if (!empty($quyenCanXoa)) {
+            PhanQuyen::where('id_chuc_vu', $idChucVu)
+                ->whereIn('id_chuc_nang', $quyenCanXoa)
+                ->delete();
+        }
+
+        // Xác định quyền cần thêm (có trong mới nhưng không có trong cũ)
+        $quyenCanThem = array_diff($danhSachQuyenMoi, $quyenCu);
+        $data = [];
+        foreach ($quyenCanThem as $idChucNang) {
+            $data[] = PhanQuyen::create([
+                'id_chuc_vu'  => $idChucVu,
+                'id_chuc_nang'  => $idChucNang,
             ]);
         }
 
-        // Create the new `PhanQuyen`
-        PhanQuyen::create([
-            'id_chuc_nang' => $request->id_chuc_nang,
-            'id_chuc_vu'   => $request->id_chuc_vu,
-        ]);
-
         return response()->json([
-            'status'  => true,
-            'message' => 'Đã phân quyền thành công',
+            'status'    => true,
+            'message'   => 'Cập nhật phân quyền thành công!',
+            'data'      => $data
         ]);
     }
 

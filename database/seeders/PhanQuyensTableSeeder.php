@@ -15,47 +15,77 @@ class PhanQuyensTableSeeder extends Seeder
     {
         DB::table('phan_quyens')->truncate();
 
-        $phanQuyens = [
-            // Role: Quản Trị Website
-            [
-                'id_chuc_vu' => 1, // Assuming the role 'Quản Trị Website' has id 1
-                'id_chuc_nang' => 1, // Assuming the permission 'Thêm, Sữa Xoá Tài Khoản Admin' has id 1
-            ],
-            [
-                'id_chuc_vu' => 1, // Quản Trị Website
-                'id_chuc_nang' => 2, // Thêm, Sữa Xoá Tài Khoản Khách Hàng
-            ],
-            [
-                'id_chuc_vu' => 1, // Quản Trị Website
-                'id_chuc_nang' => 3, // Thêm, Sữa Xoá Chức Vụ
-            ],
-            // Role: Quản trị Phim
-            [
-                'id_chuc_vu' => 2, // Quản trị Phim
-                'id_chuc_nang' => 5, // Thêm, Sữa Xoá Phim
-            ],
-            [
-                'id_chuc_vu' => 2, // Quản trị Phim
-                'id_chuc_nang' => 6, // Thêm, Sữa Xoá Tập Phim
-            ],
-            [
-                'id_chuc_vu' => 2, // Quản trị Phim
-                'id_chuc_nang' => 8, // Thêm, Sữa Xoá Loại Phim
-            ],
-            // Role: Quản Trị Blog
-            [
-                'id_chuc_vu' => 3, // Quản Trị Blog
-                'id_chuc_nang' => 10, // Thêm, Sữa Xoá BLOG
-            ],
-            [
-                'id_chuc_vu' => 3, // Quản Trị Blog
-                'id_chuc_nang' => 11, // Thêm, Sữa Xoá Chuyên Mục BLOG
-            ],
-            [
-                'id_chuc_vu' => 3, // Quản Trị Blog
-                'id_chuc_nang' => 14, // Quản lý Menu Client
-            ],
+        // Phân quyền cho Quản Trị Website (có tất cả quyền)
+        $quanTriWebsite = DB::table('chuc_vus')
+            ->where('slug_chuc_vu', 'quan-tri-website')
+            ->first();
+
+        $allActions = DB::table('actions')->get();
+
+        $phanQuyens = [];
+
+        // Quản trị website có tất cả quyền
+        foreach($allActions as $action) {
+            $phanQuyens[] = [
+                'id_chuc_vu' => $quanTriWebsite->id,
+                'id_chuc_nang' => $action->id,
+            ];
+        }
+
+        // Quản trị Phim có quyền liên quan đến phim
+        $quanTriPhim = DB::table('chuc_vus')
+            ->where('slug_chuc_vu', 'quan-tri-phim')
+            ->first();
+
+        $phimActions = [
+            'Thêm, Sữa Xoá Phim',
+            'Thêm, Sữa Xoá Tập Phim',
+            'Thêm, Sữa Xoá Thể Loại',
+            'Thêm, Sữa Xoá Loại Phim',
+            'Quản lý Leech Phim',
+            'Quản lý SLide',
+            'Thống Kê'
         ];
+
+        foreach($phimActions as $actionName) {
+            $action = DB::table('actions')
+                ->where('ten_chuc_nang', $actionName)
+                ->first();
+
+            if ($action) {
+                $phanQuyens[] = [
+                    'id_chuc_vu' => $quanTriPhim->id,
+                    'id_chuc_nang' => $action->id,
+
+                ];
+            }
+        }
+
+        // Quản trị Blog có quyền liên quan đến blog
+        $quanTriBlog = DB::table('chuc_vus')
+            ->where('slug_chuc_vu', 'quan-tri-blog')
+            ->first();
+
+        $blogActions = [
+            'Thêm, Sữa Xoá BLOG',
+            'Thêm, Sữa Xoá Chuyên Mục BLOG',
+            'Thêm, Sữa Xoá Tác Giả',
+            'Thống Kê'
+        ];
+
+        foreach($blogActions as $actionName) {
+            $action = DB::table('actions')
+                ->where('ten_chuc_nang', $actionName)
+                ->first();
+
+            if ($action) {
+                $phanQuyens[] = [
+                    'id_chuc_vu' => $quanTriBlog->id,
+                    'id_chuc_nang' => $action->id,
+
+                ];
+            }
+        }
 
         DB::table('phan_quyens')->insert($phanQuyens);
     }
