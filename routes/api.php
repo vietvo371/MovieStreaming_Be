@@ -35,6 +35,8 @@ use App\Models\GoiVip;
 use App\Models\Phim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Exports\HoaDonExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/transation', [TransactionController::class, 'index']);
 Route::post('/transation/set-status', [TransactionController::class, 'setStatus']);
@@ -234,6 +236,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
         Route::get('/lay-du-lieu', [HoaDonController::class, 'getDataHoaDon']);
         Route::get('/thong-tin-tim-kiem', [HoaDonController::class, 'thongTinTimKiem']);
         Route::get('/thong-tin-chi-tiet/{id}', [HoaDonController::class, 'chiTietHoaDon']);
+        // Route::get('/in-excel', [HoaDonController::class, 'inExcel']);
     });
 
     //quản lý Tác giả
@@ -426,3 +429,5 @@ Route::get('/lay-tat-ca-phim', [PhimController::class, 'getAllPhim']);
 Route::get('lay-tat-ca-phim/sap-xep/{catagory}', [PhimController::class, 'sapxepAllPhim']);
 
 // Route::post('/khach-hang/thanh-toan/momo/create', [MomoController::class, 'createPayment']);
+
+Route::get('admin/hoa-don/in-excel', [HoaDonController::class, 'inExcel']);

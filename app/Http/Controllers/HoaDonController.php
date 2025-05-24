@@ -7,10 +7,12 @@ use App\Models\HoaDon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use App\Exports\HoaDonExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HoaDonController extends Controller
 {
-
     public function getDataHoaDon()
     {
         $id_chuc_nang = 17;
@@ -278,5 +280,101 @@ class HoaDonController extends Controller
             . $hoaDon->tong_tien
             . '&addInfo=' . $hoaDon->ma_hoa_don
             . '&accountName=VO_VAN_VIET';
+    }
+
+    public function inExcel(Request $request)
+    {
+        try {
+            $query = HoaDon::query()
+                ->join('goi_vips', 'hoa_dons.id_goi', 'goi_vips.id')
+                ->join('khach_hangs', 'hoa_dons.id_khach_hang', 'khach_hangs.id')
+                ->leftJoin('giao_diches', 'hoa_dons.ma_hoa_don', 'giao_diches.ma_giao_dich')
+                ->select(
+                    'hoa_dons.ma_hoa_don',
+                    'khach_hangs.ho_va_ten',
+                    'khach_hangs.email',
+                    'khach_hangs.so_dien_thoai',
+                    'goi_vips.ten_goi',
+                    'hoa_dons.tong_tien',
+                    'hoa_dons.so_tien_da_thanh_toan',
+                    'hoa_dons.loai_thanh_toan',
+                    'hoa_dons.tinh_trang',
+                    'giao_diches.transactionNo',
+                    'hoa_dons.created_at',
+                    'hoa_dons.ngay_bat_dau',
+                    'hoa_dons.ngay_ket_thuc'
+                );
+
+            // Áp dụng các filter từ query parameters
+            if ($request->query('search')) {
+                $query->where(function($q) use ($request) {
+                    $q->where('hoa_dons.ma_hoa_don', 'like', '%' . $request->query('search') . '%')
+                      ->orWhere('khach_hangs.ho_va_ten', 'like', '%' . $request->query('search') . '%');
+                });
+            }
+
+            if ($request->query('loai_thanh_toan')) {
+                if ($request->query('loai_thanh_toan') === 'mbbank') {
+                    $query->whereNull('hoa_dons.loai_thanh_toan');
+                } else {
+                    $query->where('hoa_dons.loai_thanh_toan', $request->query('loai_thanh_toan'));
+                }
+            }
+
+            if ($request->query('tinh_trang') !== null) {
+                $query->where('hoa_dons.tinh_trang', $request->query('tinh_trang'));
+            }
+
+            if ($request->query('id_goi')) {
+                $query->where('hoa_dons.id_goi', $request->query('id_goi'));
+            }
+
+            if ($request->query('date_from')) {
+                $query->whereBetween('hoa_dons.created_at', [
+                    Carbon::parse($request->query('date_from'))->startOfDay(),
+                    Carbon::parse($request->query('date_to'))->endOfDay()
+                ]);
+            }
+
+            $data = $query->orderBy('hoa_dons.created_at', 'DESC')->get();
+
+            if ($data->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không có dữ liệu để xuất Excel'
+                ], 404);
+            }
+
+            $exportData = $data->map(function ($item) {
+                return [
+                    'ma_hoa_don' => $item->ma_hoa_don,
+                    'ho_va_ten' => $item->ho_va_ten,
+                    'email' => $item->email,
+                    'so_dien_thoai' => $item->so_dien_thoai,
+                    'ten_goi' => $item->ten_goi,
+                    'tong_tien' => number_format($item->tong_tien, 0, ',', '.') . ' VNĐ',
+                    'so_tien_da_thanh_toan' => number_format($item->so_tien_da_thanh_toan, 0, ',', '.') . ' VNĐ',
+                    'loai_thanh_toan' => $item->loai_thanh_toan ?: 'MB Bank',
+                    'tinh_trang' => $item->tinh_trang == 0 ? 'Chưa thanh toán' : 'Đã thanh toán',
+                    'ma_giao_dich' => $item->transactionNo ?: 'N/A',
+                    'created_at' => $item->created_at ? Carbon::parse($item->created_at)->format('Y-m-d H:i:s') : '',
+                    'ngay_bat_dau' => $item->ngay_bat_dau ? Carbon::parse($item->ngay_bat_dau)->format('Y-m-d') : '',
+                    'ngay_ket_thuc' => $item->ngay_ket_thuc ? Carbon::parse($item->ngay_ket_thuc)->format('Y-m-d') : ''
+                ];
+            })->toArray();
+
+            $timestamp = now()->format('Y-m-d-H-i-s');
+            $filename = "danh_sach_thanh_toan_{$timestamp}.xlsx";
+
+            return Excel::download(new HoaDonExport($exportData), $filename);
+
+        } catch (\Exception $e) {
+            Log::error('Excel export error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra khi xuất Excel: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

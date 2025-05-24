@@ -22,7 +22,7 @@ class LuotXemSeeder extends Seeder
 
         // Tạo lượt xem cho 30 ngày gần đây
         for ($i = 0; $i < 30; $i++) {
-            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $date = Carbon::now()->subDays(rand(0, 30))->format('Y-m-d');
 
             foreach ($phims as $phim) {
                 // Lấy danh sách tập của phim
@@ -40,7 +40,7 @@ class LuotXemSeeder extends Seeder
                             'id_tap_phim' => $tap->id,
                             'id_khach_hang' => $user->id,
                             'ngay_xem' => $date,
-                            'so_luot_xem' => rand(1, 5)
+                            'so_luot_xem' => rand(1, 5),
                         ]);
                     }
 

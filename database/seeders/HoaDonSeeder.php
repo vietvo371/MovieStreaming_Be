@@ -23,6 +23,7 @@ class HoaDonSeeder extends Seeder
                 'id_khach_hang' => 1,
                 'tong_tien' => 20000, // tien_sale from goi 1 thang
                 'so_tien_da_thanh_toan' => 20000,
+                'loai_thanh_toan' => 'vnpay', // Thanh toán qua VNPay
                 'tinh_trang' => 1, // Đã thanh toán
                 'ngay_bat_dau' => Carbon::now()->subDays(10),
                 'ngay_ket_thuc' => Carbon::now()->subDays(10)->addMonths(1),
@@ -35,6 +36,7 @@ class HoaDonSeeder extends Seeder
                 'id_khach_hang' => 2,
                 'tong_tien' => 60000, // tien_sale from goi 3 thang
                 'so_tien_da_thanh_toan' => 60000,
+                'loai_thanh_toan' => 'momo', // Thanh toán qua MoMo
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(8),
                 'ngay_ket_thuc' => Carbon::now()->subDays(8)->addMonths(3),
@@ -47,6 +49,7 @@ class HoaDonSeeder extends Seeder
                 'id_khach_hang' => 3,
                 'tong_tien' => 120000, // tien_sale from goi 6 thang
                 'so_tien_da_thanh_toan' => 120000,
+                'loai_thanh_toan' => null, // Chuyển khoản ngân hàng MB Bank (null được hiểu là mbbank)
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(5),
                 'ngay_ket_thuc' => Carbon::now()->subDays(5)->addMonths(6),
@@ -59,6 +62,7 @@ class HoaDonSeeder extends Seeder
                 'id_khach_hang' => 4,
                 'tong_tien' => 20000,
                 'so_tien_da_thanh_toan' => 20000,
+                'loai_thanh_toan' => 'vnpay', // Thanh toán qua VNPay
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(3),
                 'ngay_ket_thuc' => Carbon::now()->subDays(3)->addMonths(1),
@@ -66,23 +70,25 @@ class HoaDonSeeder extends Seeder
                 'updated_at' => Carbon::now()->subDays(3),
             ],
             [
-                'ma_hoa_don' => 'HD004',
-                'id_goi' => 1,
-                'id_khach_hang' => 4,
-                'tong_tien' => 20000,
-                'so_tien_da_thanh_toan' => 20000,
-                'tinh_trang' => 1,
+                'ma_hoa_don' => 'HD005', // Sửa mã hóa đơn trùng
+                'id_goi' => 2,
+                'id_khach_hang' => 5,
+                'tong_tien' => 60000,
+                'so_tien_da_thanh_toan' => 30000, // Thanh toán một phần
+                'loai_thanh_toan' => null, // Chuyển khoản ngân hàng chưa hoàn thành
+                'tinh_trang' => 0, // Chưa thanh toán đủ
                 'ngay_bat_dau' => Carbon::now()->subDays(4),
-                'ngay_ket_thuc' => Carbon::now()->subDays(4)->addMonths(1),
+                'ngay_ket_thuc' => Carbon::now()->subDays(4)->addMonths(3),
                 'created_at' => Carbon::now()->subDays(4),
                 'updated_at' => Carbon::now()->subDays(4),
             ],
             [
-                'ma_hoa_don' => 'HD005',
+                'ma_hoa_don' => 'HD006',
                 'id_goi' => 2,
-                'id_khach_hang' => 5,
+                'id_khach_hang' => 5, // Khách hàng 5 thanh toán lại sau khi thanh toán đủ
                 'tong_tien' => 60000,
                 'so_tien_da_thanh_toan' => 60000,
+                'loai_thanh_toan' => 'momo', // Thanh toán qua MoMo
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(3),
                 'ngay_ket_thuc' => Carbon::now()->subDays(3)->addMonths(3),
@@ -90,11 +96,12 @@ class HoaDonSeeder extends Seeder
                 'updated_at' => Carbon::now()->subDays(3),
             ],
             [
-                'ma_hoa_don' => 'HD006',
+                'ma_hoa_don' => 'HD007',
                 'id_goi' => 3,
                 'id_khach_hang' => 6,
                 'tong_tien' => 120000,
                 'so_tien_da_thanh_toan' => 120000,
+                'loai_thanh_toan' => 'vnpay', // Thanh toán qua VNPay
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(2),
                 'ngay_ket_thuc' => Carbon::now()->subDays(2)->addMonths(6),
@@ -102,11 +109,12 @@ class HoaDonSeeder extends Seeder
                 'updated_at' => Carbon::now()->subDays(2),
             ],
             [
-                'ma_hoa_don' => 'HD007',
+                'ma_hoa_don' => 'HD008',
                 'id_goi' => 1,
                 'id_khach_hang' => 7,
                 'tong_tien' => 20000,
                 'so_tien_da_thanh_toan' => 20000,
+                'loai_thanh_toan' => null, // Chuyển khoản ngân hàng MB Bank
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now()->subDays(1),
                 'ngay_ket_thuc' => Carbon::now()->subDays(1)->addMonths(1),
@@ -114,16 +122,30 @@ class HoaDonSeeder extends Seeder
                 'updated_at' => Carbon::now()->subDays(1),
             ],
             [
-                'ma_hoa_don' => 'HD008',
+                'ma_hoa_don' => 'HD009',
                 'id_goi' => 2,
                 'id_khach_hang' => 8,
                 'tong_tien' => 60000,
                 'so_tien_da_thanh_toan' => 60000,
+                'loai_thanh_toan' => 'momo', // Thanh toán qua MoMo
                 'tinh_trang' => 1,
                 'ngay_bat_dau' => Carbon::now(),
                 'ngay_ket_thuc' => Carbon::now()->addMonths(3),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+            ],
+            [
+                'ma_hoa_don' => 'HD010',
+                'id_goi' => 1,
+                'id_khach_hang' => 9,
+                'tong_tien' => 20000,
+                'so_tien_da_thanh_toan' => 0, // Chưa thanh toán
+                'loai_thanh_toan' => null,
+                'tinh_trang' => 0, // Chưa thanh toán
+                'ngay_bat_dau' => Carbon::now()->subHours(2),
+                'ngay_ket_thuc' => Carbon::now()->subHours(2)->addMonths(1),
+                'created_at' => Carbon::now()->subHours(2),
+                'updated_at' => Carbon::now()->subHours(2),
             ]
         ]);
     }
