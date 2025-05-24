@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\KhachHang;
+use App\Models\LuotPhim;
+use App\Models\Phim;
+use App\Models\TapPhim;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class LuotXemSeeder extends Seeder
 {
@@ -14,81 +16,39 @@ class LuotXemSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('luot_xems')->truncate();
+        // Lấy danh sách phim, tập phim và users để tạo dữ liệu
+        $phims = Phim::all();
+        $users = KhachHang::all();
 
-        $luotXems = [
-            [
-                'id_phim' => 1,
-                'id_tap_phim' => 1,
-                'ngay_xem' => Carbon::now()->subDays(10),
-                'so_luot_xem' => 100,
-                'id_khach_hang' => 1,
-            ],
-            [
-                'id_phim' => 2,
-                'id_tap_phim' => 2,
-                'ngay_xem' => Carbon::now()->subDays(9),
-                'so_luot_xem' => 150,
-                'id_khach_hang' => 2,
-            ],
-            [
-                'id_phim' => 3,
-                'id_tap_phim' => 3,
-                'ngay_xem' => Carbon::now()->subDays(8),
-                'so_luot_xem' => 200,
-                'id_khach_hang' => 3,
-            ],
-            [
-                'id_phim' => 4,
-                'id_tap_phim' => 1,
-                'ngay_xem' => Carbon::now()->subDays(7),
-                'so_luot_xem' => 50,
-                'id_khach_hang' => 4,
-            ],
-            [
-                'id_phim' => 5,
-                'id_tap_phim' => 2,
-                'ngay_xem' => Carbon::now()->subDays(6),
-                'so_luot_xem' => 120,
-                'id_khach_hang' => 5,
-            ],
-            [
-                'id_phim' => 1,
-                'id_tap_phim' => 3,
-                'ngay_xem' => Carbon::now()->subDays(5),
-                'so_luot_xem' => 300,
-                'id_khach_hang' => 6,
-            ],
-            [
-                'id_phim' => 2,
-                'id_tap_phim' => 1,
-                'ngay_xem' => Carbon::now()->subDays(4),
-                'so_luot_xem' => 180,
-                'id_khach_hang' => 7,
-            ],
-            [
-                'id_phim' => 3,
-                'id_tap_phim' => 2,
-                'ngay_xem' => Carbon::now()->subDays(3),
-                'so_luot_xem' => 90,
-                'id_khach_hang' => 8,
-            ],
-            [
-                'id_phim' => 4,
-                'id_tap_phim' => 3,
-                'ngay_xem' => Carbon::now()->subDays(2),
-                'so_luot_xem' => 110,
-                'id_khach_hang' => 9,
-            ],
-            [
-                'id_phim' => 5,
-                'id_tap_phim' => 1,
-                'ngay_xem' => Carbon::now()->subDays(1),
-                'so_luot_xem' => 250,
-                'id_khach_hang' => 10,
-            ],
-        ];
+        // Tạo lượt xem cho 30 ngày gần đây
+        for ($i = 0; $i < 30; $i++) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
 
-        DB::table('luot_xems')->insert($luotXems);
+            foreach ($phims as $phim) {
+                // Lấy danh sách tập của phim
+                $tapPhims = TapPhim::where('id_phim', $phim->id)->get();
+
+                foreach ($tapPhims as $tap) {
+                    // Random số lượng user xem tập này trong ngày (1-20 users)
+                    $viewersCount = rand(1, 10);
+                    $randomUsers = $users->random($viewersCount);
+
+                    foreach ($randomUsers as $user) {
+                        // Tạo lượt xem với số lượt xem ngẫu nhiên (1-5 lần/ngày/user)
+                        LuotPhim::create([
+                            'id_phim' => $phim->id,
+                            'id_tap_phim' => $tap->id,
+                            'id_khach_hang' => $user->id,
+                            'ngay_xem' => $date,
+                            'so_luot_xem' => rand(1, 5)
+                        ]);
+                    }
+
+                    // Cập nhật tổng lượt xem cho phim
+                    $totalViews = LuotPhim::where('id_phim', $phim->id)->sum('so_luot_xem');
+                    $phim->update(['tong_luot_xem' => $totalViews]);
+                }
+            }
+        }
     }
 }
