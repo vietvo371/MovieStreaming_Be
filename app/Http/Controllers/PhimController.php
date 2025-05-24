@@ -1478,7 +1478,7 @@ class PhimController extends Controller
                 ], 401);
             }
 
-            // Sử dụng subquery để lấy lần xem gần nhất của mỗi phim
+            // Sử dụng subquery để lấy lần xem gần nhất của mỗi phim và tổng số lượt xem
             $lichSuXem = DB::table('luot_xems')
                 ->join('phims', 'luot_xems.id_phim', '=', 'phims.id')
                 ->where('luot_xems.id_khach_hang', $user->id)
@@ -1487,16 +1487,11 @@ class PhimController extends Controller
                     'phims.ten_phim as tenPhim',
                     'phims.slug_phim as slug',
                     'phims.hinh_anh as poster',
-                    'luot_xems.so_luot_xem as thoiLuongXem',
-                    'luot_xems.created_at as ngayXem'
+                    DB::raw('SUM(luot_xems.so_luot_xem) as thoiLuongXem'),
+                    DB::raw('MAX(luot_xems.created_at) as ngayXem')
                 )
-                ->whereIn('luot_xems.created_at', function ($query) use ($user) {
-                    $query->select(DB::raw('MAX(created_at)'))
-                        ->from('luot_xems')
-                        ->where('id_khach_hang', $user->id)
-                        ->groupBy('id_phim');
-                })
-                ->orderBy('luot_xems.created_at', 'desc')
+                ->groupBy('phims.id', 'phims.ten_phim', 'phims.slug_phim', 'phims.hinh_anh')
+                ->orderBy('ngayXem', 'desc')
                 ->get();
 
             return response()->json([

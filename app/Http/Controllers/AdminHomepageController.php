@@ -71,11 +71,11 @@ class AdminHomepageController extends Controller
     }
     public function getDataThongkeLuotXem($begin, $end) // Thống kê lượt xem theo ngày
     {
-        $data = LuotPhim::whereDate('updated_at', '>=', $begin)
-            ->whereDate('updated_at', '<=', $end)
+        $data = LuotPhim::whereDate('ngay_xem', '>=', $begin)
+            ->whereDate('ngay_xem', '<=', $end)
             ->select(
                 DB::raw("COUNT(id) as total"), // Đếm số lượt xem
-                DB::raw("DATE_FORMAT(updated_at, '%d/%m/%Y') as lable")
+                DB::raw("DATE_FORMAT(ngay_xem, '%d/%m/%Y') as lable")
             )
             ->groupBy('lable')
             ->orderBy(DB::raw("STR_TO_DATE(lable, '%d/%m/%Y')"), 'asc')

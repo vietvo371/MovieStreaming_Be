@@ -131,28 +131,31 @@ class ThongKeController extends Controller
         $denNgay = Carbon::parse($request->den_ngay)->endOfDay();
 
         $query = DB::table('phims')
+            ->join('luot_xems', 'phims.id', '=', 'luot_xems.id_phim')
             ->select(
-                DB::raw('DATE(updated_at) as ngay'),
-                DB::raw('SUM(tong_luot_xem) as total_views')
+                DB::raw('DATE(luot_xems.ngay_xem) as ngay'),
+                DB::raw('SUM(luot_xems.so_luot_xem) as total_views')
             )
-            ->whereBetween('updated_at', [$tuNgay, $denNgay])
+            ->whereBetween('luot_xems.ngay_xem', [$tuNgay, $denNgay])
             ->groupBy('ngay');
 
         if ($kieuThongKe == 'thang') {
             $query = DB::table('phims')
+                ->join('luot_xems', 'phims.id', '=', 'luot_xems.id_phim')
                 ->select(
-                    DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as thang'),
-                    DB::raw('SUM(tong_luot_xem) as total_views')
+                    DB::raw('DATE_FORMAT(luot_xems.ngay_xem, "%Y-%m") as thang'),
+                    DB::raw('SUM(luot_xems.so_luot_xem) as total_views')
                 )
-                ->whereBetween('updated_at', [$tuNgay, $denNgay])
+                ->whereBetween('luot_xems.ngay_xem', [$tuNgay, $denNgay])
                 ->groupBy('thang');
         } else if ($kieuThongKe == 'nam') {
             $query = DB::table('phims')
+                ->join('luot_xems', 'phims.id', '=', 'luot_xems.id_phim')
                 ->select(
-                    DB::raw('YEAR(updated_at) as nam'),
-                    DB::raw('SUM(tong_luot_xem) as total_views')
+                    DB::raw('YEAR(luot_xems.ngay_xem) as nam'),
+                    DB::raw('SUM(luot_xems.so_luot_xem) as total_views')
                 )
-                ->whereBetween('updated_at', [$tuNgay, $denNgay])
+                ->whereBetween('luot_xems.ngay_xem', [$tuNgay, $denNgay])
                 ->groupBy('nam');
         }
 
