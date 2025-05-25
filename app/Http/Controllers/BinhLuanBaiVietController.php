@@ -28,8 +28,9 @@ class BinhLuanBaiVietController extends Controller
     {
         try {
             $user = Auth::guard('sanctum')->user();
+            $filteredContent = $this->filterBadWords($request->noi_dung);
             BinhLuanBaiViet::create([
-                'noi_dung'              => $request->noi_dung,
+                'noi_dung'              => $filteredContent,
                 'id_bai_viet'           => $request->id_bai_viet,
                 'id_khach_hang'         => $user->id,
             ]);
@@ -55,7 +56,7 @@ class BinhLuanBaiVietController extends Controller
                     'id_bai_viet' => $request->id_bai_viet
                 ],
                 [
-                    'noi_dung' => $request->noi_dung,
+                    'noi_dung' => $this->filterBadWords($request->noi_dung),
                 ]
             );
             return response()->json([

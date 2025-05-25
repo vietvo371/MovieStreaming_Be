@@ -89,6 +89,7 @@ Route::group(['prefix'  =>  '/admin', 'middleware' => 'adminAnime'], function ()
     Route::get('/dashboard', [AdminHomepageController::class, 'getDashboard']);
     Route::get('/dashboard/thong-ke-doanh-thu/{begin}/{end}', [AdminHomepageController::class, 'getDataThongkeDoanhThu']);
     Route::get('/dashboard/thong-ke-luot-xem/{begin}/{end}', [AdminHomepageController::class, 'getDataThongkeLuotXem']);
+    Route::get('/dashboard/phim-xem-nhieu/{begin}/{end}', [AdminHomepageController::class, 'getDataThongkePhimXemNhieu']);
     //quản lý admin
     Route::group(['prefix'  =>  '/admin'], function () {
         //  Tài Khoản Admin

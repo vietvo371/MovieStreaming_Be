@@ -33,6 +33,7 @@ class ActionsTableSeeder extends Seeder
             ['ten_chuc_nang' => 'Quản lý Leech Phim'],
             ['ten_chuc_nang' => 'Quản lý SLide'],
             ['ten_chuc_nang' => 'Quản lý Thanh Toán'],
+            ['ten_chuc_nang' => 'Dashboard'],
         ];
         DB::table('actions')->insert($actions);
     }

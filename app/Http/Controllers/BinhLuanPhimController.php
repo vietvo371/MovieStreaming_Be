@@ -40,12 +40,17 @@ class BinhLuanPhimController extends Controller
     }
 
 
+
     public function taoBinhLuanPhim(CreateDanhGiaPhimRequest $request)
     {
         try {
             $user = Auth::guard('sanctum')->user();
+
+            // Lọc nội dung bình luận
+            $filteredContent = $this->filterBadWords($request->noi_dung);
+
             BinhLuanPhim::create([
-                'noi_dung'              => $request->noi_dung,
+                'noi_dung'              => $filteredContent,
                 'id_phim'               => $request->id_phim,
                 'id_khach_hang'         => $user->id,
                 'so_sao'                => $request->so_sao,
@@ -72,7 +77,7 @@ class BinhLuanPhimController extends Controller
                     'id_phim' => $request->id_phim
                 ],
                 [
-                    'noi_dung' => $request->noi_dung,
+                    'noi_dung' => $this->filterBadWords($request->noi_dung),
                     'so_sao' => $request->so_sao
                 ]
             );

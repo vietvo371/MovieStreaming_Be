@@ -34,8 +34,9 @@ class BinhLuanTapPhimControllerr extends Controller
     {
         try {
             $user = Auth::guard('sanctum')->user();
+            $filteredContent = $this->filterBadWords($request->noi_dung);
             BinhLuatTapPhim::create([
-                'noi_dung'              => $request->noi_dung,
+                'noi_dung'              => $filteredContent,
                 'id_tap_phim'           => $request->id_tap_phim,
                 'id_khach_hang'         => $user->id,
             ]);
@@ -61,7 +62,7 @@ class BinhLuanTapPhimControllerr extends Controller
                     'id_tap_phim' => $request->id_tap_phim
                 ],
                 [
-                    'noi_dung' => $request->noi_dung,
+                    'noi_dung' => $this->filterBadWords($request->noi_dung),
                 ]
             );
             return response()->json([

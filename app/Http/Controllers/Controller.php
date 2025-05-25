@@ -76,4 +76,22 @@ class Controller extends BaseController
 
         return false;
     }
+    public function filterBadWords($content)
+    {
+        $badWords = [
+            'đụ', 'địt', 'lồn', 'cặc', 'ku', 'đéo', 'đít', 'đậu má',
+            'đm', 'đmm', 'dmm', 'đcm', 'dcm', 'vcl', 'vl', 'cc', 'cl', 'cđ',
+            'đb', 'đụ má', 'con cặc', 'con mẹ', 'tiên sư', 'má mày', 'mẹ mày','máu',
+            'fuck', 'shit', 'bitch', 'dick', 'pussy', 'asshole'
+        ];
+
+        $content = mb_strtolower($content, 'UTF-8');
+
+        foreach ($badWords as $word) {
+            $stars = str_repeat('*', mb_strlen($word, 'UTF-8'));
+            $content = str_ireplace($word, $stars, $content);
+        }
+
+        return $content;
+    }
 }
